@@ -1,5 +1,13 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
+export class ApiError extends Error {
+  constructor(message, status) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
@@ -11,7 +19,10 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     const message = await response.text()
-    throw new Error(message || `Request failed with ${response.status}`)
+    throw new ApiError(
+      message || `Request failed with ${response.status}`,
+      response.status
+    )
   }
 
   if (response.status === 204) {

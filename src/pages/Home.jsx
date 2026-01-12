@@ -4,7 +4,7 @@ import Button from '../components/Button/Button.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Input from '../components/Input/Input.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
-import { api } from '../lib/api.js'
+import { submitPublicScan } from '../services/publicScans.js'
 
 const urlPattern = /^https?:\/\/.+/i
 
@@ -21,7 +21,7 @@ function Home() {
 
   const onSubmit = async (values) => {
     try {
-      const result = await api.post('/api/public/scans', values)
+      const result = await submitPublicScan(values)
       if (!result?.publicId) {
         throw new Error('Missing publicId in response.')
       }

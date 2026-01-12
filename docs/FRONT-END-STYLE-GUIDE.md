@@ -1,4 +1,4 @@
-# FRONT-END-STYLE-GUIDE.md - HFRE Signal Scan (Free Taster)
+﻿# FRONT-END-STYLE-GUIDE.md - HFRE Signal Scan (Free Taster)
 
 ## 1. Purpose
 

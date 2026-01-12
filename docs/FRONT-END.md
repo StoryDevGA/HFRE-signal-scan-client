@@ -1,11 +1,11 @@
-# FRONT-END.md É?î HFRE Signal Scan (Free Taster)
+Ôªø# FRONT-END.md –Ø?" HFRE Signal Scan (Free Taster)
 
 ## 1. Purpose
 
-Provide a simple public web experience where a visitor completes a Company Signal Scan form, submits it, views a formatted É?ocustomer-safeÉ?? report, and receives an emailed copy.  
+Provide a simple public web experience where a visitor completes a Company Signal Scan form, submits it, views a formatted –Ø?ocustomer-safe–Ø?? report, and receives an emailed copy.  
 Provide a restricted Admin Dashboard (max 3 admin users) to view submissions, manage prompts, delete user data, and review basic analytics.
 
-The agent flow to be mirrored is **Start (form input) É≈' Signal Scan LLM Agent É≈' JSON result**, as defined in the provided AgentFlow JSON. å^?fileciteå^'turn4file4å^?
+The agent flow to be mirrored is **Start (form input) –Ø–ü' Signal Scan LLM Agent –Ø–ü' JSON result**, as defined in the provided AgentFlow JSON. O^?fileciteO^'turn4file4O^?
 
 ---
 
@@ -24,26 +24,26 @@ The agent flow to be mirrored is **Start (form input) É≈' Signal Scan LLM Agent 
 
 ### 3.1 Public routes
 
-#### `/` É?î Company Signal Scan Form
-Form fields must match the agent flow inputs: å^?fileciteå^'turn4file9å^?
-- Contact Name (`name`) É?î string
-- Email (`email`) É?î string (validate email format)
-- Company Name (`company_name`) É?î string
-- Website (`homepage_url`) É?î string (validate URL format)
-- Product or Solution (`product_name`) É?î string
-- Product or Solution page (`product_page_url`) É?î string (validate URL format)
+#### `/` –Ø?" Company Signal Scan Form
+Form fields must match the agent flow inputs: O^?fileciteO^'turn4file9O^?
+- Contact Name (`name`) –Ø?" string
+- Email (`email`) –Ø?" string (validate email format)
+- Company Name (`company_name`) –Ø?" string
+- Website (`homepage_url`) –Ø?" string (validate URL format)
+- Product or Solution (`product_name`) –Ø?" string
+- Product or Solution page (`product_page_url`) –Ø?" string (validate URL format)
 
 Form behaviours:
 - Client-side validation with clear inline messages.
 - Submit button disabled while submitting.
-- On success, route to `/results/:publicId` and show success toast/banner (É?oReport generatedÉ??).
+- On success, route to `/results/:publicId` and show success toast/banner (–Ø?oReport generated–Ø??).
 - On failure, show error state with retry.
 
-#### `/results/:publicId` É?î Customer Report Viewer
+#### `/results/:publicId` –Ø?" Customer Report Viewer
 Primary purpose:
 - Render the **customer_report** in a readable way (headings, spacing, typography).
 - Do **not** render internal_report on public routes.
-- Provide É?oDownloadÉ?? (optional) and É?oEmail me a copyÉ?? status indicator.
+- Provide –Ø?oDownload–Ø?? (optional) and –Ø?oEmail me a copy–Ø?? status indicator.
 
 Data loading:
 - GET `GET /api/public/results/:publicId` (public, tokenized/unguessable publicId).
@@ -54,16 +54,16 @@ Data loading:
   - Timestamp
 
 Formatting rules:
-- Section headings in `customer_report` must be rendered plainly without É?oSTEPÉ??/step numbers, consistent with the prompt constraints. å^?fileciteå^'turn4file14å^?
+- Section headings in `customer_report` must be rendered plainly without –Ø?oSTEP–Ø??/step numbers, consistent with the prompt constraints. O^?fileciteO^'turn4file14O^?
 
 Empty / invalid:
-- If publicId invalid or expired: show a friendly É?oReport not foundÉ?? page.
+- If publicId invalid or expired: show a friendly –Ø?oReport not found–Ø?? page.
 
 ---
 
 ### 3.2 Admin routes
 
-#### `/admin/login` É?î Admin Login
+#### `/admin/login` –Ø?" Admin Login
 Requirements:
 - Admin access limited to **max 3 unique emails**.
 - Uses a **fixed hard-coded password** (stored encrypted/hashed on server).
@@ -75,16 +75,16 @@ Requirements:
 
 Session approach:
 - Use secure httpOnly cookie session or JWT in httpOnly cookie (preferred).
-- No É?oremember meÉ?? required.
+- No –Ø?oremember me–Ø?? required.
 
-#### `/admin` É?î Dashboard (shell layout)
+#### `/admin` –Ø?" Dashboard (shell layout)
 Navigation (minimum):
 - Submissions
 - Prompts
 - Users / Data deletion
 - Analytics
 
-#### `/admin/submissions` É?î Submissions List
+#### `/admin/submissions` –Ø?" Submissions List
 Capabilities:
 - Paginated table/list of submissions (latest first)
 - Search by company name and/or email
@@ -97,9 +97,9 @@ Columns:
 - Status: `pending | complete | failed`
 - Confidence level (if complete)
 
-Row click É≈' `/admin/submissions/:id`
+Row click –Ø–ü' `/admin/submissions/:id`
 
-#### `/admin/submissions/:id` É?î Submission Detail
+#### `/admin/submissions/:id` –Ø?" Submission Detail
 Must display:
 - Full user input (all form fields)
 - Full outcomes:
@@ -107,15 +107,15 @@ Must display:
   - internal_report (admin only)
   - metadata
 - Delivery status:
-  - É?oCustomer email sentÉ?? / É?oOwner notification email sentÉ?? timestamps
+  - –Ø?oCustomer email sent–Ø?? / –Ø?oOwner notification email sent–Ø?? timestamps
   - Error info (if failed)
 
 Actions:
 - Delete this submission
-- Delete this userÉ?Ts data (bulk delete by email) (confirm modal)
+- Delete this user–Ø?Ts data (bulk delete by email) (confirm modal)
 - Re-send customer email (optional, controlled)
 
-#### `/admin/prompts` É?î Prompt Manager (CRUD)
+#### `/admin/prompts` –Ø?" Prompt Manager (CRUD)
 Prompts to manage:
 - **System prompts**
 - **User prompts**
@@ -124,17 +124,17 @@ Requirements:
 - Add/Edit/Delete prompts.
 - Support versioning minimally:
   - `name`, `type` (system|user), `content`, `active` boolean, timestamps.
-- É?oActive promptÉ?? selection:
+- –Ø?oActive prompt–Ø?? selection:
   - Only one active system prompt and one active user prompt at a time (recommended).
   - Changes affect subsequent scans only (no retroactive rewrite).
 
-#### `/admin/users` É?î User Data Deletion
+#### `/admin/users` –Ø?" User Data Deletion
 Minimum:
 - Search by email
 - Show user summary: number of submissions, first/last submission date
 - Action: delete user + all associated submissions + analytics records (confirm modal)
 
-#### `/admin/analytics` É?î Basic Analytics
+#### `/admin/analytics` –Ø?" Basic Analytics
 Display analytics captured per submission (minimum):
 - IP address
 - User agent string (browser)
@@ -146,10 +146,10 @@ Display analytics captured per submission (minimum):
 Views:
 - Aggregated dashboard:
   - Total submissions (last 7/30 days)
-  - Conversion: form submit É≈' report generated
+  - Conversion: form submit –Ø–ü' report generated
   - Top browsers/devices (basic grouping)
 - Drill-down:
-  - Click submission É≈' see analytics record
+  - Click submission –Ø–ü' see analytics record
 
 ---
 
@@ -208,8 +208,8 @@ Admin detail payload additionally includes `internal_report` and operational met
 ## 6. API Client Contract (Frontend Expectations)
 
 Public:
-- `POST /api/public/scans` É≈' returns `{ publicId }`
-- `GET /api/public/results/:publicId` É≈' returns public result model
+- `POST /api/public/scans` –Ø–ü' returns `{ publicId }`
+- `GET /api/public/results/:publicId` –Ø–ü' returns public result model
 
 Admin:
 - `POST /api/admin/auth/login`
@@ -234,14 +234,14 @@ Admin:
 - Security: do not expose internal_report on public endpoints or UI.
 - Privacy:
   - Show an explicit note that IP/browser telemetry is captured for service improvement.
-  - Provide basic É?oDelete my dataÉ?? request path (could be email-based in v1).
+  - Provide basic –Ø?oDelete my data–Ø?? request path (could be email-based in v1).
 
 ---
 
 ## 8. Acceptance Checklist (Frontend)
 
-- Public form fields match the agent flow and validate correctly. å^?fileciteå^'turn4file9å^?
+- Public form fields match the agent flow and validate correctly. O^?fileciteO^'turn4file9O^?
 - Submission triggers generation and routes to results page.
-- Results page displays only customer-safe report. å^?fileciteå^'turn4file14å^?
+- Results page displays only customer-safe report. O^?fileciteO^'turn4file14O^?
 - Admin login gates all /admin routes; only 3 allowed emails can login.
 - Admin dashboard supports: view submissions + outcomes, manage prompts, delete user data, view analytics.

@@ -1,4 +1,4 @@
-# Frontend Implementation Plan (HFRE Signal Scan)
+﻿# Frontend Implementation Plan (HFRE Signal Scan)
 
 1) Project setup and core tooling
 - Confirm React (Vite) setup, routing, and API client utility (fetch/axios).

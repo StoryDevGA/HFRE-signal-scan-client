@@ -1,11 +1,11 @@
-# FRONT-END.md â€” HFRE Signal Scan (Free Taster)
+# FRONT-END.md ƒ?” HFRE Signal Scan (Free Taster)
 
 ## 1. Purpose
 
-Provide a simple public web experience where a visitor completes a Company Signal Scan form, submits it, views a formatted â€œcustomer-safeâ€ report, and receives an emailed copy.  
+Provide a simple public web experience where a visitor completes a Company Signal Scan form, submits it, views a formatted ƒ?ocustomer-safeƒ?? report, and receives an emailed copy.  
 Provide a restricted Admin Dashboard (max 3 admin users) to view submissions, manage prompts, delete user data, and review basic analytics.
 
-The agent flow to be mirrored is **Start (form input) â†’ Signal Scan LLM Agent â†’ JSON result**, as defined in the provided AgentFlow JSON. îˆ€fileciteîˆ‚turn4file4îˆ
+The agent flow to be mirrored is **Start (form input) ƒÅ' Signal Scan LLM Agent ƒÅ' JSON result**, as defined in the provided AgentFlow JSON. Œ^?fileciteŒ^'turn4file4Œ^?
 
 ---
 
@@ -24,26 +24,26 @@ The agent flow to be mirrored is **Start (form input) â†’ Signal Scan LLM Agent 
 
 ### 3.1 Public routes
 
-#### `/` â€” Company Signal Scan Form
-Form fields must match the agent flow inputs: îˆ€fileciteîˆ‚turn4file9îˆ
-- Contact Name (`name`) â€” string
-- Email (`email`) â€” string (validate email format)
-- Company Name (`company_name`) â€” string
-- Website (`homepage_url`) â€” string (validate URL format)
-- Product or Solution (`product_name`) â€” string
-- Product or Solution page (`product_page_url`) â€” string (validate URL format)
+#### `/` ƒ?” Company Signal Scan Form
+Form fields must match the agent flow inputs: Œ^?fileciteŒ^'turn4file9Œ^?
+- Contact Name (`name`) ƒ?” string
+- Email (`email`) ƒ?” string (validate email format)
+- Company Name (`company_name`) ƒ?” string
+- Website (`homepage_url`) ƒ?” string (validate URL format)
+- Product or Solution (`product_name`) ƒ?” string
+- Product or Solution page (`product_page_url`) ƒ?” string (validate URL format)
 
 Form behaviours:
 - Client-side validation with clear inline messages.
 - Submit button disabled while submitting.
-- On success, route to `/results/:publicId` and show success toast/banner (â€œReport generatedâ€).
+- On success, route to `/results/:publicId` and show success toast/banner (ƒ?oReport generatedƒ??).
 - On failure, show error state with retry.
 
-#### `/results/:publicId` â€” Customer Report Viewer
+#### `/results/:publicId` ƒ?” Customer Report Viewer
 Primary purpose:
 - Render the **customer_report** in a readable way (headings, spacing, typography).
 - Do **not** render internal_report on public routes.
-- Provide â€œDownloadâ€ (optional) and â€œEmail me a copyâ€ status indicator.
+- Provide ƒ?oDownloadƒ?? (optional) and ƒ?oEmail me a copyƒ?? status indicator.
 
 Data loading:
 - GET `GET /api/public/results/:publicId` (public, tokenized/unguessable publicId).
@@ -54,16 +54,16 @@ Data loading:
   - Timestamp
 
 Formatting rules:
-- Section headings in `customer_report` must be rendered plainly without â€œSTEPâ€/step numbers, consistent with the prompt constraints. îˆ€fileciteîˆ‚turn4file14îˆ
+- Section headings in `customer_report` must be rendered plainly without ƒ?oSTEPƒ??/step numbers, consistent with the prompt constraints. Œ^?fileciteŒ^'turn4file14Œ^?
 
 Empty / invalid:
-- If publicId invalid or expired: show a friendly â€œReport not foundâ€ page.
+- If publicId invalid or expired: show a friendly ƒ?oReport not foundƒ?? page.
 
 ---
 
 ### 3.2 Admin routes
 
-#### `/admin/login` â€” Admin Login
+#### `/admin/login` ƒ?” Admin Login
 Requirements:
 - Admin access limited to **max 3 unique emails**.
 - Uses a **fixed hard-coded password** (stored encrypted/hashed on server).
@@ -75,16 +75,16 @@ Requirements:
 
 Session approach:
 - Use secure httpOnly cookie session or JWT in httpOnly cookie (preferred).
-- No â€œremember meâ€ required.
+- No ƒ?oremember meƒ?? required.
 
-#### `/admin` â€” Dashboard (shell layout)
+#### `/admin` ƒ?” Dashboard (shell layout)
 Navigation (minimum):
 - Submissions
 - Prompts
 - Users / Data deletion
 - Analytics
 
-#### `/admin/submissions` â€” Submissions List
+#### `/admin/submissions` ƒ?” Submissions List
 Capabilities:
 - Paginated table/list of submissions (latest first)
 - Search by company name and/or email
@@ -97,9 +97,9 @@ Columns:
 - Status: `pending | complete | failed`
 - Confidence level (if complete)
 
-Row click â†’ `/admin/submissions/:id`
+Row click ƒÅ' `/admin/submissions/:id`
 
-#### `/admin/submissions/:id` â€” Submission Detail
+#### `/admin/submissions/:id` ƒ?” Submission Detail
 Must display:
 - Full user input (all form fields)
 - Full outcomes:
@@ -107,15 +107,15 @@ Must display:
   - internal_report (admin only)
   - metadata
 - Delivery status:
-  - â€œCustomer email sentâ€ / â€œOwner notification email sentâ€ timestamps
+  - ƒ?oCustomer email sentƒ?? / ƒ?oOwner notification email sentƒ?? timestamps
   - Error info (if failed)
 
 Actions:
 - Delete this submission
-- Delete this userâ€™s data (bulk delete by email) (confirm modal)
+- Delete this userƒ?Ts data (bulk delete by email) (confirm modal)
 - Re-send customer email (optional, controlled)
 
-#### `/admin/prompts` â€” Prompt Manager (CRUD)
+#### `/admin/prompts` ƒ?” Prompt Manager (CRUD)
 Prompts to manage:
 - **System prompts**
 - **User prompts**
@@ -124,17 +124,17 @@ Requirements:
 - Add/Edit/Delete prompts.
 - Support versioning minimally:
   - `name`, `type` (system|user), `content`, `active` boolean, timestamps.
-- â€œActive promptâ€ selection:
+- ƒ?oActive promptƒ?? selection:
   - Only one active system prompt and one active user prompt at a time (recommended).
   - Changes affect subsequent scans only (no retroactive rewrite).
 
-#### `/admin/users` â€” User Data Deletion
+#### `/admin/users` ƒ?” User Data Deletion
 Minimum:
 - Search by email
 - Show user summary: number of submissions, first/last submission date
 - Action: delete user + all associated submissions + analytics records (confirm modal)
 
-#### `/admin/analytics` â€” Basic Analytics
+#### `/admin/analytics` ƒ?” Basic Analytics
 Display analytics captured per submission (minimum):
 - IP address
 - User agent string (browser)
@@ -146,14 +146,14 @@ Display analytics captured per submission (minimum):
 Views:
 - Aggregated dashboard:
   - Total submissions (last 7/30 days)
-  - Conversion: form submit â†’ report generated
+  - Conversion: form submit ƒÅ' report generated
   - Top browsers/devices (basic grouping)
 - Drill-down:
-  - Click submission â†’ see analytics record
+  - Click submission ƒÅ' see analytics record
 
 ---
 
-## 4. UI Components and Patterns
+\#\#\ 4\.\ UI\ Components\ and\ Patterns\r\n\r\nReference:\ client/docs/docs/FRONT-END-STYLE-GUIDE\.md\ defines\ the\ full\ design\ system,\ component\ catalog,\ theming,\ and\ asset\ usage\.
 
 ### 4.1 Shared components
 - `PageLayout` (header/footer)
@@ -208,8 +208,8 @@ Admin detail payload additionally includes `internal_report` and operational met
 ## 6. API Client Contract (Frontend Expectations)
 
 Public:
-- `POST /api/public/scans` â†’ returns `{ publicId }`
-- `GET /api/public/results/:publicId` â†’ returns public result model
+- `POST /api/public/scans` ƒÅ' returns `{ publicId }`
+- `GET /api/public/results/:publicId` ƒÅ' returns public result model
 
 Admin:
 - `POST /api/admin/auth/login`
@@ -234,14 +234,14 @@ Admin:
 - Security: do not expose internal_report on public endpoints or UI.
 - Privacy:
   - Show an explicit note that IP/browser telemetry is captured for service improvement.
-  - Provide basic â€œDelete my dataâ€ request path (could be email-based in v1).
+  - Provide basic ƒ?oDelete my dataƒ?? request path (could be email-based in v1).
 
 ---
 
 ## 8. Acceptance Checklist (Frontend)
 
-- Public form fields match the agent flow and validate correctly. îˆ€fileciteîˆ‚turn4file9îˆ
+- Public form fields match the agent flow and validate correctly. Œ^?fileciteŒ^'turn4file9Œ^?
 - Submission triggers generation and routes to results page.
-- Results page displays only customer-safe report. îˆ€fileciteîˆ‚turn4file14îˆ
+- Results page displays only customer-safe report. Œ^?fileciteŒ^'turn4file14Œ^?
 - Admin login gates all /admin routes; only 3 allowed emails can login.
 - Admin dashboard supports: view submissions + outcomes, manage prompts, delete user data, view analytics.

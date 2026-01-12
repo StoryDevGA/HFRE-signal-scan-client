@@ -1,8 +1,8 @@
 ﻿# Frontend Task List (HFRE Signal Scan)
 
 1) Verify React (Vite) setup, router configuration, and API client utility. (done)
-2) Build shared UI primitives (Button, Alert, Spinner, FormField, ConfirmModal).
-3) Implement public scan form page (fields, validation, submit, loading/error states).
+2) Build shared UI primitives (Button, Alert, Spinner, FormField, ConfirmModal). (done)
+3) Implement public scan form page (fields, validation, submit, loading/error states). (done)
 4) Implement results page with publicId fetch and customer_report rendering.
 5) Add not-found/expired report view.
 6) Build admin login page with error handling.

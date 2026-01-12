@@ -1,0 +1,52 @@
+/**
+ * Design System Entry Point
+ *
+ * Purpose: Single import for all global styles
+ * Order matters: reset → variables → base styles
+ */
+
+/* 1. Reset browser defaults */
+@import './reset.css';
+
+/* 2. Design tokens (CSS custom properties) */
+@import './variables.css';
+
+/* 3. Theme system (color schemes) */
+@import './themes.css';
+
+/* 4. Brand themes (multi-tenant color schemes) */
+@import './brands/index.css';
+
+/* 5. Responsive utilities (mobile-first) */
+@import './responsive.css';
+
+/* 5. Global base styles */
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.125rem 0.25rem;
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border-radius: var(--border-radius-sm);
+}
+
+/* Utility class for screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

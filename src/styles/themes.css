@@ -39,6 +39,12 @@
   --color-action-secondary: var(--color-gray-200);
   --color-action-secondary-hover: var(--color-gray-300);
   --color-action-secondary-active: var(--color-gray-400);
+
+  /* Component aliases */
+  --color-text: var(--color-text-primary);
+  --color-primary: var(--color-action-primary);
+  --color-danger: var(--color-error);
+  --transition-normal: var(--transition-base);
 }
 
 /* ===========================

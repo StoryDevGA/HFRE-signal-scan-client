@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import Alert from '../components/Alert.jsx'
 import Button from '../components/Button.jsx'
-import FormField from '../components/FormField.jsx'
+import Input from '../components/Input/Input.jsx'
 import { api } from '../lib/api.js'
 
 const urlPattern = /^https?:\/\/.+/i
@@ -48,117 +48,90 @@ function Home() {
       ) : null}
 
       <form className="form" onSubmit={handleSubmit(onSubmit)}>
-        <FormField
+        <Input
           id="name"
           label="Contact name"
+          placeholder="Jane Doe"
           error={errors.name?.message}
-        >
-          <input
-            id="name"
-            className="input"
-            type="text"
-            placeholder="Jane Doe"
-            aria-invalid={Boolean(errors.name)}
-            {...register('name', { required: 'Name is required.' })}
-          />
-        </FormField>
+          required
+          fullWidth
+          {...register('name', { required: 'Name is required.' })}
+        />
 
-        <FormField
+        <Input
           id="email"
+          type="email"
           label="Email"
+          placeholder="jane@company.com"
           error={errors.email?.message}
-        >
-          <input
-            id="email"
-            className="input"
-            type="email"
-            placeholder="jane@company.com"
-            aria-invalid={Boolean(errors.email)}
-            {...register('email', {
-              required: 'Email is required.',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Enter a valid email address.',
-              },
-            })}
-          />
-        </FormField>
+          required
+          fullWidth
+          {...register('email', {
+            required: 'Email is required.',
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'Enter a valid email address.',
+            },
+          })}
+        />
 
-        <FormField
+        <Input
           id="company_name"
           label="Company name"
+          placeholder="Company Inc."
           error={errors.company_name?.message}
-        >
-          <input
-            id="company_name"
-            className="input"
-            type="text"
-            placeholder="Company Inc."
-            aria-invalid={Boolean(errors.company_name)}
-            {...register('company_name', {
-              required: 'Company name is required.',
-            })}
-          />
-        </FormField>
+          required
+          fullWidth
+          {...register('company_name', {
+            required: 'Company name is required.',
+          })}
+        />
 
-        <FormField
+        <Input
           id="homepage_url"
+          type="url"
           label="Website"
+          placeholder="https://company.com"
           error={errors.homepage_url?.message}
-        >
-          <input
-            id="homepage_url"
-            className="input"
-            type="url"
-            placeholder="https://company.com"
-            aria-invalid={Boolean(errors.homepage_url)}
-            {...register('homepage_url', {
-              required: 'Website URL is required.',
-              pattern: {
-                value: urlPattern,
-                message: 'Enter a full URL starting with http or https.',
-              },
-            })}
-          />
-        </FormField>
+          required
+          fullWidth
+          {...register('homepage_url', {
+            required: 'Website URL is required.',
+            pattern: {
+              value: urlPattern,
+              message: 'Enter a full URL starting with http or https.',
+            },
+          })}
+        />
 
-        <FormField
+        <Input
           id="product_name"
           label="Product or solution"
+          placeholder="Flagship product"
           error={errors.product_name?.message}
-        >
-          <input
-            id="product_name"
-            className="input"
-            type="text"
-            placeholder="Flagship product"
-            aria-invalid={Boolean(errors.product_name)}
-            {...register('product_name', {
-              required: 'Product or solution is required.',
-            })}
-          />
-        </FormField>
+          required
+          fullWidth
+          {...register('product_name', {
+            required: 'Product or solution is required.',
+          })}
+        />
 
-        <FormField
+        <Input
           id="product_page_url"
+          type="url"
           label="Product or solution page"
+          placeholder="https://company.com/product"
           error={errors.product_page_url?.message}
-        >
-          <input
-            id="product_page_url"
-            className="input"
-            type="url"
-            placeholder="https://company.com/product"
-            aria-invalid={Boolean(errors.product_page_url)}
-            {...register('product_page_url', {
-              required: 'Product page URL is required.',
-              pattern: {
-                value: urlPattern,
-                message: 'Enter a full URL starting with http or https.',
-              },
-            })}
-          />
-        </FormField>
+          required
+          fullWidth
+          {...register('product_page_url', {
+            required: 'Product page URL is required.',
+            pattern: {
+              value: urlPattern,
+              message: 'Enter a full URL starting with http or https.',
+            },
+          })}
+        />
 
         <Button type="submit" loading={isSubmitting} fullWidth>
           {isSubmitting ? 'Submitting...' : 'Generate report'}

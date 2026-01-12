@@ -1,0 +1,306 @@
+/**
+ * Dialog Component Styles
+ *
+ * Professional, accessible dialog built on native HTML <dialog> element
+ * with smooth animations and responsive design
+ */
+
+/* ===========================
+   DIALOG ELEMENT
+   =========================== */
+
+.dialog {
+  margin: auto;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-2xl);
+  max-width: calc(100vw - var(--spacing-lg) * 2);
+  max-height: calc(100vh - var(--spacing-lg) * 2);
+  overflow: visible;
+}
+
+/* Reset default dialog styles */
+.dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: dialog-backdrop-fade-in var(--transition-normal) ease-out;
+}
+
+/* Opening animation */
+.dialog[open] {
+  animation: dialog-scale-in var(--transition-normal) ease-out;
+}
+
+/* ===========================
+   DIALOG ANIMATIONS
+   =========================== */
+
+@keyframes dialog-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes dialog-backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===========================
+   DIALOG SIZES
+   =========================== */
+
+.dialog--sm {
+  width: 400px;
+}
+
+.dialog--md {
+  width: 560px;
+}
+
+.dialog--lg {
+  width: 720px;
+}
+
+.dialog--xl {
+  width: 960px;
+}
+
+.dialog--full {
+  width: calc(100vw - var(--spacing-lg) * 2);
+  height: calc(100vh - var(--spacing-lg) * 2);
+}
+
+/* ===========================
+   DIALOG VARIANTS
+   =========================== */
+
+.dialog--default {
+  /* Default styling already applied above */
+}
+
+.dialog--centered {
+  text-align: center;
+}
+
+/* ===========================
+   DIALOG CONTAINER
+   =========================== */
+
+.dialog__container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-height: calc(100vh - var(--spacing-lg) * 2);
+}
+
+/* ===========================
+   CLOSE BUTTON
+   =========================== */
+
+.dialog__close {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+
+  background-color: transparent;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.dialog__close:hover {
+  background-color: color-mix(in srgb, var(--color-surface) 90%, var(--color-text));
+  color: var(--color-text);
+}
+
+.dialog__close:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.dialog__close:active {
+  background-color: color-mix(in srgb, var(--color-surface) 85%, var(--color-text));
+}
+
+/* ===========================
+   DIALOG HEADER
+   =========================== */
+
+.dialog__header {
+  flex-shrink: 0;
+  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-md);
+  padding-right: calc(var(--spacing-xl) + 48px); /* Account for close button */
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 20%, transparent);
+}
+
+.dialog__header h1,
+.dialog__header h2,
+.dialog__header h3 {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.dialog__header h2 {
+  font-size: var(--font-size-xl);
+}
+
+/* ===========================
+   DIALOG BODY
+   =========================== */
+
+.dialog__body {
+  flex: 1;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  overflow-y: auto;
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Custom scrollbar for dialog body */
+.dialog__body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialog__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dialog__body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-border) 50%, transparent);
+  border-radius: var(--border-radius-sm);
+}
+
+.dialog__body::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-border) 70%, transparent);
+}
+
+/* ===========================
+   DIALOG FOOTER
+   =========================== */
+
+.dialog__footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl) var(--spacing-xl);
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 20%, transparent);
+}
+
+.dialog--centered .dialog__footer {
+  justify-content: center;
+}
+
+/* ===========================
+   RESPONSIVE DESIGN
+   =========================== */
+
+/* Mobile (<768px) */
+@media (max-width: 767px) {
+  .dialog {
+    max-width: calc(100vw - var(--spacing-md) * 2);
+    max-height: calc(100vh - var(--spacing-md) * 2);
+  }
+
+  .dialog--sm,
+  .dialog--md,
+  .dialog--lg,
+  .dialog--xl {
+    width: calc(100vw - var(--spacing-md) * 2);
+  }
+
+  .dialog--full {
+    width: calc(100vw - var(--spacing-md) * 2);
+    height: calc(100vh - var(--spacing-md) * 2);
+  }
+
+  .dialog__header {
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
+    padding-right: calc(var(--spacing-lg) + 48px);
+  }
+
+  .dialog__body {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .dialog__footer {
+    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+  }
+
+  .dialog__close {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .dialog--xl {
+    width: calc(100vw - var(--spacing-xl) * 2);
+  }
+}
+
+/* ===========================
+   ACCESSIBILITY
+   =========================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .dialog {
+    border: 2px solid var(--color-border);
+  }
+
+  .dialog__close:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open],
+  .dialog::backdrop {
+    animation: none;
+  }
+
+  .dialog__close {
+    transition: none;
+  }
+}
+
+/* Focus visible (keyboard navigation only) */
+.dialog__close:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.dialog__close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

@@ -1,0 +1,355 @@
+/**
+ * Button Styles
+ *
+ * Uses BEM naming convention for clarity
+ * All values use design system tokens for consistency and theming support
+ */
+
+/* ===========================
+   BASE BUTTON STYLES
+   =========================== */
+
+.btn {
+  /* Reset */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+
+  /* Typography */
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: var(--line-height-tight);
+
+  /* Borders */
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md);
+
+  /* Layout */
+  min-height: 44px; /* Touch-friendly minimum */
+  padding: var(--spacing-xs) var(--spacing-sm);
+
+  /* Interaction */
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  /* Transitions */
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* Focus state - accessibility */
+.btn:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* Active state - visual feedback */
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Disabled state */
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ===========================
+   BUTTON VARIANTS
+   =========================== */
+
+/* Primary - Main call-to-action */
+.btn--primary {
+  background-color: var(--color-action-primary);
+  color: var(--color-text-inverse);
+  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background-color: var(--color-action-primary-hover);
+  border-color: color-mix(in srgb, var(--color-action-primary-hover) 30%, transparent);
+}
+
+.btn--primary:active:not(:disabled) {
+  background-color: var(--color-action-primary-active);
+  border-color: color-mix(in srgb, var(--color-action-primary-active) 30%, transparent);
+}
+
+/* Secondary - Less prominent actions */
+.btn--secondary {
+  background-color: var(--color-action-secondary);
+  color: var(--color-text-primary);
+  border-color: color-mix(in srgb, var(--color-action-secondary) 30%, transparent);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background-color: var(--color-action-secondary-hover);
+  border-color: color-mix(in srgb, var(--color-action-secondary-hover) 30%, transparent);
+}
+
+.btn--secondary:active:not(:disabled) {
+  background-color: var(--color-action-secondary-active);
+  border-color: color-mix(in srgb, var(--color-action-secondary-active) 30%, transparent);
+}
+
+/* Outline - Subtle emphasis */
+.btn--outline {
+  background-color: transparent;
+  color: var(--color-action-primary);
+  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
+}
+
+.btn--outline:hover:not(:disabled) {
+  background-color: var(--color-action-primary);
+  color: var(--color-text-inverse);
+  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
+}
+
+/* Ghost - Minimal style */
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-text-primary);
+  border-color: transparent;
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background-color: var(--color-action-secondary);
+}
+
+/* Danger - Destructive actions */
+.btn--danger {
+  background-color: var(--color-error);
+  color: var(--color-text-inverse);
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+}
+
+.btn--danger:hover:not(:disabled) {
+  background-color: #dc2626; /* Darker red */
+  border-color: color-mix(in srgb, #dc2626 30%, transparent);
+}
+
+.btn--danger:active:not(:disabled) {
+  background-color: #b91c1c; /* Even darker */
+  border-color: color-mix(in srgb, #b91c1c 30%, transparent);
+}
+
+/* ===========================
+   BUTTON SIZES
+   =========================== */
+
+.btn--sm {
+  min-height: 36px;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+
+.btn--md {
+  min-height: 44px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-base);
+}
+
+.btn--lg {
+  min-height: 52px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-lg);
+}
+
+/* Icon-only buttons */
+.btn--icon-only {
+  min-width: 44px;
+  padding: var(--spacing-2xs);
+  justify-content: center;
+  gap: 0;
+}
+
+.btn--icon-only.btn--sm {
+  min-width: 36px;
+  padding: var(--spacing-3xs);
+}
+
+.btn--icon-only.btn--lg {
+  min-width: 52px;
+  padding: var(--spacing-xs);
+}
+
+/* ===========================
+   DOUBLE OUTLINE MODIFIER
+   =========================== */
+
+/**
+ * Creates a double border effect using box-shadow
+ * Works with any variant for enhanced visual emphasis
+ */
+.btn--double-outline {
+  /* Create double outline effect using box-shadow */
+  box-shadow:
+    0 0 0 2px var(--color-background),
+    0 0 0 3px color-mix(in srgb, currentColor 30%, transparent);
+  border-width: 1px;
+}
+
+/* Adjust on hover to maintain double outline */
+.btn--double-outline:hover:not(:disabled) {
+  box-shadow:
+    0 0 0 2px var(--color-background),
+    0 0 0 3px color-mix(in srgb, currentColor 30%, transparent);
+}
+
+/* Maintain double outline on focus */
+.btn--double-outline:focus-visible {
+  outline-offset: 4px; /* Account for double border */
+  box-shadow:
+    0 0 0 2px var(--color-background),
+    0 0 0 3px color-mix(in srgb, currentColor 30%, transparent);
+}
+
+/* Combine with outline variant for best effect */
+.btn--outline.btn--double-outline {
+  border-width: 1px;
+}
+
+/* Adjust spacing for double outline on larger buttons */
+.btn--lg.btn--double-outline {
+  padding: calc(var(--spacing-sm) - 1px) calc(var(--spacing-md) - 1px);
+}
+
+.btn--md.btn--double-outline {
+  padding: calc(var(--spacing-xs) - 1px) calc(var(--spacing-sm) - 1px);
+}
+
+.btn--sm.btn--double-outline {
+  padding: calc(var(--spacing-2xs) - 1px) calc(var(--spacing-xs) - 1px);
+}
+
+/* ===========================
+   LAYOUT MODIFIERS
+   =========================== */
+
+.btn--full-width {
+  width: 100%;
+}
+
+/* Square - No border radius */
+.btn--square {
+  border-radius: 0;
+}
+
+/* Maintain square corners even on focus */
+.btn--square:focus-visible {
+  border-radius: 0;
+}
+
+/* ===========================
+   LOADING STATE
+   =========================== */
+
+.btn--loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn__spinner-circle {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 0.6s linear infinite;
+}
+
+/* Icon wrappers */
+.btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn__icon svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn__content--hidden {
+  visibility: hidden;
+}
+
+/* ===========================
+   RESPONSIVE ADJUSTMENTS
+   =========================== */
+
+/* Increase touch target on mobile */
+@media (max-width: 767px) {
+  .btn {
+    min-height: 48px; /* Larger touch target on mobile */
+  }
+
+  .btn--sm {
+    min-height: 40px;
+  }
+
+  .btn--lg {
+    min-height: 56px;
+  }
+}
+
+/* Better spacing on larger screens */
+@media (min-width: 1024px) {
+  .btn {
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+
+  .btn--lg {
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+}
+
+/* ===========================
+   ACCESSIBILITY
+   =========================== */
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+
+  .btn__spinner-circle {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn {
+    border-width: 1px;
+    /* Increase opacity for better visibility in high contrast mode */
+    border-color: color-mix(in srgb, currentColor 50%, transparent);
+  }
+}

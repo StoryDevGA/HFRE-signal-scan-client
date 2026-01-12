@@ -158,8 +158,8 @@ Views:
 ### 4.1 Shared components
 - `PageLayout` (header/footer)
 - `AdminLayout` (sidebar + content)
-- `FormField` primitives (label, input, error message)
-- `Button`, `Spinner`, `Alert`, `ConfirmModal`
+- `Fieldset`, `Input` (floating label), `Button`, `Spinner`
+- `Dialog` (confirmations), `Toaster` (notifications)
 - `DataTable` (or list with pagination)
 
 ### 4.2 Report rendering component

@@ -1,0 +1,142 @@
+/**
+ * Fieldset Component Styles
+ *
+ * Professional fieldset with legend breaking the border
+ * and flex content layout
+ */
+
+/* ===========================
+   FIELDSET ELEMENT
+   =========================== */
+
+.fieldset {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: var(--spacing-md);
+  border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+  border-radius: var(--border-radius-md);
+}
+
+/* ===========================
+   FIELDSET VARIANTS
+   =========================== */
+
+.fieldset--default {
+  /* Default styling already applied */
+}
+
+.fieldset--outlined {
+  border: 2px solid var(--color-border);
+}
+
+.fieldset--filled {
+  background-color: color-mix(in srgb, var(--color-surface) 95%, var(--color-primary));
+  border-color: color-mix(in srgb, var(--color-border) 20%, transparent);
+}
+
+/* ===========================
+   FIELDSET LEGEND
+   =========================== */
+
+.fieldset__legend {
+  padding: 0 var(--spacing-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text);
+}
+
+/* Legend breaks the border naturally */
+
+/* ===========================
+   FIELDSET CONTENT
+   =========================== */
+
+.fieldset__content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Gap sizes */
+.fieldset--gap-sm .fieldset__content {
+  gap: var(--spacing-sm);
+}
+
+.fieldset--gap-md .fieldset__content {
+  gap: var(--spacing-md);
+}
+
+.fieldset--gap-lg .fieldset__content {
+  gap: var(--spacing-lg);
+}
+
+.fieldset--gap-xl .fieldset__content {
+  gap: var(--spacing-xl);
+}
+
+/* ===========================
+   DISABLED STATE
+   =========================== */
+
+.fieldset:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fieldset:disabled .fieldset__legend {
+  color: var(--color-text-secondary);
+}
+
+.fieldset:disabled .fieldset__content {
+  pointer-events: none;
+}
+
+/* ===========================
+   RESPONSIVE DESIGN
+   =========================== */
+
+/* Mobile (<768px) - Default styles above */
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) {
+  .fieldset {
+    padding: var(--spacing-lg);
+  }
+
+  .fieldset__legend {
+    font-size: var(--font-size-base);
+    padding: 0 var(--spacing-md);
+  }
+}
+
+/* Desktop (≥1024px) */
+@media (min-width: 1024px) {
+  .fieldset {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* ===========================
+   ACCESSIBILITY
+   =========================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .fieldset {
+    border: 2px solid var(--color-border);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .fieldset,
+  .fieldset__legend,
+  .fieldset__content {
+    transition: none;
+  }
+}

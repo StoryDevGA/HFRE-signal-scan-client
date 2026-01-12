@@ -43,6 +43,7 @@
   /* Component aliases */
   --color-text: var(--color-text-primary);
   --color-primary: var(--color-action-primary);
+  --color-secondary: var(--color-action-secondary);
   --color-danger: var(--color-error);
   --transition-normal: var(--transition-base);
 }

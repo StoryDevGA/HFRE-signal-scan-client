@@ -1,19 +1,19 @@
-﻿# FRONT-END.md Я?" HFRE Signal Scan (Free Taster)
+# FRONT-END.md - HFRE Signal Scan (Free Taster)
 
 ## 1. Purpose
 
-Provide a simple public web experience where a visitor completes a Company Signal Scan form, submits it, views a formatted Я?ocustomer-safeЯ?? report, and receives an emailed copy.  
+Provide a simple public web experience where a visitor completes a Company Signal Scan form, submits it, views a formatted customer-safe report, and receives an emailed copy.  
 Provide a restricted Admin Dashboard (max 3 admin users) to view submissions, manage prompts, delete user data, and review basic analytics.
 
-The agent flow to be mirrored is **Start (form input) ЯП' Signal Scan LLM Agent ЯП' JSON result**, as defined in the provided AgentFlow JSON. O^?fileciteO^'turn4file4O^?
+The agent flow to be mirrored is **Start (form input) -> Signal Scan LLM Agent -> JSON result**, as defined in the AgentFlow JSON.
 
 ---
 
 ## 2. Tech Stack
 
-- React (Vite)
+- React (Vite), JavaScript (no TypeScript)
 - React Router
-- Fetch/Axios for API calls
+- Fetch (preferred) or Axios for API calls
 - Form validation: React Hook Form (recommended) or Formik
 - UI: Tailwind or MUI (choose one; keep minimal for taster)
 - Optional: react-markdown (if rendering report sections as markdown)
@@ -24,83 +24,82 @@ The agent flow to be mirrored is **Start (form input) ЯП' Signal Scan LLM Agen
 
 ### 3.1 Public routes
 
-#### `/` Я?" Company Signal Scan Form
-Form fields must match the agent flow inputs: O^?fileciteO^'turn4file9O^?
-- Contact Name (`name`) Я?" string
-- Email (`email`) Я?" string (validate email format)
-- Company Name (`company_name`) Я?" string
-- Website (`homepage_url`) Я?" string (validate URL format)
-- Product or Solution (`product_name`) Я?" string
-- Product or Solution page (`product_page_url`) Я?" string (validate URL format)
+#### `/` - Company Signal Scan Form
+Form fields must match the agent flow inputs:
+- Contact Name (`name`) - string
+- Email (`email`) - string (validate email format)
+- Company Name (`company_name`) - string
+- Website (`homepage_url`) - string (validate URL format)
+- Product or Solution (`product_name`) - string
+- Product or Solution page (`product_page_url`) - string (validate URL format)
 
-Form behaviours:
+Form behaviors:
 - Client-side validation with clear inline messages.
 - Submit button disabled while submitting.
-- On success, route to `/results/:publicId` and show success toast/banner (Я?oReport generatedЯ??).
+- On success, route to `/results/:publicId` and show success banner (Report generated).
 - On failure, show error state with retry.
 
-#### `/results/:publicId` Я?" Customer Report Viewer
+#### `/results/:publicId` - Customer Report Viewer
 Primary purpose:
 - Render the **customer_report** in a readable way (headings, spacing, typography).
 - Do **not** render internal_report on public routes.
-- Provide Я?oDownloadЯ?? (optional) and Я?oEmail me a copyЯ?? status indicator.
+- Provide Download (optional) and Email me a copy status indicator.
 
 Data loading:
-- GET `GET /api/public/results/:publicId` (public, tokenized/unguessable publicId).
+- `GET /api/public/results/:publicId`.
 - If status is `pending`, poll until `complete` or `failed`.
 - Display:
   - Company name
   - Customer report
   - Confidence level from metadata (High/Medium/Low)
-  - Timestamp
 
 Formatting rules:
-- Section headings in `customer_report` must be rendered plainly without Я?oSTEPЯ??/step numbers, consistent with the prompt constraints. O^?fileciteO^'turn4file14O^?
+- Section headings in `customer_report` must be rendered plainly without STEP/step numbers.
 
 Empty / invalid:
-- If publicId invalid or expired: show a friendly Я?oReport not foundЯ?? page.
+- If publicId invalid or expired: show a friendly Report not found page.
 
 ---
 
 ### 3.2 Admin routes
 
-#### `/admin/login` Я?" Admin Login
+#### `/admin/login` - Admin Login
 Requirements:
-- Admin access limited to **max 3 unique emails**.
-- Uses a **fixed hard-coded password** (stored encrypted/hashed on server).
+- Admin access limited to max 3 unique emails.
+- Uses a fixed password stored encrypted/hashed on the server.
 - UI:
   - Email input
   - Password input
   - Login button
-  - Errors: invalid credentials, not authorised email, locked-out (if enabled)
+  - Errors: invalid credentials or unauthorized email
 
 Session approach:
-- Use secure httpOnly cookie session or JWT in httpOnly cookie (preferred).
-- No Я?oremember meЯ?? required.
+- Uses httpOnly cookie session (`admin_session`).
+- Frontend must send credentials on admin requests.
 
-#### `/admin` Я?" Dashboard (shell layout)
+#### `/admin` - Dashboard (shell layout)
 Navigation (minimum):
 - Submissions
 - Prompts
 - Users / Data deletion
 - Analytics
 
-#### `/admin/submissions` Я?" Submissions List
+#### `/admin/submissions` - Submissions List
 Capabilities:
 - Paginated table/list of submissions (latest first)
 - Search by company name and/or email
-- Filter by date range (optional)
+- Filter by status (`pending | complete | failed`)
 
 Columns:
 - Created date/time
 - Company name
 - Contact email
-- Status: `pending | complete | failed`
+- Status
 - Confidence level (if complete)
 
-Row click ЯП' `/admin/submissions/:id`
+Row click -> `/admin/submissions/:id`
 
-#### `/admin/submissions/:id` Я?" Submission Detail
+#### `/admin/submissions/:id` - Submission Detail
 Must display:
 - Full user input (all form fields)
 - Full outcomes:
@@ -108,53 +107,54 @@ Must display:
   - internal_report (admin only)
   - metadata
 - Delivery status:
-  - Я?oCustomer email sentЯ?? / Я?oOwner notification email sentЯ?? timestamps
+  - Customer email sent / Owner notification email sent timestamps
   - Error info (if failed)
+- Analytics (IP, user agent, referrer, locale if present)
 
 Actions:
 - Delete this submission
-- Delete this userЯ?Ts data (bulk delete by email) (confirm modal)
-- Re-send customer email (optional, controlled)
+- Delete this user's data (bulk delete by email) (confirm modal)
 
-#### `/admin/prompts` Я?" Prompt Manager (CRUD)
+#### `/admin/prompts` - Prompt Manager (CRUD)
 Prompts to manage:
-- **System prompts**
-- **User prompts**
+- System prompts
+- User prompts
 
 Requirements:
 - Add/Edit/Delete prompts.
 - Support versioning minimally:
-  - `name`, `type` (system|user), `content`, `active` boolean, timestamps.
-- Я?oActive promptЯ?? selection:
-  - Only one active system prompt and one active user prompt at a time (recommended).
+  - name, type (system|user), content, active boolean, timestamps.
+- Active prompt selection:
+  - Only one active system prompt and one active user prompt at a time.
   - Changes affect subsequent scans only (no retroactive rewrite).
 
-#### `/admin/users` Я?" User Data Deletion
+#### `/admin/users` - User Data Deletion
 Minimum:
 - Search by email
 - Show user summary: number of submissions, first/last submission date
 - Action: delete user + all associated submissions + analytics records (confirm modal)
 
-#### `/admin/analytics` Я?" Basic Analytics
+#### `/admin/analytics` - Basic Analytics
 Display analytics captured per submission (minimum):
 - IP address
 - User agent string (browser)
-- Derived browser/device summary (optional)
 - Referrer (optional)
 - Locale/Accept-Language (optional)
 - Timestamp
 
 Views:
 - Aggregated dashboard:
-  - Total submissions (last 7/30 days)
-  - Conversion: form submit ЯП' report generated
+  - Total submissions
+  - Conversion: form submit -> report generated
   - Top browsers/devices (basic grouping)
 - Drill-down:
-  - Click submission ЯП' see analytics record
+  - Click submission -> see analytics record
 
 ---
 
-\#\#\ 4\.\ UI\ Components\ and\ Patterns\r\n\r\nReference:\ client/docs/docs/FRONT-END-STYLE-GUIDE\.md\ defines\ the\ full\ design\ system,\ component\ catalog,\ theming,\ and\ asset\ usage\.
+## 4. UI Components and Patterns
+
+Reference: `client/docs/FRONT-END-STYLE-GUIDE.md` defines the full design system, component catalog, theming, and asset usage.
 
 ### 4.1 Shared components
 - `PageLayout` (header/footer)
@@ -167,7 +167,7 @@ Views:
 - Parse `customer_report` into sections.
 Options:
 1) Keep `customer_report` as pre-formatted text and display with typography + `<pre>`-like wrapping.
-2) Server returns structured sections `{title, body}`; frontend renders semantic blocks. (Recommended for future.)
+2) Server returns structured sections `{title, body}`; frontend renders semantic blocks (recommended later).
 
 For the v1 taster, implement option 1 but keep the component interface compatible with option 2.
 
@@ -190,6 +190,7 @@ For the v1 taster, implement option 1 but keep the component interface compatibl
 ### 5.2 Public result payload (from API)
 ```json
 {
+  "status": "complete",
   "publicId": "string",
   "company": "string",
   "customer_report": "string",
@@ -197,36 +198,129 @@ For the v1 taster, implement option 1 but keep the component interface compatibl
     "confidence_level": "High | Medium | Low",
     "source_scope": "Public website only",
     "shareability": { "customer_safe": true, "internal_only": true }
-  },
-  "createdAt": "ISO-8601"
+  }
 }
 ```
 
-Admin detail payload additionally includes `internal_report` and operational metadata.
+Admin detail response includes `{ submission, analytics }` and exposes `internal_report`.
 
 ---
 
 ## 6. API Client Contract (Frontend Expectations)
 
-Public:
-- `POST /api/public/scans` ЯП' returns `{ publicId }`
-- `GET /api/public/results/:publicId` ЯП' returns public result model
+Base URL (local dev): `http://localhost:8000/api`
 
-Admin:
-- `POST /api/admin/auth/login`
-- `POST /api/admin/auth/logout`
-- `GET /api/admin/submissions`
-- `GET /api/admin/submissions/:id`
-- `DELETE /api/admin/submissions/:id`
-- `DELETE /api/admin/users/:email`
-- `GET /api/admin/prompts`
-- `POST /api/admin/prompts`
-- `PUT /api/admin/prompts/:id`
-- `DELETE /api/admin/prompts/:id`
-- `GET /api/admin/analytics` (aggregate)
-- `GET /api/admin/analytics/:submissionId` (detail)
+Public:
+- `POST /public/scans` -> `{ publicId }`
+- `GET /public/results/:publicId`
+  - `202` pending: `{ status: "pending" }`
+  - `200` complete: `{ status: "complete", publicId, company, customer_report, metadata }`
+  - `404` not found: `{ status: "not_found" }`
+  - `500` failed: `{ status: "failed" }`
+
+Admin (requires `credentials: "include"`):
+- `POST /admin/auth/login`
+- `POST /admin/auth/logout`
+- `GET /admin/submissions`
+- `GET /admin/submissions/:id`
+- `DELETE /admin/submissions/:id`
+- `DELETE /admin/users/:email`
+- `GET /admin/prompts`
+- `POST /admin/prompts`
+- `PUT /admin/prompts/:id`
+- `DELETE /admin/prompts/:id`
+- `GET /admin/analytics` (aggregate)
+- `GET /admin/analytics/:submissionId` (detail)
+
+Error shapes:
+- Validation: `{ "errors": [ { "path": "string", "message": "string" } ] }`
+- Server errors: `{ "error": "string" }`
 
 ---
+
+## 6.1 React (JS) Examples
+
+Submit + poll:
+```jsx
+import { useEffect, useState } from "react";
+
+const API_BASE = "http://localhost:8000/api";
+
+export function ScanExample() {
+  const [publicId, setPublicId] = useState(null);
+  const [status, setStatus] = useState("idle");
+  const [result, setResult] = useState(null);
+
+  async function submitScan() {
+    setStatus("submitting");
+    const res = await fetch(`${API_BASE}/public/scans`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Test User",
+        email: "test@example.com",
+        company_name: "Acme Inc",
+        homepage_url: "https://acme.example",
+        product_name: "Widget",
+        product_page_url: "https://acme.example/widget",
+      }),
+    });
+    if (!res.ok) {
+      setStatus("error");
+      return;
+    }
+    const data = await res.json();
+    setPublicId(data.publicId);
+    setStatus("pending");
+  }
+
+  useEffect(() => {
+    if (!publicId) return;
+    let cancelled = false;
+    const interval = setInterval(async () => {
+      const res = await fetch(`${API_BASE}/public/results/${publicId}`);
+      const data = await res.json();
+      if (cancelled) return;
+      if (res.status === 200) {
+        setResult(data);
+        setStatus("complete");
+        clearInterval(interval);
+      } else if (res.status === 500) {
+        setStatus("failed");
+        clearInterval(interval);
+      } else if (res.status === 404) {
+        setStatus("not_found");
+        clearInterval(interval);
+      }
+    }, 1500);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [publicId]);
+
+  return (
+    <div>
+      <button onClick={submitScan}>Submit</button>
+      <div>Status: {status}</div>
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  );
+}
+```
+
+Admin login with cookie:
+```jsx
+async function adminLogin(email, password) {
+  const res = await fetch(`${API_BASE}/admin/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+    credentials: "include",
+  });
+  return res.ok;
+}
+```
 
 ## 7. Non-Functional Requirements
 
@@ -235,15 +329,14 @@ Admin:
 - Security: do not expose internal_report on public endpoints or UI.
 - Privacy:
   - Show an explicit note that IP/browser telemetry is captured for service improvement.
-  - Provide basic Я?oDelete my dataЯ?? request path (could be email-based in v1).
+  - Provide basic Delete my data request path (could be email-based in v1).
 
 ---
 
 ## 8. Acceptance Checklist (Frontend)
 
-- Public form fields match the agent flow and validate correctly. O^?fileciteO^'turn4file9O^?
+- Public form fields match the agent flow and validate correctly.
 - Submission triggers generation and routes to results page.
-- Results page displays only customer-safe report. O^?fileciteO^'turn4file14O^?
+- Results page displays only customer-safe report.
 - Admin login gates all /admin routes; only 3 allowed emails can login.
 - Admin dashboard supports: view submissions + outcomes, manage prompts, delete user data, view analytics.
-

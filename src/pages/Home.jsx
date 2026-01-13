@@ -49,7 +49,7 @@ function Home() {
         </p>
       </header>
 
-      <form className="form" onSubmit={handleSubmit(onSubmit)}>
+      <form className="form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Fieldset>
           <Fieldset.Legend>Scan details</Fieldset.Legend>
           <Fieldset.Content>

@@ -1,0 +1,124 @@
+/**
+ * Tickbox Component Styles
+ *
+ * Custom-styled, accessible checkbox.
+ */
+
+.tickbox-container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-sans);
+}
+
+.tickbox-input {
+  /* Hide the native checkbox */
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.tickbox-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  border-radius: var(--border-radius-xs);
+  background-color: var(--color-surface);
+  transition: all var(--transition-fast);
+}
+
+.tickbox-label {
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ===========================
+   SIZES
+   =========================== */
+
+/* Medium (default) */
+.tickbox-container--md .tickbox-box {
+  width: 20px;
+  height: 20px;
+}
+.tickbox-container--md .tickbox-icon {
+  width: 14px;
+  height: 14px;
+}
+.tickbox-container--md .tickbox-label {
+  font-size: var(--font-size-base);
+}
+
+/* Small */
+.tickbox-container--sm .tickbox-box {
+  width: 16px;
+  height: 16px;
+}
+.tickbox-container--sm .tickbox-icon {
+  width: 10px;
+  height: 10px;
+}
+.tickbox-container--sm .tickbox-label {
+  font-size: var(--font-size-sm);
+}
+
+/* Large */
+.tickbox-container--lg .tickbox-box {
+  width: 24px;
+  height: 24px;
+}
+.tickbox-container--lg .tickbox-icon {
+  width: 18px;
+  height: 18px;
+}
+.tickbox-container--lg .tickbox-label {
+  font-size: var(--font-size-lg);
+}
+
+
+/* ===========================
+   STATES
+   =========================== */
+
+.tickbox-input:focus-visible + .tickbox-box {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+.tickbox-container:not(.tickbox-container--disabled):hover .tickbox-box {
+  border-color: var(--color-primary);
+}
+
+.tickbox-input:checked + .tickbox-box,
+.tickbox-input:indeterminate + .tickbox-box {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.tickbox-container--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ===========================
+   ICON
+   =========================== */
+
+.tickbox-icon {
+  color: var(--color-text-inverse);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all var(--transition-fast);
+}
+
+.tickbox-input:checked ~ .tickbox-box .tickbox-icon,
+.tickbox-input:indeterminate ~ .tickbox-box .tickbox-icon {
+  opacity: 1;
+  transform: scale(1);
+}

@@ -47,6 +47,7 @@ Primary purpose:
 
 Data loading:
 - GET `GET /api/public/results/:publicId` (public, tokenized/unguessable publicId).
+- If status is `pending`, poll until `complete` or `failed`.
 - Display:
   - Company name
   - Customer report
@@ -158,9 +159,9 @@ Views:
 ### 4.1 Shared components
 - `PageLayout` (header/footer)
 - `AdminLayout` (sidebar + content)
-- `Fieldset`, `Input` (floating label), `Button`, `Spinner`
+- `Fieldset`, `Input` (floating label), `Select`, `Button`, `Spinner`
 - `Dialog` (confirmations), `Toaster` (notifications)
-- `DataTable` (or list with pagination)
+- `Table` (submissions, analytics)
 
 ### 4.2 Report rendering component
 - Parse `customer_report` into sections.

@@ -1,0 +1,136 @@
+/**
+ * Select Component Styles
+ *
+ * Custom-styled, accessible select dropdown.
+ */
+
+.select-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  font-family: var(--font-sans);
+}
+
+.select-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.select-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.select:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-border) 70%, transparent);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+.select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: color-mix(in srgb, var(--color-surface) 95%, var(--color-text));
+}
+
+.select--placeholder {
+  color: color-mix(in srgb, var(--color-text-secondary) 70%, transparent);
+}
+
+/* Arrow */
+.select-arrow {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-md);
+  transform: translateY(-50%);
+  pointer-events: none;
+  width: 1em;
+  height: 1em;
+  color: var(--color-text-secondary);
+}
+
+.select-arrow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 0.5em;
+  height: 0.5em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+}
+
+/* ===========================
+   SIZES
+   =========================== */
+
+.select--sm {
+  padding: var(--spacing-sm) var(--spacing-md);
+  padding-right: calc(var(--spacing-md) * 2.5);
+  font-size: var(--font-size-sm);
+}
+.select-container--sm .select-label {
+  font-size: var(--font-size-xs);
+}
+
+.select--md {
+  padding: var(--spacing-md) var(--spacing-md);
+  padding-right: calc(var(--spacing-md) * 2.5);
+  font-size: var(--font-size-base);
+}
+
+.select--lg {
+  padding: var(--spacing-lg) var(--spacing-md);
+  padding-right: calc(var(--spacing-md) * 2.5);
+  font-size: var(--font-size-lg);
+}
+.select-container--lg .select-label {
+  font-size: var(--font-size-base);
+}
+
+/* ===========================
+   ERROR STATE
+   =========================== */
+
+.select-container--error .select {
+  border-color: var(--color-danger);
+}
+
+.select-container--error .select:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 15%, transparent);
+}
+
+.select-container--error .select-label,
+.select-container--error .select-error {
+  color: var(--color-danger);
+}
+
+.select-error {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.select-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

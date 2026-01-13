@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import Button from '../../components/Button/Button.jsx'
 import Spinner from '../../components/Spinner/Spinner.jsx'
-import { checkAdminSession } from '../../services/adminAuth.js'
+import { useToaster } from '../../components/Toaster/Toaster.jsx'
+import { checkAdminSession, logoutAdmin } from '../../services/adminAuth.js'
 
 function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { addToast } = useToaster()
   const [status, setStatus] = useState('checking')
   const [errorMessage, setErrorMessage] = useState('')
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   useEffect(() => {
     let isActive = true
@@ -59,6 +63,28 @@ function AdminLayout() {
     )
   }
 
+  const handleLogout = async () => {
+    if (isLoggingOut) return
+    setIsLoggingOut(true)
+    try {
+      await logoutAdmin()
+      addToast({
+        title: 'Signed out',
+        description: 'You have been logged out.',
+        variant: 'info',
+      })
+      navigate('/admin/login', { replace: true })
+    } catch (error) {
+      addToast({
+        title: 'Logout failed',
+        description: error?.message || 'Unable to log out right now.',
+        variant: 'error',
+      })
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
   return (
     <div className="admin">
       <aside className="admin__nav">
@@ -105,6 +131,16 @@ function AdminLayout() {
             Analytics
           </NavLink>
         </nav>
+        <div className="admin__actions">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLogout}
+            loading={isLoggingOut}
+          >
+            {isLoggingOut ? 'Signing out...' : 'Sign out'}
+          </Button>
+        </div>
       </aside>
       <main className="admin__content">
         <Outlet />

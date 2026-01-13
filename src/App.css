@@ -67,6 +67,10 @@
   gap: var(--spacing-xs);
 }
 
+.admin__actions {
+  margin-top: var(--spacing-md);
+}
+
 .admin__link {
   display: block;
   padding: var(--spacing-xs) var(--spacing-sm);

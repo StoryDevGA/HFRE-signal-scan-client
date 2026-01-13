@@ -221,6 +221,7 @@ Public:
 Admin (requires `credentials: "include"`):
 - `POST /admin/auth/login`
 - `POST /admin/auth/logout`
+- `GET /admin/auth/logout` (accepted)
 - `GET /admin/submissions`
 - `GET /admin/submissions/:id`
 - `DELETE /admin/submissions/:id`
@@ -235,6 +236,7 @@ Admin (requires `credentials: "include"`):
 Error shapes:
 - Validation: `{ "errors": [ { "path": "string", "message": "string" } ] }`
 - Server errors: `{ "error": "string" }`
+Note: `/admin/auth/logout` is `POST` with `credentials: "include"`. Calling it with `GET` or without cookies will fail.
 
 ---
 
@@ -316,6 +318,17 @@ async function adminLogin(email, password) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
+    credentials: "include",
+  });
+  return res.ok;
+}
+```
+
+Admin logout:
+```jsx
+async function adminLogout() {
+  const res = await fetch(`${API_BASE}/admin/auth/logout`, {
+    method: "POST",
     credentials: "include",
   });
   return res.ok;

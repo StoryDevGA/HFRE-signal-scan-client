@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import ReportRenderer from '../components/ReportRenderer.jsx'
 import Spinner from '../components/Spinner/Spinner.jsx'
@@ -13,12 +13,14 @@ const formatTimestamp = (value) => {
 }
 
 const POLL_INTERVAL_MS = 2000
+const MAX_POLL_ATTEMPTS = 30
 
 function Results() {
   const { publicId } = useParams()
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
   const [result, setResult] = useState(null)
+  const pollCountRef = useRef(0)
 
   const timestamp = useMemo(
     () => formatTimestamp(result?.createdAt),
@@ -28,6 +30,7 @@ function Results() {
   useEffect(() => {
     let isActive = true
     let timeoutId
+    pollCountRef.current = 0
 
     const loadResult = async () => {
       try {
@@ -36,12 +39,41 @@ function Results() {
 
         if (data?.status === 'pending') {
           setStatus('pending')
+          pollCountRef.current += 1
+          if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
+            setErrorMessage('Report is taking longer than expected.')
+            setStatus('error')
+            return
+          }
           timeoutId = window.setTimeout(loadResult, POLL_INTERVAL_MS)
           return
         }
 
         if (data?.status === 'failed') {
           setStatus('failed')
+          return
+        }
+
+        if (data?.status === 'not_found') {
+          setStatus('not-found')
+          return
+        }
+
+        if (data?.status && data.status !== 'complete') {
+          setErrorMessage('Unexpected response from server.')
+          setStatus('error')
+          return
+        }
+
+        if (!data?.customer_report) {
+          setStatus('pending')
+          pollCountRef.current += 1
+          if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
+            setErrorMessage('Report is taking longer than expected.')
+            setStatus('error')
+            return
+          }
+          timeoutId = window.setTimeout(loadResult, POLL_INTERVAL_MS)
           return
         }
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import ReportRenderer from '../components/ReportRenderer.jsx'
 import Spinner from '../components/Spinner/Spinner.jsx'
 import { ApiError } from '../lib/api.js'
 import { getPublicResult } from '../services/publicResults.js'
@@ -151,7 +152,7 @@ function Results() {
 
       <section className="report">
         <h2 className="text-responsive-lg">Customer report</h2>
-        <div className="report__body">{result?.customer_report}</div>
+        <ReportRenderer report={result?.customer_report} />
       </section>
     </main>
   )

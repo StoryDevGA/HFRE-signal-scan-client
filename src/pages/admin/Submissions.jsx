@@ -122,7 +122,6 @@ function AdminSubmissions() {
           label="Search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Company or email"
           fullWidth
         />
         <Select
@@ -149,6 +148,13 @@ function AdminSubmissions() {
         data={rows}
         variant="striped"
         hoverable
+        actions={[
+          {
+            label: 'View',
+            variant: 'ghost',
+            onClick: (row) => navigate(`/admin/submissions/${row.id}`),
+          },
+        ]}
         loading={loading}
         emptyMessage="No submissions found."
         ariaLabel="Submissions list"

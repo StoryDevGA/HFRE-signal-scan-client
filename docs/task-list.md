@@ -9,11 +9,11 @@
 7) Add admin route guard and session handling (401 redirect). (done)
 8) Build AdminLayout shell with nav (Submissions, Prompts, Users, Analytics). (done)
 9) Implement submissions list with pagination, search, status filter. (done)
-10) Implement submission detail view with inputs, reports, metadata, email status, analytics.
-11) Add submission delete + user data delete actions with confirm modal.
-12) Implement prompts CRUD and active prompt selection guard in UI.
-13) Implement users deletion page with email search and summary.
-14) Implement analytics dashboard (aggregate + drill-down).
-15) Build customer_report renderer component (plain headings + body).
-16) Add accessibility passes and UX polish (labels, keyboard, toasts).
-17) Add tests for validation, route guards, and results rendering.
+10) Implement submission detail view with inputs, reports, metadata, email status, analytics. (done)
+11) Add submission delete + user data delete actions with confirm modal. (done)
+12) Implement prompts CRUD and active prompt selection guard in UI. (done)
+13) Implement users deletion page with email search and summary. (done)
+14) Implement analytics dashboard (aggregate + drill-down). (done)
+15) Build customer_report renderer component (plain headings + body). (done)
+16) Add accessibility passes and UX polish (labels, keyboard, toasts). (done)
+17) Add tests for validation, route guards, and results rendering. (done)

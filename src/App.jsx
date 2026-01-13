@@ -5,6 +5,10 @@ import Results from './pages/Results.jsx'
 import AdminLogin from './pages/admin/Login.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
 import AdminSubmissions from './pages/admin/Submissions.jsx'
+import AdminSubmissionDetail from './pages/admin/SubmissionDetail.jsx'
+import AdminPrompts from './pages/admin/Prompts.jsx'
+import AdminUsers from './pages/admin/Users.jsx'
+import AdminAnalytics from './pages/admin/Analytics.jsx'
 
 function NotFound() {
   return (
@@ -25,9 +29,10 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/submissions" replace />} />
           <Route path="submissions" element={<AdminSubmissions />} />
-          <Route path="prompts" element={<div className="page">Prompts</div>} />
-          <Route path="users" element={<div className="page">Users</div>} />
-          <Route path="analytics" element={<div className="page">Analytics</div>} />
+          <Route path="submissions/:id" element={<AdminSubmissionDetail />} />
+          <Route path="prompts" element={<AdminPrompts />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

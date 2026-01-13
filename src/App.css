@@ -110,6 +110,115 @@
   gap: var(--spacing-sm);
 }
 
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-actions--spread {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-grid {
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.detail-card {
+  border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+  border-radius: var(--border-radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.detail-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-list {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: 0;
+}
+
+.detail-list div {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.detail-list dt {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+}
+
+.detail-list dd {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.detail-text {
+  white-space: pre-wrap;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.report-renderer {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.report-renderer__section {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.report-renderer__body {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.prompt-textarea {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  resize: vertical;
+}
+
+.prompt-textarea:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-border-focus) 25%, transparent);
+}
+
+.prompt-textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
 @media (max-width: 960px) {
   .admin {
     grid-template-columns: 1fr;

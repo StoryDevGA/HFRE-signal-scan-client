@@ -1,0 +1,303 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import Button from '../../components/Button/Button.jsx'
+import Dialog from '../../components/Dialog/Dialog.jsx'
+import ReportRenderer from '../../components/ReportRenderer.jsx'
+import Spinner from '../../components/Spinner/Spinner.jsx'
+import { useToaster } from '../../components/Toaster/Toaster.jsx'
+import { ApiError } from '../../lib/api.js'
+import {
+  deleteAdminSubmission,
+  getAdminSubmissionDetail,
+} from '../../services/adminSubmissionDetail.js'
+import { deleteAdminUser } from '../../services/adminUsers.js'
+
+const formatTimestamp = (value) => {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleString()
+}
+
+function AdminSubmissionDetail() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { addToast } = useToaster()
+  const [status, setStatus] = useState('loading')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [submission, setSubmission] = useState(null)
+  const [analytics, setAnalytics] = useState(null)
+  const [confirmAction, setConfirmAction] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    let isActive = true
+    setStatus('loading')
+    setErrorMessage('')
+
+    getAdminSubmissionDetail(id)
+      .then((data) => {
+        if (!isActive) return
+        setSubmission(data?.submission || null)
+        setAnalytics(data?.analytics || null)
+        setStatus('ready')
+      })
+      .catch((error) => {
+        if (!isActive) return
+        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          navigate('/admin/login', { replace: true })
+          return
+        }
+        setErrorMessage(error?.message || 'Unable to load submission.')
+        setStatus('error')
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [id, navigate])
+
+  const detail = useMemo(() => {
+    if (!submission) {
+      return {
+        inputs: {},
+        outputs: {},
+        emailStatus: {},
+        metadata: {},
+        createdAt: '',
+        status: '',
+      }
+    }
+    return {
+      inputs: submission.inputs || {},
+      outputs: submission.outputs || {},
+      emailStatus: submission.emailStatus || {},
+      metadata: submission.outputs?.metadata || submission.metadata || {},
+      createdAt: submission.createdAt || '',
+      status: submission.status || '',
+    }
+  }, [submission])
+
+  const openConfirm = (action) => {
+    setConfirmAction(action)
+  }
+
+  const closeConfirm = () => {
+    if (!isDeleting) {
+      setConfirmAction(null)
+    }
+  }
+
+  const handleConfirm = async () => {
+    if (!confirmAction || isDeleting) return
+    setIsDeleting(true)
+    try {
+      if (confirmAction === 'submission') {
+        await deleteAdminSubmission(id)
+        addToast({
+          title: 'Submission deleted',
+          description: 'The submission has been removed.',
+          variant: 'success',
+        })
+        navigate('/admin/submissions', { replace: true })
+        return
+      }
+      if (confirmAction === 'user' && detail.inputs.email) {
+        await deleteAdminUser(detail.inputs.email)
+        addToast({
+          title: 'User data deleted',
+          description: 'All submissions for this user were removed.',
+          variant: 'success',
+        })
+        navigate('/admin/submissions', { replace: true })
+      }
+    } catch (error) {
+      addToast({
+        title: 'Delete failed',
+        description: error?.message || 'Unable to delete the record.',
+        variant: 'error',
+      })
+    } finally {
+      setIsDeleting(false)
+      setConfirmAction(null)
+    }
+  }
+
+  if (status === 'loading') {
+    return (
+      <main className="page">
+        <div className="status-block">
+          <Spinner type="circle" size="lg" />
+          <p className="text-responsive-base">Loading submission...</p>
+        </div>
+      </main>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <main className="page">
+        <header className="page__header">
+          <h1 className="text-responsive-lg">Unable to load submission</h1>
+          <p className="text-responsive-base">{errorMessage}</p>
+        </header>
+      </main>
+    )
+  }
+
+  return (
+    <section className="admin-section">
+      <header className="page__header">
+        <h1 className="text-responsive-lg">
+          {detail.inputs.company_name || 'Submission detail'}
+        </h1>
+        <p className="text-responsive-base">
+          Status: {detail.status || 'unknown'}
+        </p>
+        {detail.createdAt ? (
+          <p className="text-responsive-sm">
+            Created: {formatTimestamp(detail.createdAt)}
+          </p>
+        ) : null}
+      </header>
+
+      <div className="detail-actions">
+        <Button
+          variant="danger"
+          onClick={() => openConfirm('submission')}
+          disabled={isDeleting}
+        >
+          Delete submission
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => openConfirm('user')}
+          disabled={!detail.inputs.email || isDeleting}
+        >
+          Delete user data
+        </Button>
+      </div>
+
+      <div className="detail-grid">
+        <section className="detail-card">
+          <h2 className="detail-title">Inputs</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>Contact name</dt>
+              <dd>{detail.inputs.name || '-'}</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd>{detail.inputs.email || '-'}</dd>
+            </div>
+            <div>
+              <dt>Company</dt>
+              <dd>{detail.inputs.company_name || '-'}</dd>
+            </div>
+            <div>
+              <dt>Website</dt>
+              <dd>{detail.inputs.homepage_url || '-'}</dd>
+            </div>
+            <div>
+              <dt>Product</dt>
+              <dd>{detail.inputs.product_name || '-'}</dd>
+            </div>
+            <div>
+              <dt>Product page</dt>
+              <dd>{detail.inputs.product_page_url || '-'}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="detail-card">
+          <h2 className="detail-title">Outputs</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>Company</dt>
+              <dd>{detail.outputs.company || '-'}</dd>
+            </div>
+            <div>
+              <dt>Confidence</dt>
+              <dd>{detail.metadata.confidence_level || '-'}</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+
+      <section className="detail-card">
+        <h2 className="detail-title">Customer report</h2>
+        <ReportRenderer report={detail.outputs.customer_report} />
+      </section>
+
+      <section className="detail-card">
+        <h2 className="detail-title">Internal report</h2>
+        <ReportRenderer report={detail.outputs.internal_report} />
+      </section>
+
+      <div className="detail-grid">
+        <section className="detail-card">
+          <h2 className="detail-title">Email status</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>Customer sent</dt>
+              <dd>{formatTimestamp(detail.emailStatus.customerSentAt) || '-'}</dd>
+            </div>
+            <div>
+              <dt>Owner sent</dt>
+              <dd>{formatTimestamp(detail.emailStatus.ownerSentAt) || '-'}</dd>
+            </div>
+            <div>
+              <dt>Last error</dt>
+              <dd>{detail.emailStatus.lastError || '-'}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="detail-card">
+          <h2 className="detail-title">Analytics</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>IP address</dt>
+              <dd>{analytics?.ipAddress || '-'}</dd>
+            </div>
+            <div>
+              <dt>User agent</dt>
+              <dd>{analytics?.userAgent || '-'}</dd>
+            </div>
+            <div>
+              <dt>Accept-Language</dt>
+              <dd>{analytics?.acceptLanguage || '-'}</dd>
+            </div>
+            <div>
+              <dt>Referrer</dt>
+              <dd>{analytics?.referrer || '-'}</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+
+      <Dialog open={Boolean(confirmAction)} onClose={closeConfirm} size="sm">
+        <Dialog.Header>
+          <h2>Confirm deletion</h2>
+        </Dialog.Header>
+        <Dialog.Body>
+          <p>
+            {confirmAction === 'user'
+              ? 'Delete this user and all related submissions and analytics?'
+              : 'Delete this submission and its analytics record?'}
+          </p>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button variant="secondary" onClick={closeConfirm} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleConfirm} loading={isDeleting}>
+            {isDeleting ? 'Deleting...' : 'Confirm delete'}
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
+    </section>
+  )
+}
+
+export default AdminSubmissionDetail

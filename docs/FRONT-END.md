@@ -246,3 +246,4 @@ Admin:
 - Results page displays only customer-safe report. O^?fileciteO^'turn4file14O^?
 - Admin login gates all /admin routes; only 3 allowed emails can login.
 - Admin dashboard supports: view submissions + outcomes, manage prompts, delete user data, view analytics.
+

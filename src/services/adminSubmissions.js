@@ -14,5 +14,5 @@ export function getAdminSubmissions({
 
   const query = params.toString()
   const suffix = query ? `?${query}` : ''
-  return api.get(`/api/admin/submissions${suffix}`)
+  return api.get(`/api/admin/submissions${suffix}`, { credentials: 'include' })
 }

@@ -45,7 +45,7 @@ function Home() {
       <header className="page__header">
         <h1 className="text-responsive-xl">HFRE Signal Scan</h1>
         <p className="text-responsive-base">
-          Share your details and receive a customer-safe scan report(s).
+          Share your details and receive a customer-safe scan report.
         </p>
       </header>
 

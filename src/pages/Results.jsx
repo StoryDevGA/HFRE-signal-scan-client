@@ -26,6 +26,17 @@ function Results() {
     () => formatTimestamp(result?.createdAt),
     [result?.createdAt]
   )
+  const confidence = result?.metadata?.confidence_level || 'Unspecified'
+  const confidenceTone =
+    confidence === 'High'
+      ? 'high'
+      : confidence === 'Medium'
+        ? 'medium'
+        : confidence === 'Low'
+          ? 'low'
+          : 'unknown'
+  const sourceScope =
+    result?.metadata?.source_scope || 'Public website only'
 
   useEffect(() => {
     let isActive = true
@@ -171,19 +182,45 @@ function Results() {
   }
 
   return (
-    <main className="page container">
-      <header className="page__header">
-        <h1 className="text-responsive-xl">{result?.company || 'Report'}</h1>
-        <p className="text-responsive-base">
-          Confidence level: {result?.metadata?.confidence_level || 'Unspecified'}
-        </p>
-        {timestamp ? (
-          <p className="text-responsive-sm">Generated: {timestamp}</p>
-        ) : null}
-      </header>
+    <main className="page container results">
+      <section className="results__hero">
+        <div>
+          <p className="results__eyebrow text-responsive-sm">Signal scan report</p>
+          <h1 className="text-responsive-xl">{result?.company || 'Report'}</h1>
+          <p className="text-responsive-base results__summary">
+            A customer-safe signal scan based on public website signals.
+          </p>
+        </div>
+        <div className="results__card">
+          <div className="results__meta">
+            <div className="results__meta-item">
+              <span className="results__meta-label">Confidence</span>
+              <span className={`results__confidence results__confidence--${confidenceTone}`}>
+                {confidence}
+              </span>
+            </div>
+            <div className="results__meta-item">
+              <span className="results__meta-label">Source scope</span>
+              <span className="results__meta-value">{sourceScope}</span>
+            </div>
+            <div className="results__meta-item">
+              <span className="results__meta-label">Generated</span>
+              <span className="results__meta-value">{timestamp || 'In progress'}</span>
+            </div>
+          </div>
+          <p className="results__note text-responsive-sm">
+            A copy is sent to the email provided during submission.
+          </p>
+        </div>
+      </section>
 
       <section className="report">
-        <h2 className="text-responsive-lg">Customer report</h2>
+        <div className="results__report-header">
+          <h2 className="text-responsive-lg">Customer report</h2>
+          <p className="text-responsive-sm results__report-subtitle">
+            Highlights are formatted for easy sharing.
+          </p>
+        </div>
         <ReportRenderer report={result?.customer_report} />
       </section>
     </main>

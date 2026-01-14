@@ -31,6 +31,102 @@
   box-shadow: var(--shadow-sm);
 }
 
+.results {
+  gap: var(--spacing-xl);
+}
+
+.results__hero {
+  display: grid;
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+.results__eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+}
+
+.results__summary {
+  color: var(--color-text-secondary);
+  max-width: 60ch;
+}
+
+.results__card {
+  border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+  border-radius: var(--border-radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.results__meta {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.results__meta-item {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.results__meta-label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.results__meta-value {
+  color: var(--color-text-primary);
+}
+
+.results__confidence {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-inverse);
+  background: var(--color-action-primary);
+  width: fit-content;
+}
+
+.results__confidence--medium {
+  background: color-mix(in srgb, var(--color-warning) 85%, var(--color-action-primary));
+}
+
+.results__confidence--low {
+  background: color-mix(in srgb, var(--color-error) 80%, var(--color-action-primary));
+}
+
+.results__confidence--unknown {
+  background: var(--color-text-tertiary);
+}
+
+.results__note {
+  color: var(--color-text-secondary);
+}
+
+.results__report-header {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.results__report-subtitle {
+  color: var(--color-text-secondary);
+}
+
+@media (min-width: 960px) {
+  .results__hero {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: center;
+  }
+}
+
 .report__body {
   white-space: pre-wrap;
   line-height: var(--line-height-relaxed);

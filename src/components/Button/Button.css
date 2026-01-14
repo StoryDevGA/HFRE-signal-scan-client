@@ -86,19 +86,19 @@
 
 /* Secondary - Less prominent actions */
 .btn--secondary {
-  background-color: var(--color-action-secondary);
-  color: var(--color-text-primary);
-  border-color: color-mix(in srgb, var(--color-action-secondary) 30%, transparent);
+  background-color: var(--color-action-primary);
+  color: var(--color-text-inverse);
+  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
 }
 
 .btn--secondary:hover:not(:disabled) {
-  background-color: var(--color-action-secondary-hover);
-  border-color: color-mix(in srgb, var(--color-action-secondary-hover) 30%, transparent);
+  background-color: var(--color-action-primary-hover);
+  border-color: color-mix(in srgb, var(--color-action-primary-hover) 30%, transparent);
 }
 
 .btn--secondary:active:not(:disabled) {
-  background-color: var(--color-action-secondary-active);
-  border-color: color-mix(in srgb, var(--color-action-secondary-active) 30%, transparent);
+  background-color: var(--color-action-primary-active);
+  border-color: color-mix(in srgb, var(--color-action-primary-active) 30%, transparent);
 }
 
 /* Outline - Subtle emphasis */

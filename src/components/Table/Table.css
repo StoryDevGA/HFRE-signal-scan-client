@@ -137,7 +137,7 @@
   .table__header {
     font-weight: var(--font-weight-semibold);
     text-align: left;
-    background-color: var(--color-gray-50);
+    background-color: var(--color-background-secondary);
     border-bottom: 2px solid var(--color-border);
   }
 
@@ -192,18 +192,18 @@
 
 @media (min-width: 768px) {
   .table--striped .table__body .table__row:nth-child(even) {
-    background-color: var(--color-gray-50);
+    background-color: var(--color-background-secondary);
   }
 
   .table--striped .table__body .table__row--selected:nth-child(even) {
-    background-color: color-mix(in srgb, var(--color-primary-50) 40%, var(--color-gray-50));
+    background-color: color-mix(in srgb, var(--color-primary-50) 40%, var(--color-background-secondary));
   }
 }
 
 /* Mobile: striped cards */
 @media (max-width: 767px) {
   .table--striped .table__row:nth-child(even) {
-    background-color: var(--color-gray-50);
+    background-color: var(--color-background-secondary);
   }
 }
 
@@ -293,7 +293,7 @@
 
 @media (min-width: 768px) {
   .table__header--sortable:hover {
-    background-color: color-mix(in srgb, var(--color-gray-100) 80%, var(--color-primary));
+    background-color: color-mix(in srgb, var(--color-background-tertiary) 80%, var(--color-primary));
   }
 }
 
@@ -373,9 +373,9 @@
   height: 20px;
   background: linear-gradient(
     90deg,
-    var(--color-gray-200) 0%,
-    var(--color-gray-100) 50%,
-    var(--color-gray-200) 100%
+    color-mix(in srgb, var(--color-border) 40%, var(--color-surface)) 0%,
+    color-mix(in srgb, var(--color-border) 20%, var(--color-surface)) 50%,
+    color-mix(in srgb, var(--color-border) 40%, var(--color-surface)) 100%
   );
   background-size: 200% 100%;
   border-radius: var(--border-radius-sm);

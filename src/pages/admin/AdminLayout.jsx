@@ -12,16 +12,20 @@ function AdminLayout() {
   const [status, setStatus] = useState('checking')
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [adminEmail, setAdminEmail] = useState('')
 
   useEffect(() => {
     let isActive = true
     setStatus('checking')
     setErrorMessage('')
+    setAdminEmail(sessionStorage.getItem('adminEmail') || '')
 
     checkAdminSession()
       .then((ok) => {
         if (!isActive) return
         if (!ok) {
+          sessionStorage.removeItem('adminEmail')
+          setAdminEmail('')
           navigate('/admin/login', {
             replace: true,
             state: { from: location.pathname },
@@ -68,6 +72,8 @@ function AdminLayout() {
     setIsLoggingOut(true)
     try {
       await logoutAdmin()
+      sessionStorage.removeItem('adminEmail')
+      setAdminEmail('')
       addToast({
         title: 'Signed out',
         description: 'You have been logged out.',
@@ -89,6 +95,9 @@ function AdminLayout() {
     <div className="admin">
       <aside className="admin__nav">
         <h2 className="admin__title">Admin</h2>
+        {adminEmail ? (
+          <p className="admin__user text-responsive-sm">{adminEmail}</p>
+        ) : null}
         <nav className="admin__links">
           <NavLink
             to="/admin/submissions"

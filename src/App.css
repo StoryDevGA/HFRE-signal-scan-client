@@ -62,6 +62,12 @@
   letter-spacing: 0.04em;
 }
 
+.admin__user {
+  margin: 0;
+  color: var(--color-text-tertiary);
+  word-break: break-word;
+}
+
 .admin__links {
   display: grid;
   gap: var(--spacing-xs);

@@ -19,6 +19,7 @@ function AdminLogin() {
   const onSubmit = async (values) => {
     try {
       await loginAdmin(values)
+      sessionStorage.setItem('adminEmail', values.email.trim())
       const destination = location.state?.from || '/admin/submissions'
       navigate(destination, { replace: true })
     } catch (error) {

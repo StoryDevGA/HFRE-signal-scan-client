@@ -14,10 +14,31 @@ function Home() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    watch,
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
-    mode: 'onBlur',
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   })
+
+  const [name, email, companyName, homepageUrl, productName, productPageUrl] =
+    watch([
+      'name',
+      'email',
+      'company_name',
+      'homepage_url',
+      'product_name',
+      'product_page_url',
+    ])
+
+  const isComplete = [
+    name,
+    email,
+    companyName,
+    homepageUrl,
+    productName,
+    productPageUrl,
+  ].every((value) => String(value || '').trim().length > 0)
 
   const onSubmit = async (values) => {
     try {
@@ -134,7 +155,12 @@ function Home() {
           </Fieldset.Content>
         </Fieldset>
 
-        <Button type="submit" loading={isSubmitting} fullWidth>
+        <Button
+          type="submit"
+          loading={isSubmitting}
+          disabled={!isComplete || !isValid || isSubmitting}
+          fullWidth
+        >
           {isSubmitting ? 'Submitting...' : 'Generate report'}
         </Button>
       </form>

@@ -42,7 +42,7 @@
  */
 
 import './Spinner.css'
-import pinwheelIcon from '../../assets/images/icons/pinwheel.svg'
+import pinwheelIcon from '../../assets/icons/pinwheel.svg'
 
 export function Spinner({
   size = 'md',

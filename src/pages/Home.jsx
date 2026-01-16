@@ -5,6 +5,8 @@ import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Input from '../components/Input/Input.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { submitPublicScan } from '../services/publicScans.js'
+import storylineLogo from '../assets/images/storylineOS-Logo.png'
+import storylineIcon from '../assets/icons/storylineOS-icon.png'
 
 const urlPattern = /^https?:\/\/.+/i
 
@@ -64,7 +66,13 @@ function Home() {
   return (
     <main className="page container">
       <header className="page__header">
-        <h1 className="text-responsive-xl">HFRE Signal Scan</h1>
+        <div className="home__brand">
+          <img
+            src={storylineLogo}
+            alt="StorylineOS"
+            className="home__brand-logo"
+          />
+        </div>
         <p className="text-responsive-base">
           Share your details and receive a customer-safe scan report.
         </p>
@@ -72,7 +80,16 @@ function Home() {
 
       <form className="form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Fieldset>
-          <Fieldset.Legend>Scan details</Fieldset.Legend>
+          <Fieldset.Legend>
+            <span className="home__legend">
+              <img
+                src={storylineIcon}
+                alt="StorylineOS icon"
+                className="home__brand-icon"
+              />
+              <span>Scan details</span>
+            </span>
+          </Fieldset.Legend>
           <Fieldset.Content>
             <Input
               id="name"
@@ -152,17 +169,16 @@ function Home() {
                 },
               })}
             />
+            <Button
+              type="submit"
+              loading={isSubmitting}
+              disabled={!isComplete || !isValid || isSubmitting}
+              fullWidth
+            >
+              {isSubmitting ? 'Submitting...' : 'Generate report'}
+            </Button>
           </Fieldset.Content>
         </Fieldset>
-
-        <Button
-          type="submit"
-          loading={isSubmitting}
-          disabled={!isComplete || !isValid || isSubmitting}
-          fullWidth
-        >
-          {isSubmitting ? 'Submitting...' : 'Generate report'}
-        </Button>
       </form>
     </main>
   )

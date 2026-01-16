@@ -8,6 +8,42 @@
   gap: var(--spacing-xs);
 }
 
+.home__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.home__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.home__brand-icon {
+  height: 28px;
+  width: auto;
+}
+
+.home__brand-logo {
+  height: 44px;
+  width: auto;
+}
+
+.home__brand-name {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+}
+
+.home__brand-subtitle {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+}
+
 .form {
   display: grid;
   gap: var(--spacing-md);

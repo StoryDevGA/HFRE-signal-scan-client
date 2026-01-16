@@ -14,6 +14,13 @@
   gap: var(--spacing-sm);
 }
 
+.home__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
 .home__legend {
   display: inline-flex;
   align-items: center;
@@ -28,6 +35,13 @@
 .home__brand-logo {
   height: 44px;
   width: auto;
+}
+
+@media (max-width: 640px) {
+  .home__header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .home__brand-name {

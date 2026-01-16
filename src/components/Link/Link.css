@@ -1,0 +1,19 @@
+.link {
+  color: var(--color-action-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--color-action-primary-hover);
+  text-decoration: none;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 3px;
+}

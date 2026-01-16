@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Input from '../components/Input/Input.jsx'
+import Link from '../components/Link/Link.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { submitPublicScan } from '../services/publicScans.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
@@ -66,12 +67,17 @@ function Home() {
   return (
     <main className="page container">
       <header className="page__header">
-        <div className="home__brand">
-          <img
-            src={storylineLogo}
-            alt="StorylineOS"
-            className="home__brand-logo"
-          />
+        <div className="home__header-row">
+          <div className="home__brand">
+            <img
+              src={storylineLogo}
+              alt="StorylineOS"
+              className="home__brand-logo"
+            />
+          </div>
+          <Link href="https://www.storylineos.com/" target="_blank">
+            Back to StorylineOS
+          </Link>
         </div>
         <p className="text-responsive-base">
           Share your details and receive a customer-safe scan report.

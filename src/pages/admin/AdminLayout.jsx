@@ -4,9 +4,11 @@ import Avatar from '../../components/Avatar/Avatar.jsx'
 import Button from '../../components/Button/Button.jsx'
 import Footer from '../../components/Footer/Footer.jsx'
 import Header from '../../components/Header/Header.jsx'
+import Link from '../../components/Link/Link.jsx'
 import Spinner from '../../components/Spinner/Spinner.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { checkAdminSession, logoutAdmin } from '../../services/adminAuth.js'
+import storylineLogo from '../../assets/images/storylineOS-Logo.png'
 
 function AdminLayout() {
   const navigate = useNavigate()
@@ -97,18 +99,25 @@ function AdminLayout() {
   return (
     <>
       <Header
-        logo="StorylineOS"
-        logoLink="/"
+        logo={
+          <img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />
+        }
+        logoLink={null}
         showNavigation={false}
       >
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleLogout}
-          loading={isLoggingOut}
-        >
-          {isLoggingOut ? 'Signing out...' : 'Sign out'}
-        </Button>
+        <div className="header__actions-group">
+          <Link href="https://www.storylineos.com/" openInNewTab>
+            Back to StorylineOS
+          </Link>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleLogout}
+            loading={isLoggingOut}
+          >
+            {isLoggingOut ? 'Signing out...' : 'Sign out'}
+          </Button>
+        </div>
       </Header>
       <div className="admin">
         <aside className="admin__nav">

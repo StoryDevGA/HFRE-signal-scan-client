@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
 import Header from '../components/Header/Header.jsx'
+import Link from '../components/Link/Link.jsx'
 import Spinner from '../components/Spinner/Spinner.jsx'
 import Typewriter from '../components/Typewriter/Typewriter.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { ApiError } from '../lib/api.js'
 import { getPublicResult } from '../services/publicResults.js'
+import storylineLogo from '../assets/images/storylineOS-Logo.png'
 
 const formatTimestamp = (value) => {
   if (!value) return ''
@@ -69,14 +71,24 @@ function Results() {
     }
   }, [publicId])
 
+  const header = (
+    <Header
+      logo={
+        <img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />
+      }
+      logoLink={null}
+      showNavigation={false}
+    >
+      <Link href="https://www.storylineos.com/" openInNewTab>
+        Back to StorylineOS
+      </Link>
+    </Header>
+  )
+
   if (status === 'loading') {
     return (
       <>
-        <Header
-          logo="StorylineOS"
-          logoLink="/"
-          showNavigation={false}
-        />
+        {header}
         <main className="page container" aria-busy="true">
           <div className="status-block" role="status" aria-live="polite">
             <Spinner type="circle" size="lg" />
@@ -99,11 +111,7 @@ function Results() {
   if (status === 'not-found') {
     return (
       <>
-        <Header
-          logo="StorylineOS"
-          logoLink="/"
-          showNavigation={false}
-        />
+        {header}
         <main className="page container">
           <div className="error-state" role="alert" aria-live="assertive">
             <div className="error-state__icon" aria-hidden="true">
@@ -131,11 +139,7 @@ function Results() {
 
     return (
       <>
-        <Header
-          logo="StorylineOS"
-          logoLink="/"
-          showNavigation={false}
-        />
+        {header}
         <main className="page container">
           <div className="error-state" role="alert" aria-live="assertive">
             <div className="error-state__icon error-state__icon--error" aria-hidden="true">
@@ -165,11 +169,7 @@ function Results() {
 
   return (
     <>
-      <Header
-        logo="StorylineOS"
-        logoLink="/"
-        showNavigation={false}
-      />
+      {header}
       <main className="page container">
         <header className="page__header">
           <h1 className="text-responsive-xl">{result?.company || 'Report'}</h1>

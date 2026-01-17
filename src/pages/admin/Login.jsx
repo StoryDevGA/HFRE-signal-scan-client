@@ -5,8 +5,10 @@ import Fieldset from '../../components/Fieldset/Fieldset.jsx'
 import Footer from '../../components/Footer/Footer.jsx'
 import Header from '../../components/Header/Header.jsx'
 import Input from '../../components/Input/Input.jsx'
+import Link from '../../components/Link/Link.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { loginAdmin } from '../../services/adminAuth.js'
+import storylineLogo from '../../assets/images/storylineOS-Logo.png'
 
 function AdminLogin() {
   const navigate = useNavigate()
@@ -35,7 +37,17 @@ function AdminLogin() {
 
   return (
     <>
-      <Header logo="StorylineOS" logoLink="/" showNavigation={false} />
+      <Header
+        logo={
+          <img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />
+        }
+        logoLink={null}
+        showNavigation={false}
+      >
+        <Link href="https://www.storylineos.com/" openInNewTab>
+          Back to StorylineOS
+        </Link>
+      </Header>
       <main className="page container">
         <header className="page__header">
           <h1 className="text-responsive-xl">Admin Login</h1>

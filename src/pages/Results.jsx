@@ -6,7 +6,6 @@ import Link from '../components/Link/Link.jsx'
 import Spinner from '../components/Spinner/Spinner.jsx'
 import Typewriter from '../components/Typewriter/Typewriter.jsx'
 import Footer from '../components/Footer/Footer.jsx'
-import { ApiError } from '../lib/api.js'
 import { getPublicResult } from '../services/publicResults.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
 
@@ -44,30 +43,51 @@ function Results() {
 
   useEffect(() => {
     let isActive = true
-    setStatus('loading')
-    setErrorMessage('')
-    setResult(null)
+    let timeoutId
 
-    getPublicResult(publicId)
-      .then((data) => {
+    const pollResult = async () => {
+      setErrorMessage('')
+      try {
+        const data = await getPublicResult(publicId)
         if (!isActive) return
-        setResult(data)
-        setStatus('ready')
-      })
-      .catch((error) => {
-        if (!isActive) return
-        if (error instanceof ApiError && error.status === 404) {
+
+        if (data?.status === 'pending') {
+          setStatus('pending')
+          timeoutId = window.setTimeout(pollResult, 1500)
+          return
+        }
+
+        if (data?.status === 'not_found') {
           setStatus('not-found')
           return
         }
+
+        if (data?.status === 'failed') {
+          setErrorMessage('The report failed to generate. Please try again later.')
+          setStatus('error')
+          return
+        }
+
+        setResult(data)
+        setStatus('ready')
+      } catch (error) {
+        if (!isActive) return
         setErrorMessage(
           error?.message || 'Unable to load the report right now.'
         )
         setStatus('error')
-      })
+      }
+    }
+
+    setStatus('loading')
+    setResult(null)
+    pollResult()
 
     return () => {
       isActive = false
+      if (timeoutId) {
+        window.clearTimeout(timeoutId)
+      }
     }
   }, [publicId])
 
@@ -85,7 +105,7 @@ function Results() {
     </Header>
   )
 
-  if (status === 'loading') {
+  if (status === 'loading' || status === 'pending') {
     return (
       <>
         {header}
@@ -93,7 +113,11 @@ function Results() {
           <div className="status-block" role="status" aria-live="polite">
             <Spinner type="circle" size="lg" />
             <Typewriter
-              text="Loading your report..."
+              text={
+                status === 'pending'
+                  ? 'We are generating your report...'
+                  : 'Loading your report...'
+              }
               speed={40}
               className="text-responsive-base"
               ariaLabel="Loading your report"

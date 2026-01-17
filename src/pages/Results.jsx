@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
 import Header from '../components/Header/Header.jsx'
 import Link from '../components/Link/Link.jsx'
-import Spinner from '../components/Spinner/Spinner.jsx'
+import ThinkingWords from '../components/ThinkingWords/ThinkingWords.jsx'
 import Typewriter from '../components/Typewriter/Typewriter.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { getPublicResult } from '../services/publicResults.js'
@@ -111,7 +111,30 @@ function Results() {
         {header}
         <main className="page container" aria-busy="true">
           <div className="status-block" role="status" aria-live="polite">
-            <Spinner type="circle" size="lg" />
+            <ThinkingWords
+              words={[
+                'Sparkling',
+                'Fluttering',
+                'Bubbling',
+                'Glimmering',
+                'Twinkling',
+                'Sunshining',
+                'Doodling',
+                'Skipping',
+                'Humming',
+                'Wiggling',
+                'Drifting',
+                'Dreaming',
+                'Wandering',
+                'Tickling',
+                'Nudging',
+                'Cheering',
+                'Chirping',
+                'Swaying',
+                'Blooming',
+                'Smiling',
+              ]}
+            />
             <Typewriter
               text={
                 status === 'pending'

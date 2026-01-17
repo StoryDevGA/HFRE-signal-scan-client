@@ -1,0 +1,23 @@
+.thinking-words {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-primary);
+}
+
+.thinking-words__divider {
+  color: var(--color-text-tertiary);
+}
+
+.thinking-words__word {
+  color: var(--color-text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thinking-words {
+    transition: none;
+  }
+}

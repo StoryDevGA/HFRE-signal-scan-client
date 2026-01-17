@@ -48,8 +48,12 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
   padding: var(--spacing-sm) 0;
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 20%, transparent);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .table__cell:last-child {

@@ -52,11 +52,12 @@ export function Spinner({
   className = '',
   ...props
 }) {
+  const effectiveType = type === 'circle' ? 'pinwheel' : type
   const spinnerClasses = [
     'spinner',
-    `spinner--${type}`,
+    `spinner--${effectiveType}`,
     `spinner--${size}`,
-    type === 'circle' && `spinner--${color}`,
+    effectiveType === 'circle' && `spinner--${color}`,
     className,
   ]
     .filter(Boolean)
@@ -71,7 +72,7 @@ export function Spinner({
       style={spinnerStyles}
       {...props}
     >
-      {type === 'pinwheel' && (
+      {effectiveType === 'pinwheel' && (
         <img
           src={pinwheelIcon}
           alt=""

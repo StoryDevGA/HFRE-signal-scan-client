@@ -27,7 +27,7 @@
   align-items: center;
   justify-content: center;
   border: 2px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-  border-radius: var(--border-radius-xs);
+  border-radius: var(--border-radius-sm);
   background-color: var(--color-surface);
   transition: all var(--transition-fast);
 }
@@ -87,18 +87,18 @@
 
 .tickbox-input:focus-visible + .tickbox-box {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 15%, transparent);
 }
 
 .tickbox-container:not(.tickbox-container--disabled):hover .tickbox-box {
-  border-color: var(--color-primary);
+  border-color: var(--color-border-focus);
 }
 
 .tickbox-input:checked + .tickbox-box,
 .tickbox-input:indeterminate + .tickbox-box {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background-color: var(--color-action-primary);
+  border-color: var(--color-action-primary);
 }
 
 .tickbox-container--disabled {

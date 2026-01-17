@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Button from '../../components/Button/Button.jsx'
 import Dialog from '../../components/Dialog/Dialog.jsx'
 import Fieldset from '../../components/Fieldset/Fieldset.jsx'
+import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll.jsx'
 import Input from '../../components/Input/Input.jsx'
 import Select from '../../components/Select/Select.jsx'
 import Table from '../../components/Table/Table.jsx'
@@ -180,42 +181,44 @@ function AdminPrompts() {
         <p className="text-responsive-base">{errorMessage}</p>
       ) : null}
 
-      <Table
-        columns={[
-          { key: 'name', label: 'Name' },
-          { key: 'type', label: 'Type' },
-          { key: 'version', label: 'Version' },
-          { key: 'active', label: 'Active' },
-        ]}
-        data={rows}
-        variant="striped"
-        hoverable
-        loading={loading}
-        emptyMessage="No prompts found."
-        actions={[
-          {
-            label: 'Edit',
-            variant: 'ghost',
-            onClick: (row) => {
-              const prompt = prompts.find(
-                (item) => (item._id || item.id) === row.id
-              )
-              if (prompt) startEdit(prompt)
+      <HorizontalScroll ariaLabel="Prompts table" className="admin-scroll">
+        <Table
+          columns={[
+            { key: 'name', label: 'Name' },
+            { key: 'type', label: 'Type' },
+            { key: 'version', label: 'Version' },
+            { key: 'active', label: 'Active' },
+          ]}
+          data={rows}
+          variant="striped"
+          hoverable
+          loading={loading}
+          emptyMessage="No prompts found."
+          actions={[
+            {
+              label: 'Edit',
+              variant: 'ghost',
+              onClick: (row) => {
+                const prompt = prompts.find(
+                  (item) => (item._id || item.id) === row.id
+                )
+                if (prompt) startEdit(prompt)
+              },
             },
-          },
-          {
-            label: 'Delete',
-            variant: 'danger',
-            onClick: (row) => {
-              const prompt = prompts.find(
-                (item) => (item._id || item.id) === row.id
-              )
-              if (prompt) confirmDeletePrompt(prompt)
+            {
+              label: 'Delete',
+              variant: 'danger',
+              onClick: (row) => {
+                const prompt = prompts.find(
+                  (item) => (item._id || item.id) === row.id
+                )
+                if (prompt) confirmDeletePrompt(prompt)
+              },
             },
-          },
-        ]}
-        ariaLabel="Prompts list"
-      />
+          ]}
+          ariaLabel="Prompts list"
+        />
+      </HorizontalScroll>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} size="lg">
         <Dialog.Header>

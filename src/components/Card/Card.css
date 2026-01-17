@@ -1,0 +1,87 @@
+.card {
+  display: grid;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.card--rounded {
+  border-radius: 0;
+}
+
+.card--square {
+  border-radius: 0;
+}
+
+.card--outlined {
+  border: 2px solid var(--color-border);
+}
+
+.card--elevated {
+  box-shadow: var(--shadow-lg);
+}
+
+.card--filled {
+  background-color: var(--color-background-secondary);
+}
+
+.card--hoverable:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card--clickable {
+  cursor: pointer;
+}
+
+.card--clickable:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.card--clickable:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.card__image {
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+}
+
+.card__header {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.card__body {
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  .card--hoverable:hover,
+  .card--clickable:hover {
+    transform: none;
+  }
+}

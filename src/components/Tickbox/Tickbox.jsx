@@ -49,9 +49,10 @@ export const Tickbox = forwardRef(function Tickbox(
         className="tickbox-input"
         checked={checked}
         onChange={onChange}
-      disabled={disabled}
-      {...props}
-    />
+        disabled={disabled}
+        aria-checked={indeterminate ? 'mixed' : checked}
+        {...props}
+      />
       <span className="tickbox-box">
         {indeterminate ? (
           <MdRemove className="tickbox-icon" aria-hidden="true" focusable="false" />

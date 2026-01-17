@@ -2,8 +2,10 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
+import Header from '../components/Header/Header.jsx'
 import Input from '../components/Input/Input.jsx'
 import Link from '../components/Link/Link.jsx'
+import Footer from '../components/Footer/Footer.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { submitPublicScan } from '../services/publicScans.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
@@ -65,128 +67,128 @@ function Home() {
   }
 
   return (
-    <main className="page container">
-      <header className="page__header">
-        <div className="home__header-row">
-          <div className="home__brand">
-            <img
-              src={storylineLogo}
-              alt="StorylineOS"
-              className="home__brand-logo"
-            />
-          </div>
-          <Link href="https://www.storylineos.com/" target="_blank">
-            Back to StorylineOS
-          </Link>
-        </div>
-        <p className="text-responsive-base">
-          Share your details and receive a customer-safe scan report.
-        </p>
-      </header>
+    <>
+      <Header
+        logo={<img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />}
+        logoLink={null}
+        showNavigation={false}
+      >
+        <Link href="https://www.storylineos.com/" openInNewTab>
+          Back to StorylineOS
+        </Link>
+      </Header>
+      <main className="page container">
+        <header className="page__header">
+          <p className="text-responsive-base">
+            Share your details and receive a customer-safe scan report.
+          </p>
+        </header>
 
-      <form className="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Fieldset>
-          <Fieldset.Legend>
-            <span className="home__legend">
-              <img
-                src={storylineIcon}
-                alt="StorylineOS icon"
-                className="home__brand-icon"
+        <form className="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <Fieldset>
+            <Fieldset.Legend>
+              <span className="home__legend">
+                <img
+                  src={storylineIcon}
+                  alt="StorylineOS icon"
+                  className="home__brand-icon"
+                />
+                <span>Scan details</span>
+              </span>
+            </Fieldset.Legend>
+            <Fieldset.Content>
+              <Input
+                id="name"
+                label="Contact name"
+                error={errors.name?.message}
+                required
+                fullWidth
+                {...register('name', { required: 'Name is required.' })}
               />
-              <span>Scan details</span>
-            </span>
-          </Fieldset.Legend>
-          <Fieldset.Content>
-            <Input
-              id="name"
-              label="Contact name"
-              error={errors.name?.message}
-              required
-              fullWidth
-              {...register('name', { required: 'Name is required.' })}
-            />
 
-            <Input
-              id="email"
-              type="email"
-              label="Email"
-              error={errors.email?.message}
-              required
-              fullWidth
-              {...register('email', {
-                required: 'Email is required.',
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Enter a valid email address.',
-                },
-              })}
-            />
+              <Input
+                id="email"
+                type="email"
+                label="Email"
+                error={errors.email?.message}
+                required
+                fullWidth
+                {...register('email', {
+                  required: 'Email is required.',
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Enter a valid email address.',
+                  },
+                })}
+              />
 
-            <Input
-              id="company_name"
-              label="Company name"
-              error={errors.company_name?.message}
-              required
-              fullWidth
-              {...register('company_name', {
-                required: 'Company name is required.',
-              })}
-            />
+              <Input
+                id="company_name"
+                label="Company name"
+                error={errors.company_name?.message}
+                required
+                fullWidth
+                {...register('company_name', {
+                  required: 'Company name is required.',
+                })}
+              />
 
-            <Input
-              id="homepage_url"
-              type="url"
-              label="Website"
-              error={errors.homepage_url?.message}
-              required
-              fullWidth
-              {...register('homepage_url', {
-                required: 'Website URL is required.',
-                pattern: {
-                  value: urlPattern,
-                  message: 'Enter a full URL starting with http or https.',
-                },
-              })}
-            />
+              <Input
+                id="homepage_url"
+                type="url"
+                label="Website"
+                error={errors.homepage_url?.message}
+                required
+                fullWidth
+                {...register('homepage_url', {
+                  required: 'Website URL is required.',
+                  pattern: {
+                    value: urlPattern,
+                    message: 'Enter a full URL starting with http or https.',
+                  },
+                })}
+              />
 
-            <Input
-              id="product_name"
-              label="Product or solution"
-              error={errors.product_name?.message}
-              required
-              fullWidth
-              {...register('product_name', {
-                required: 'Product or solution is required.',
-              })}
-            />
+              <Input
+                id="product_name"
+                label="Product or solution"
+                error={errors.product_name?.message}
+                required
+                fullWidth
+                {...register('product_name', {
+                  required: 'Product or solution is required.',
+                })}
+              />
 
-            <Input
-              id="product_page_url"
-              type="url"
-              label="Product or solution page"
-              error={errors.product_page_url?.message}
-              required
-              fullWidth
-              {...register('product_page_url', {
-                required: 'Product page URL is required.',
-                pattern: {
-                  value: urlPattern,
-                  message: 'Enter a full URL starting with http or https.',
-                },
-              })}
-            />
-            <Button
-              type="submit"
-              loading={isSubmitting}
-              disabled={!isComplete || !isValid || isSubmitting}
-              fullWidth
-            >
-              {isSubmitting ? 'Submitting...' : 'Generate report'}
-            </Button>
-          </Fieldset.Content>
-        </Fieldset>
-      </form>
-    </main>
+              <Input
+                id="product_page_url"
+                type="url"
+                label="Product or solution page"
+                error={errors.product_page_url?.message}
+                required
+                fullWidth
+                {...register('product_page_url', {
+                  required: 'Product page URL is required.',
+                  pattern: {
+                    value: urlPattern,
+                    message: 'Enter a full URL starting with http or https.',
+                  },
+                })}
+              />
+              <Button
+                type="submit"
+                loading={isSubmitting}
+                disabled={!isComplete || !isValid || isSubmitting}
+                fullWidth
+              >
+                {isSubmitting ? 'Submitting...' : 'Generate report'}
+              </Button>
+            </Fieldset.Content>
+          </Fieldset>
+        </form>
+      </main>
+      <Footer copyright="StorylineOS" />
+    </>
   )
 }
 

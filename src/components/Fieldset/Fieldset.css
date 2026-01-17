@@ -31,7 +31,7 @@
 }
 
 .fieldset--filled {
-  background-color: color-mix(in srgb, var(--color-surface) 95%, var(--color-primary));
+  background-color: color-mix(in srgb, var(--color-surface) 95%, var(--color-action-primary));
   border-color: color-mix(in srgb, var(--color-border) 20%, transparent);
 }
 

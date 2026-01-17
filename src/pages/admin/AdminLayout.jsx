@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import Avatar from '../../components/Avatar/Avatar.jsx'
 import Button from '../../components/Button/Button.jsx'
+import Footer from '../../components/Footer/Footer.jsx'
+import Header from '../../components/Header/Header.jsx'
 import Spinner from '../../components/Spinner/Spinner.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { checkAdminSession, logoutAdmin } from '../../services/adminAuth.js'
@@ -92,69 +95,81 @@ function AdminLayout() {
   }
 
   return (
-    <div className="admin">
-      <aside className="admin__nav">
-        <h2 className="admin__title">Admin</h2>
-        {adminEmail ? (
-          <p className="admin__user text-responsive-sm">{adminEmail}</p>
-        ) : null}
-        <nav className="admin__links">
-          <NavLink
-            to="/admin/submissions"
-            className={({ isActive }) =>
-              ['admin__link', isActive ? 'admin__link--active' : '']
-                .filter(Boolean)
-                .join(' ')
-            }
-          >
-            Submissions
-          </NavLink>
-          <NavLink
-            to="/admin/prompts"
-            className={({ isActive }) =>
-              ['admin__link', isActive ? 'admin__link--active' : '']
-                .filter(Boolean)
-                .join(' ')
-            }
-          >
-            Prompts
-          </NavLink>
-          <NavLink
-            to="/admin/users"
-            className={({ isActive }) =>
-              ['admin__link', isActive ? 'admin__link--active' : '']
-                .filter(Boolean)
-                .join(' ')
-            }
-          >
-            Users
-          </NavLink>
-          <NavLink
-            to="/admin/analytics"
-            className={({ isActive }) =>
-              ['admin__link', isActive ? 'admin__link--active' : '']
-                .filter(Boolean)
-                .join(' ')
-            }
-          >
-            Analytics
-          </NavLink>
-        </nav>
-        <div className="admin__actions">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleLogout}
-            loading={isLoggingOut}
-          >
-            {isLoggingOut ? 'Signing out...' : 'Sign out'}
-          </Button>
-        </div>
-      </aside>
-      <main className="admin__content">
-        <Outlet />
-      </main>
-    </div>
+    <>
+      <Header
+        logo="StorylineOS"
+        logoLink="/"
+        showNavigation={false}
+      >
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={handleLogout}
+          loading={isLoggingOut}
+        >
+          {isLoggingOut ? 'Signing out...' : 'Sign out'}
+        </Button>
+      </Header>
+      <div className="admin">
+        <aside className="admin__nav">
+          <div className="admin__profile">
+            <Avatar name={adminEmail || 'Admin'} size="sm" />
+            <div className="admin__profile-info">
+              <h2 className="admin__title">Admin</h2>
+              {adminEmail ? (
+                <p className="admin__user text-responsive-sm">{adminEmail}</p>
+              ) : null}
+            </div>
+          </div>
+          <nav className="admin__links">
+            <NavLink
+              to="/admin/submissions"
+              className={({ isActive }) =>
+                ['admin__link', isActive ? 'admin__link--active' : '']
+                  .filter(Boolean)
+                  .join(' ')
+              }
+            >
+              Submissions
+            </NavLink>
+            <NavLink
+              to="/admin/prompts"
+              className={({ isActive }) =>
+                ['admin__link', isActive ? 'admin__link--active' : '']
+                  .filter(Boolean)
+                  .join(' ')
+              }
+            >
+              Prompts
+            </NavLink>
+            <NavLink
+              to="/admin/users"
+              className={({ isActive }) =>
+                ['admin__link', isActive ? 'admin__link--active' : '']
+                  .filter(Boolean)
+                  .join(' ')
+              }
+            >
+              Users
+            </NavLink>
+            <NavLink
+              to="/admin/analytics"
+              className={({ isActive }) =>
+                ['admin__link', isActive ? 'admin__link--active' : '']
+                  .filter(Boolean)
+                  .join(' ')
+              }
+            >
+              Analytics
+            </NavLink>
+          </nav>
+        </aside>
+        <main className="admin__content">
+          <Outlet />
+          <Footer copyright="StorylineOS" />
+        </main>
+      </div>
+    </>
   )
 }
 

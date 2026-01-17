@@ -5,7 +5,7 @@
  * that reduces in size and moves outside when focused or filled.
  */
 
-import { useState, forwardRef } from 'react'
+import { useEffect, useState, forwardRef } from 'react'
 import './Input.css'
 
 /**
@@ -38,6 +38,14 @@ export const Input = forwardRef(function Input(
   const [hasValue, setHasValue] = useState(!!defaultValue || !!value)
   const hasLeftIcon = Boolean(leftIcon)
   const hasRightIcon = Boolean(rightIcon)
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setHasValue(Boolean(value))
+      return
+    }
+    setHasValue(Boolean(defaultValue))
+  }, [value, defaultValue])
 
   const handleFocus = (e) => {
     setIsFocused(true)

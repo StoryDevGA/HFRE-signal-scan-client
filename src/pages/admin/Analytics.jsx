@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import Button from '../../components/Button/Button.jsx'
+import Card from '../../components/Card/Card.jsx'
 import Fieldset from '../../components/Fieldset/Fieldset.jsx'
+import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll.jsx'
 import Input from '../../components/Input/Input.jsx'
 import Table from '../../components/Table/Table.jsx'
 import { ApiError } from '../../lib/api.js'
@@ -74,7 +76,7 @@ function AdminAnalytics() {
       ) : null}
 
       <div className="detail-grid">
-        <div className="detail-card">
+        <Card className="detail-card">
           <h2 className="detail-title">Totals</h2>
           <dl className="detail-list">
             <div>
@@ -98,53 +100,59 @@ function AdminAnalytics() {
               <dd>{totals.conversionRate ?? 0}%</dd>
             </div>
           </dl>
-        </div>
+        </Card>
 
-        <div className="detail-card">
+        <Card className="detail-card">
           <h2 className="detail-title">Counts by day</h2>
-          <Table
-            columns={[
-              { key: 'date', label: 'Date' },
-              { key: 'count', label: 'Count' },
-            ]}
-            data={countsByDay}
-            loading={loading}
-            emptyMessage="No data yet."
-            ariaLabel="Counts by day"
-          />
-        </div>
+          <HorizontalScroll ariaLabel="Counts by day table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'date', label: 'Date' },
+                { key: 'count', label: 'Count' },
+              ]}
+              data={countsByDay}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Counts by day"
+            />
+          </HorizontalScroll>
+        </Card>
       </div>
 
       <div className="detail-grid">
-        <div className="detail-card">
+        <Card className="detail-card">
           <h2 className="detail-title">Top browsers</h2>
-          <Table
-            columns={[
-              { key: 'key', label: 'Browser' },
-              { key: 'count', label: 'Count' },
-            ]}
-            data={topBrowsers}
-            loading={loading}
-            emptyMessage="No data yet."
-            ariaLabel="Top browsers"
-          />
-        </div>
-        <div className="detail-card">
+          <HorizontalScroll ariaLabel="Top browsers table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'key', label: 'Browser' },
+                { key: 'count', label: 'Count' },
+              ]}
+              data={topBrowsers}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Top browsers"
+            />
+          </HorizontalScroll>
+        </Card>
+        <Card className="detail-card">
           <h2 className="detail-title">Top devices</h2>
-          <Table
-            columns={[
-              { key: 'key', label: 'Device' },
-              { key: 'count', label: 'Count' },
-            ]}
-            data={topDevices}
-            loading={loading}
-            emptyMessage="No data yet."
-            ariaLabel="Top devices"
-          />
-        </div>
+          <HorizontalScroll ariaLabel="Top devices table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'key', label: 'Device' },
+                { key: 'count', label: 'Count' },
+              ]}
+              data={topDevices}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Top devices"
+            />
+          </HorizontalScroll>
+        </Card>
       </div>
 
-      <div className="detail-card">
+      <Card className="detail-card">
         <h2 className="detail-title">Submission analytics</h2>
         <form className="form" onSubmit={(event) => event.preventDefault()}>
           <Fieldset>
@@ -192,7 +200,7 @@ function AdminAnalytics() {
             </div>
           </dl>
         ) : null}
-      </div>
+      </Card>
     </section>
   )
 }

@@ -18,10 +18,15 @@ export function Fieldset({
   className = '',
   ...props
 }) {
+  const allowedGaps = ['sm', 'md', 'lg', 'xl']
+  const allowedVariants = ['default', 'outlined', 'filled']
+  const resolvedGap = allowedGaps.includes(gap) ? gap : 'md'
+  const resolvedVariant = allowedVariants.includes(variant) ? variant : 'default'
+
   const fieldsetClasses = [
     'fieldset',
-    `fieldset--${variant}`,
-    `fieldset--gap-${gap}`,
+    `fieldset--${resolvedVariant}`,
+    `fieldset--gap-${resolvedGap}`,
     className,
   ]
     .filter(Boolean)

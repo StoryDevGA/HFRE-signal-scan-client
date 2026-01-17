@@ -24,10 +24,12 @@ export function ToasterProvider({
   children,
   position = 'top-right',
   duration = 4000,
-  max = 4
+  max = 4,
 }) {
   const allowedPositions = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
-  const resolvedPosition = allowedPositions.includes(position) ? position : 'top-right'
+  const resolvedPosition = allowedPositions.includes(position)
+    ? position
+    : 'top-right'
   const [toasts, setToasts] = useState([])
   const timersRef = useRef(new Map())
 
@@ -47,6 +49,9 @@ export function ToasterProvider({
         typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
           : `toast-${Date.now()}-${Math.random().toString(16).slice(2)}`
+      if (!title) {
+        return null
+      }
       setToasts((prev) => {
         const next = [...prev, { id, title, description, variant: normalizedVariant }]
         if (next.length > max) {
@@ -82,7 +87,10 @@ export function ToasterProvider({
     }
   }, [])
 
-  const value = useMemo(() => ({ addToast, removeToast, position: resolvedPosition }), [addToast, removeToast, resolvedPosition])
+  const value = useMemo(
+    () => ({ addToast, removeToast, position: resolvedPosition }),
+    [addToast, removeToast, resolvedPosition]
+  )
 
   return (
     <ToasterContext.Provider value={value}>
@@ -93,7 +101,10 @@ export function ToasterProvider({
         aria-live="polite"
       >
         {toasts.map((toast) => (
-          <div key={toast.id} className={['toast', `toast--${toast.variant}`].join(' ')}>
+          <div
+            key={toast.id}
+            className={['toast', `toast--${toast.variant}`].join(' ')}
+          >
             <div className="toast__body">
               <div className="toast__title">{toast.title}</div>
               {toast.description ? (

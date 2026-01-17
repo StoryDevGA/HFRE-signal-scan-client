@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Accordion from '../../components/Accordion/Accordion.jsx'
 import Button from '../../components/Button/Button.jsx'
 import Dialog from '../../components/Dialog/Dialog.jsx'
 import Fieldset from '../../components/Fieldset/Fieldset.jsx'
+import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll.jsx'
 import Input from '../../components/Input/Input.jsx'
 import Table from '../../components/Table/Table.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
+import Tooltip from '../../components/Tooltip/Tooltip.jsx'
 import { ApiError } from '../../lib/api.js'
 import { getAdminSubmissions } from '../../services/adminSubmissions.js'
 import { deleteAdminUser } from '../../services/adminUsers.js'
@@ -140,9 +143,9 @@ function AdminUsers() {
   const rows = users.map((user) => ({
     id: user.email,
     email: user.email,
-    company: user.company || '—',
+    company: user.company || 'N/A',
     count: user.count,
-    lastSeen: user.lastSeen ? new Date(user.lastSeen).toLocaleString() : '—',
+    lastSeen: user.lastSeen ? new Date(user.lastSeen).toLocaleString() : 'N/A',
   }))
 
   return (
@@ -158,45 +161,56 @@ function AdminUsers() {
         <p className="text-responsive-base">{errorMessage}</p>
       ) : null}
 
-      <Table
-        columns={columns}
-        data={rows}
-        variant="striped"
-        hoverable
-        actions={[
-          {
-            label: 'Use email',
-            variant: 'ghost',
-            onClick: (row) => setEmail(row.email),
-          },
-        ]}
-        loading={isLoading}
-        emptyMessage="No users found yet."
-        ariaLabel="Users list"
-      />
+      <HorizontalScroll ariaLabel="Users table" className="admin-scroll">
+        <Table
+          columns={columns}
+          data={rows}
+          variant="striped"
+          hoverable
+          actions={[
+            {
+              label: 'Use email',
+              variant: 'ghost',
+              onClick: (row) => setEmail(row.email),
+            },
+          ]}
+          loading={isLoading}
+          emptyMessage="No users found yet."
+          ariaLabel="Users list"
+        />
+      </HorizontalScroll>
 
-      <form className="form" onSubmit={(event) => event.preventDefault()}>
-        <Fieldset>
-          <Fieldset.Legend>Delete user data</Fieldset.Legend>
-          <Fieldset.Content>
-            <Input
-              id="delete_user_email"
-              type="email"
-              label="Email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              fullWidth
-              required
-            />
-          </Fieldset.Content>
-        </Fieldset>
+      <Accordion variant="outlined" defaultOpenItems={['delete-user']}>
+        <Accordion.Item id="delete-user">
+          <Accordion.Header itemId="delete-user">Delete user data</Accordion.Header>
+          <Accordion.Content itemId="delete-user">
+            <form className="form" onSubmit={(event) => event.preventDefault()}>
+              <Fieldset>
+                <Fieldset.Legend>Delete user data</Fieldset.Legend>
+                <Fieldset.Content>
+                  <Input
+                    id="delete_user_email"
+                    type="email"
+                    label="Email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    fullWidth
+                    required
+                  />
+                </Fieldset.Content>
+              </Fieldset>
 
-        <div className="admin-actions">
-          <Button variant="danger" onClick={openConfirm}>
-            Delete user data
-          </Button>
-        </div>
-      </form>
+              <div className="admin-actions">
+                <Tooltip content="Deletes all submissions and analytics for this email.">
+                  <Button variant="danger" onClick={openConfirm}>
+                    Delete user data
+                  </Button>
+                </Tooltip>
+              </div>
+            </form>
+          </Accordion.Content>
+        </Accordion.Item>
+      </Accordion>
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)} size="sm">
         <Dialog.Header>
@@ -226,3 +240,4 @@ function AdminUsers() {
 }
 
 export default AdminUsers
+

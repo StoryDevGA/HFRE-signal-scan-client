@@ -34,11 +34,11 @@
  *
  * @example
  * // Circle spinner with background color
- * <Spinner type="circle" backgroundColor="rgba(0, 0, 0, 0.1)" />
+ * <Spinner type="circle" backgroundColor="color-mix(in srgb, var(--color-border) 30%, transparent)" />
  *
  * @example
  * // Pinwheel spinner with background color
- * <Spinner backgroundColor="#f0f0f0" size="lg" />
+ * <Spinner backgroundColor="var(--color-background-secondary)" size="lg" />
  */
 
 import './Spinner.css'
@@ -57,7 +57,7 @@ export function Spinner({
     'spinner',
     `spinner--${effectiveType}`,
     `spinner--${size}`,
-    effectiveType === 'circle' && `spinner--${color}`,
+    `spinner--${color}`,
     className,
   ]
     .filter(Boolean)

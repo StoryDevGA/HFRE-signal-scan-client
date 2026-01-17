@@ -39,11 +39,17 @@ export const Select = forwardRef(function Select(
     'select',
     `select--${size}`,
     !value && 'select--placeholder',
-  ].join(' ')
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <div className={containerClasses}>
-      {label && <label htmlFor={id} className="select-label">{label}</label>}
+      {label && (
+        <label htmlFor={id} className="select-label">
+          {label}
+        </label>
+      )}
       <div className="select-wrapper">
         <select
           ref={ref}
@@ -59,7 +65,11 @@ export const Select = forwardRef(function Select(
           }
           {...props}
         >
-          {placeholder && <option value="" disabled>{placeholder}</option>}
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

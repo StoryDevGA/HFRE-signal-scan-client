@@ -7,10 +7,60 @@
   transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
 }
 
+.link--secondary {
+  color: var(--color-text-secondary);
+}
+
+.link--subtle {
+  color: inherit;
+}
+
+.link--danger {
+  color: var(--color-error);
+}
+
+.link--underline-none {
+  text-decoration: none;
+}
+
+.link--underline-hover:hover,
+.link--underline-hover:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.link--underline-always {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
 .link:hover,
 .link:focus-visible {
   color: var(--color-action-primary-hover);
-  text-decoration: none;
+}
+
+.link--secondary:hover,
+.link--secondary:focus-visible {
+  color: var(--color-action-primary);
+}
+
+.link--danger:hover,
+.link--danger:focus-visible {
+  color: color-mix(in srgb, var(--color-error) 85%, var(--color-text-primary));
+}
+
+.link--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.link__external-indicator {
+  margin-left: var(--spacing-2xs);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.04em;
 }
 
 .link:focus-visible {

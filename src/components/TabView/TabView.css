@@ -1,0 +1,98 @@
+.tabview {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.tabview__list {
+  display: flex;
+  gap: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-xs);
+}
+
+.tabview__tab {
+  min-height: 44px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tabview__tab--active {
+  color: var(--color-action-primary);
+  border-bottom: 2px solid var(--color-action-primary);
+}
+
+.tabview__tab:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.tabview--pills .tabview__tab {
+  border-radius: var(--border-radius-full);
+  background: var(--color-background-secondary);
+}
+
+.tabview--pills .tabview__tab--active {
+  background: var(--color-action-primary);
+  color: var(--color-text-inverse);
+  border-bottom: none;
+}
+
+.tabview--boxed .tabview__list {
+  border-bottom: none;
+}
+
+.tabview--boxed .tabview__tab {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+  background: var(--color-background-secondary);
+}
+
+.tabview--boxed .tabview__tab--active {
+  background: var(--color-surface);
+  border-bottom-color: var(--color-surface);
+}
+
+.tabview__panels {
+  padding: var(--spacing-md) 0;
+}
+
+.tabview__panel {
+  min-width: 0;
+}
+
+.tabview--vertical {
+  grid-template-columns: 220px 1fr;
+  align-items: start;
+}
+
+.tabview--vertical .tabview__list {
+  flex-direction: column;
+  border-bottom: none;
+  border-right: 1px solid var(--color-border);
+  padding-right: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .tabview--vertical {
+    grid-template-columns: 1fr;
+  }
+
+  .tabview--vertical .tabview__list {
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabview__tab {
+    transition: none;
+  }
+}

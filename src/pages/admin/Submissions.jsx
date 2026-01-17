@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../components/Button/Button.jsx'
+import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll.jsx'
 import Input from '../../components/Input/Input.jsx'
 import Select from '../../components/Select/Select.jsx'
 import Table from '../../components/Table/Table.jsx'
@@ -143,22 +144,24 @@ function AdminSubmissions() {
         <p className="text-responsive-base">{errorMessage}</p>
       ) : null}
 
-      <Table
-        columns={columns}
-        data={rows}
-        variant="striped"
-        hoverable
-        actions={[
-          {
-            label: 'View',
-            variant: 'ghost',
-            onClick: (row) => navigate(`/admin/submissions/${row.id}`),
-          },
-        ]}
-        loading={loading}
-        emptyMessage="No submissions found."
-        ariaLabel="Submissions list"
-      />
+      <HorizontalScroll ariaLabel="Submissions table" className="admin-scroll">
+        <Table
+          columns={columns}
+          data={rows}
+          variant="striped"
+          hoverable
+          actions={[
+            {
+              label: 'View',
+              variant: 'ghost',
+              onClick: (row) => navigate(`/admin/submissions/${row.id}`),
+            },
+          ]}
+          loading={loading}
+          emptyMessage="No submissions found."
+          ariaLabel="Submissions list"
+        />
+      </HorizontalScroll>
 
       <div className="admin-pagination">
         <Button

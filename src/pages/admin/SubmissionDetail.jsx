@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Button from '../../components/Button/Button.jsx'
+import Card from '../../components/Card/Card.jsx'
 import Dialog from '../../components/Dialog/Dialog.jsx'
 import ReportRenderer from '../../components/ReportRenderer.jsx'
 import Spinner from '../../components/Spinner/Spinner.jsx'
+import TabView from '../../components/TabView/TabView.jsx'
+import Tooltip from '../../components/Tooltip/Tooltip.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { ApiError } from '../../lib/api.js'
 import {
@@ -162,13 +165,15 @@ function AdminSubmissionDetail() {
       </header>
 
       <div className="detail-actions">
-        <Button
-          variant="danger"
-          onClick={() => openConfirm('submission')}
-          disabled={isDeleting}
-        >
-          Delete submission
-        </Button>
+        <Tooltip content="Deletes this submission and its analytics record.">
+          <Button
+            variant="danger"
+            onClick={() => openConfirm('submission')}
+            disabled={isDeleting}
+          >
+            Delete submission
+          </Button>
+        </Tooltip>
         <Button
           variant="outline"
           onClick={() => openConfirm('user')}
@@ -179,7 +184,7 @@ function AdminSubmissionDetail() {
       </div>
 
       <div className="detail-grid">
-        <section className="detail-card">
+        <Card className="detail-card">
           <h2 className="detail-title">Inputs</h2>
           <dl className="detail-list">
             <div>
@@ -207,9 +212,9 @@ function AdminSubmissionDetail() {
               <dd>{detail.inputs.product_page_url || '-'}</dd>
             </div>
           </dl>
-        </section>
+        </Card>
 
-        <section className="detail-card">
+        <Card className="detail-card">
           <h2 className="detail-title">Outputs</h2>
           <dl className="detail-list">
             <div>
@@ -221,21 +226,23 @@ function AdminSubmissionDetail() {
               <dd>{detail.metadata.confidence_level || '-'}</dd>
             </div>
           </dl>
-        </section>
+        </Card>
       </div>
 
-      <section className="detail-card">
-        <h2 className="detail-title">Customer report</h2>
-        <ReportRenderer report={detail.outputs.customer_report} />
-      </section>
-
-      <section className="detail-card">
-        <h2 className="detail-title">Internal report</h2>
-        <ReportRenderer report={detail.outputs.internal_report} />
-      </section>
+      <Card className="detail-card">
+        <h2 className="detail-title">Reports</h2>
+        <TabView variant="boxed">
+          <TabView.Tab label="Customer report">
+            <ReportRenderer report={detail.outputs.customer_report} />
+          </TabView.Tab>
+          <TabView.Tab label="Internal report">
+            <ReportRenderer report={detail.outputs.internal_report} />
+          </TabView.Tab>
+        </TabView>
+      </Card>
 
       <div className="detail-grid">
-        <section className="detail-card">
+        <Card className="detail-card">
           <h2 className="detail-title">Email status</h2>
           <dl className="detail-list">
             <div>
@@ -251,9 +258,9 @@ function AdminSubmissionDetail() {
               <dd>{detail.emailStatus.lastError || '-'}</dd>
             </div>
           </dl>
-        </section>
+        </Card>
 
-        <section className="detail-card">
+        <Card className="detail-card">
           <h2 className="detail-title">Analytics</h2>
           <dl className="detail-list">
             <div>
@@ -273,7 +280,7 @@ function AdminSubmissionDetail() {
               <dd>{analytics?.referrer || '-'}</dd>
             </div>
           </dl>
-        </section>
+        </Card>
       </div>
 
       <Dialog open={Boolean(confirmAction)} onClose={closeConfirm} size="sm">

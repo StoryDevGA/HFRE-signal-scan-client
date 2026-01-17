@@ -61,8 +61,8 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 15%, transparent);
 }
 
 .input:disabled {
@@ -173,7 +173,7 @@
   top: 0;
   left: var(--spacing-sm);
   transform: translateY(-50%) scale(0.75);
-  color: var(--color-primary);
+  color: var(--color-action-primary);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -222,7 +222,7 @@
 }
 
 .input-container--outlined .input:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-border-focus);
 }
 
 /* Filled variant */
@@ -233,7 +233,7 @@
 
 .input-container--filled .input:focus {
   background-color: var(--color-surface);
-  border-color: var(--color-primary);
+  border-color: var(--color-border-focus);
 }
 
 .input-container--filled .input-label {
@@ -326,7 +326,7 @@
   }
 
   .input:focus {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-border-focus);
     outline-offset: 2px;
   }
 }
@@ -345,6 +345,6 @@
 }
 
 .input:focus-visible {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 15%, transparent);
 }

@@ -41,8 +41,12 @@ export function Button({
   type = 'button',
   onClick,
   className = '',
+  'aria-label': ariaLabel,
   ...props
 }) {
+  if (iconOnly && !ariaLabel && process.env.NODE_ENV !== 'production') {
+    console.warn('Button: iconOnly should include an aria-label for accessibility.')
+  }
   // Build class names
   const classNames = [
     'btn',

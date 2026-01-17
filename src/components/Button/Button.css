@@ -133,13 +133,13 @@
 }
 
 .btn--danger:hover:not(:disabled) {
-  background-color: #dc2626; /* Darker red */
-  border-color: color-mix(in srgb, #dc2626 30%, transparent);
+  background-color: color-mix(in srgb, var(--color-error) 85%, var(--color-text-primary));
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
 }
 
 .btn--danger:active:not(:disabled) {
-  background-color: #b91c1c; /* Even darker */
-  border-color: color-mix(in srgb, #b91c1c 30%, transparent);
+  background-color: color-mix(in srgb, var(--color-error) 70%, var(--color-text-primary));
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
 }
 
 /* ===========================

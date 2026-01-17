@@ -1,0 +1,17 @@
+.datetime {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2xs);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.datetime__date,
+.datetime__time {
+  white-space: nowrap;
+}
+
+.datetime__separator {
+  color: var(--color-text-tertiary);
+}

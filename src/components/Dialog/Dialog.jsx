@@ -95,11 +95,11 @@ export function Dialog({
         {showCloseButton && (
           <button
             type="button"
-          className="dialog__close"
-          onClick={handleCloseClick}
-          aria-label="Close dialog"
-        >
-          <MdClose size={24} aria-hidden="true" focusable="false" />
+            className="dialog__close"
+            onClick={handleCloseClick}
+            aria-label="Close dialog"
+          >
+            <MdClose size={24} aria-hidden="true" focusable="false" />
           </button>
         )}
         {children}

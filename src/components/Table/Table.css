@@ -33,7 +33,7 @@
   margin-bottom: var(--spacing-lg);
   padding: var(--spacing-md);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: 0;
   background-color: var(--color-surface);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
@@ -180,13 +180,13 @@
    =========================== */
 
 .table__row--selected {
-  border-color: var(--color-primary-500);
-  background-color: color-mix(in srgb, var(--color-primary-50) 50%, var(--color-surface));
+  border-color: var(--color-action-primary);
+  background-color: color-mix(in srgb, var(--color-action-primary) 12%, var(--color-surface));
 }
 
 @media (min-width: 768px) {
   .table__row--selected {
-    background-color: color-mix(in srgb, var(--color-primary-50) 30%, transparent);
+    background-color: color-mix(in srgb, var(--color-action-primary) 8%, transparent);
   }
 }
 
@@ -200,7 +200,7 @@
   }
 
   .table--striped .table__body .table__row--selected:nth-child(even) {
-    background-color: color-mix(in srgb, var(--color-primary-50) 40%, var(--color-background-secondary));
+    background-color: color-mix(in srgb, var(--color-action-primary) 12%, var(--color-background-secondary));
   }
 }
 
@@ -269,12 +269,12 @@
 
 @media (min-width: 768px) {
   .table--hoverable .table__body .table__row:hover {
-    background-color: color-mix(in srgb, var(--color-primary-50) 30%, var(--color-surface));
+    background-color: color-mix(in srgb, var(--color-action-primary) 10%, var(--color-surface));
     cursor: pointer;
   }
 
   .table--hoverable.table--striped .table__body .table__row:nth-child(even):hover {
-    background-color: color-mix(in srgb, var(--color-primary-50) 30%, var(--color-gray-50));
+    background-color: color-mix(in srgb, var(--color-action-primary) 10%, var(--color-background-secondary));
   }
 }
 
@@ -297,12 +297,12 @@
 
 @media (min-width: 768px) {
   .table__header--sortable:hover {
-    background-color: color-mix(in srgb, var(--color-background-tertiary) 80%, var(--color-primary));
+    background-color: color-mix(in srgb, var(--color-background-tertiary) 80%, var(--color-action-primary));
   }
 }
 
 .table__header--sortable:focus {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-border-focus);
   outline-offset: -2px;
   z-index: 1;
 }
@@ -312,7 +312,7 @@
 }
 
 .table__header--sortable:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-border-focus);
   outline-offset: -2px;
   z-index: 1;
 }
@@ -334,11 +334,11 @@
 }
 
 .table__sort-icon--active {
-  color: var(--color-primary);
+  color: var(--color-action-primary);
 }
 
 .table__header--sortable:hover .table__sort-icon {
-  color: var(--color-primary);
+  color: var(--color-action-primary);
 }
 
 /* ===========================
@@ -423,7 +423,7 @@
   }
 
   .table__row--selected {
-    outline: 3px solid var(--color-primary);
+    outline: 3px solid var(--color-border-focus);
   }
 
   .table__cell,

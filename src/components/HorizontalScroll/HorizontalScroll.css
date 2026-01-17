@@ -1,0 +1,46 @@
+.horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--spacing-sm);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-scroll--sm {
+  gap: var(--spacing-sm);
+}
+
+.horizontal-scroll--md {
+  gap: var(--spacing-md);
+}
+
+.horizontal-scroll--lg {
+  gap: var(--spacing-lg);
+}
+
+.horizontal-scroll--xl {
+  gap: var(--spacing-xl);
+}
+
+.horizontal-scroll--snap {
+  scroll-snap-type: x mandatory;
+}
+
+.horizontal-scroll--snap > * {
+  scroll-snap-align: start;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-track {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-full);
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-border) 70%, transparent);
+  border-radius: var(--border-radius-full);
+}

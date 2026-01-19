@@ -18,6 +18,10 @@
   color: var(--color-text-secondary);
 }
 
+.home__back-link {
+  font-size: calc(var(--font-size-sm) * 0.7);
+}
+
 .home__brand {
   display: flex;
   align-items: center;
@@ -187,6 +191,11 @@ fieldset.radio-group > .radio-group__label {
 
 .text-italic {
   font-style: italic;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .header-meta {

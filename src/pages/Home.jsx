@@ -89,14 +89,13 @@ function Home() {
         logo={<img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />}
         logoLink={null}
         showNavigation={false}
-      >
-        <Link href="https://www.storylineos.com/" openInNewTab>
-          Back to StorylineOS
-        </Link>
-      </Header>
+      />
       <main className="page container">
         <header className="page__header">
-          <h1 className="text-responsive-xl">Customer-safe signal scan</h1>
+          <Link href="https://www.storylineos.com/" openInNewTab className="home__back-link">
+            Back to StorylineOS
+          </Link>
+          <h1 className="text-responsive-xl text-uppercase">Customer-safe signal scan</h1>
           <p className="text-responsive-base">
             Share your details and receive a customer-safe scan report.
           </p>

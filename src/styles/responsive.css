@@ -24,13 +24,15 @@
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding-left: var(--spacing-md);
-  padding-right: var(--spacing-md);
+  padding-left: var(--spacing-sm);
+  padding-right: var(--spacing-sm);
 }
 
 @media (min-width: 640px) {
   .container {
     max-width: 640px;
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
   }
 }
 

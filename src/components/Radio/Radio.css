@@ -5,6 +5,8 @@
   cursor: pointer;
   user-select: none;
   font-family: var(--font-sans);
+  min-height: 44px;
+  padding: var(--spacing-2xs) 0;
 }
 
 .radio-input {
@@ -87,4 +89,11 @@
 
 .radio-container--lg .radio-label {
   font-size: var(--font-size-lg);
+}
+
+@media (max-width: 640px) {
+  .radio-container--md .radio-button {
+    width: 24px;
+    height: 24px;
+  }
 }

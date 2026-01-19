@@ -24,7 +24,7 @@ function Home() {
     watch,
     formState: { errors, isSubmitting, isValid },
   } = useForm({
-    mode: 'onChange',
+    mode: 'onBlur',
     reValidateMode: 'onChange',
   })
 
@@ -96,8 +96,17 @@ function Home() {
       </Header>
       <main className="page container">
         <header className="page__header">
+          <h1 className="text-responsive-xl">Customer-safe signal scan</h1>
           <p className="text-responsive-base">
             Share your details and receive a customer-safe scan report.
+          </p>
+          <div className="home__benefits">
+            <span>Instant results</span>
+            <span>Confidential</span>
+            <span>Free</span>
+          </div>
+          <p className="text-responsive-sm text-tertiary">
+            We only scan public information and never share your data.
           </p>
         </header>
 
@@ -150,9 +159,11 @@ function Home() {
                 type="url"
                 label="Website"
                 error={errors.homepage_url?.message}
+                helperText="Include the full URL (https://...)"
                 required
                 fullWidth
                 maxLength="2048"
+                placeholder="https://example.com"
                 {...register('homepage_url', getValidationRules('homepage_url'))}
               />
 
@@ -162,33 +173,43 @@ function Home() {
                   <span className="input-label__required"> *</span>
                 </legend>
                 <div className="radio-group__options">
-                  <Radio
-                    id="product_type_product"
-                    name={productNameField.name}
-                    value="Product"
-                    label="Product"
-                    checked={productName === 'Product'}
-                    onChange={productNameField.onChange}
-                    onBlur={productNameField.onBlur}
-                    aria-describedby={errors.product_name ? 'product_name-error' : undefined}
-                    aria-invalid={errors.product_name ? 'true' : 'false'}
-                    aria-required="true"
-                    required
-                    ref={productNameField.ref}
-                  />
-                  <Radio
-                    id="product_type_solution"
-                    name={productNameField.name}
-                    value="Solution"
-                    label="Solution"
-                    checked={productName === 'Solution'}
-                    onChange={productNameField.onChange}
-                    onBlur={productNameField.onBlur}
-                    aria-describedby={errors.product_name ? 'product_name-error' : undefined}
-                    aria-invalid={errors.product_name ? 'true' : 'false'}
-                    aria-required="true"
-                    required
-                  />
+                  <div className="radio-group__item">
+                    <Radio
+                      id="product_type_product"
+                      name={productNameField.name}
+                      value="Product"
+                      label="Product"
+                      checked={productName === 'Product'}
+                      onChange={productNameField.onChange}
+                      onBlur={productNameField.onBlur}
+                      aria-describedby={errors.product_name ? 'product_name-error' : undefined}
+                      aria-invalid={errors.product_name ? 'true' : 'false'}
+                      aria-required="true"
+                      required
+                      ref={productNameField.ref}
+                    />
+                    <span className="radio-group__description">
+                      A standalone service or platform.
+                    </span>
+                  </div>
+                  <div className="radio-group__item">
+                    <Radio
+                      id="product_type_solution"
+                      name={productNameField.name}
+                      value="Solution"
+                      label="Solution"
+                      checked={productName === 'Solution'}
+                      onChange={productNameField.onChange}
+                      onBlur={productNameField.onBlur}
+                      aria-describedby={errors.product_name ? 'product_name-error' : undefined}
+                      aria-invalid={errors.product_name ? 'true' : 'false'}
+                      aria-required="true"
+                      required
+                    />
+                    <span className="radio-group__description">
+                      A bundled offering or service package.
+                    </span>
+                  </div>
                 </div>
                 {errors.product_name?.message ? (
                   <span className="input-error" id="product_name-error" role="alert">
@@ -202,9 +223,11 @@ function Home() {
                 type="url"
                 label="Product or solution page"
                 error={errors.product_page_url?.message}
+                helperText="Include the full URL (https://...)"
                 required
                 fullWidth
                 maxLength="2048"
+                placeholder="https://example.com/product"
                 {...register('product_page_url', getValidationRules('product_page_url'))}
               />
               <Button
@@ -213,8 +236,13 @@ function Home() {
                 disabled={!isComplete || !isValid || isSubmitting}
                 fullWidth
               >
-                {isSubmitting ? 'Submitting...' : 'Generate report'}
+                {isSubmitting ? 'Submitting...' : 'Generate My Report'}
               </Button>
+              {!isComplete || !isValid ? (
+                <span className="text-responsive-sm text-tertiary">
+                  Complete all fields to proceed.
+                </span>
+              ) : null}
             </Fieldset.Content>
           </Fieldset>
         </form>

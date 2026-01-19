@@ -86,3 +86,9 @@
     padding: 0;
   }
 }
+
+@media (max-width: 640px) {
+  .header__inner {
+    padding: var(--spacing-sm);
+  }
+}

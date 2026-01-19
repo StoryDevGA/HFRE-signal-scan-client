@@ -6,5 +6,5 @@ body {
 
 .app {
   min-height: 100vh;
-  padding: var(--spacing-xl);
+  padding: 0;
 }

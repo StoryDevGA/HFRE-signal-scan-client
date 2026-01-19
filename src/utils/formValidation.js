@@ -220,7 +220,6 @@ export function getValidationRules(fieldName) {
       };
 
     case 'company_name':
-    case 'product_name':
       return {
         required: `${FIELD_LIMITS[fieldName].label} is required.`,
         minLength: {
@@ -235,6 +234,19 @@ export function getValidationRules(fieldName) {
           noUnsafePatterns: (value) => {
             if (containsUnsafePatterns(value)) {
               return 'Input contains invalid characters or patterns.';
+            }
+            return true;
+          },
+        },
+      };
+
+    case 'product_name':
+      return {
+        required: 'Product or solution is required.',
+        validate: {
+          validChoice: (value) => {
+            if (!['Product', 'Solution'].includes(value)) {
+              return 'Select Product or Solution.';
             }
             return true;
           },

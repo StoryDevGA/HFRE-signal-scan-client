@@ -156,10 +156,11 @@ function Home() {
                 {...register('homepage_url', getValidationRules('homepage_url'))}
               />
 
-              <div className="radio-group" role="group" aria-labelledby="product_type_label">
-                <span id="product_type_label" className="radio-group__label">
+              <fieldset className="radio-group" aria-required="true">
+                <legend className="radio-group__label">
                   Product or solution
-                </span>
+                  <span className="input-label__required"> *</span>
+                </legend>
                 <div className="radio-group__options">
                   <Radio
                     id="product_type_product"
@@ -171,6 +172,8 @@ function Home() {
                     onBlur={productNameField.onBlur}
                     aria-describedby={errors.product_name ? 'product_name-error' : undefined}
                     aria-invalid={errors.product_name ? 'true' : 'false'}
+                    aria-required="true"
+                    required
                     ref={productNameField.ref}
                   />
                   <Radio
@@ -183,7 +186,8 @@ function Home() {
                     onBlur={productNameField.onBlur}
                     aria-describedby={errors.product_name ? 'product_name-error' : undefined}
                     aria-invalid={errors.product_name ? 'true' : 'false'}
-                    ref={productNameField.ref}
+                    aria-required="true"
+                    required
                   />
                 </div>
                 {errors.product_name?.message ? (
@@ -191,7 +195,7 @@ function Home() {
                     {errors.product_name?.message}
                   </span>
                 ) : null}
-              </div>
+              </fieldset>
 
               <Input
                 id="product_page_url"

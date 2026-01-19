@@ -36,6 +36,8 @@
 .radio-label {
   color: var(--color-text);
   font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .radio-input:focus-visible + .radio-button {

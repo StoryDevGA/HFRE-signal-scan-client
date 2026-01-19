@@ -3,9 +3,10 @@ import { useParams } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
 import Header from '../components/Header/Header.jsx'
 import Link from '../components/Link/Link.jsx'
-import ThinkingWords from '../components/ThinkingWords/ThinkingWords.jsx'
-import Typewriter from '../components/Typewriter/Typewriter.jsx'
+import ReportRenderer from '../components/ReportRenderer.jsx'
+import TabView from '../components/TabView/TabView.jsx'
 import Footer from '../components/Footer/Footer.jsx'
+import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { getPublicResult } from '../services/publicResults.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
 
@@ -32,9 +33,12 @@ const getConfidenceBadgeClass = (level) => {
 
 function Results() {
   const { publicId } = useParams()
+  const { addToast } = useToaster()
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
   const [result, setResult] = useState(null)
+  const [progress, setProgress] = useState(0)
+  const [tipIndex, setTipIndex] = useState(0)
 
   const timestamp = useMemo(
     () => formatTimestamp(result?.createdAt),
@@ -81,6 +85,8 @@ function Results() {
 
     setStatus('loading')
     setResult(null)
+    setProgress(0)
+    setTipIndex(0)
     pollResult()
 
     return () => {
@@ -91,18 +97,40 @@ function Results() {
     }
   }, [publicId])
 
+  useEffect(() => {
+    if (status !== 'loading' && status !== 'pending') {
+      setProgress(100)
+      return undefined
+    }
+
+    let progressTimer
+    let tipTimer
+
+    progressTimer = window.setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return prev
+        return prev + Math.floor(Math.random() * 6) + 2
+      })
+    }, 1200)
+
+    tipTimer = window.setInterval(() => {
+      setTipIndex((prev) => (prev + 1) % tips.length)
+    }, 4500)
+
+    return () => {
+      window.clearInterval(progressTimer)
+      window.clearInterval(tipTimer)
+    }
+  }, [status])
+
   const header = (
     <Header
       logo={
         <img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />
       }
-      logoLink={null}
+      logoLink="/"
       showNavigation={false}
-    >
-      <Link href="https://www.storylineos.com/" openInNewTab>
-        Back to StorylineOS
-      </Link>
-    </Header>
+    />
   )
 
   if (status === 'loading' || status === 'pending') {
@@ -111,42 +139,16 @@ function Results() {
         {header}
         <main className="page container" aria-busy="true">
           <div className="status-block" role="status" aria-live="polite">
-            <ThinkingWords
-              words={[
-                'Sparkling',
-                'Fluttering',
-                'Bubbling',
-                'Glimmering',
-                'Twinkling',
-                'Sunshining',
-                'Doodling',
-                'Skipping',
-                'Humming',
-                'Wiggling',
-                'Drifting',
-                'Dreaming',
-                'Wandering',
-                'Tickling',
-                'Nudging',
-                'Cheering',
-                'Chirping',
-                'Swaying',
-                'Blooming',
-                'Smiling',
-              ]}
-            />
-            <Typewriter
-              text={
-                status === 'pending'
-                  ? 'We are generating your report...'
-                  : 'Loading your report...'
-              }
-              speed={40}
-              className="text-responsive-base"
-              ariaLabel="Loading your report"
-            />
+            <p className="text-responsive-base">
+              {status === 'pending'
+                ? 'We are generating your report.'
+                : 'Loading your report.'}
+            </p>
+            <div className="progress" aria-hidden="true">
+              <div className="progress__bar" style={{ width: `${progress}%` }} />
+            </div>
             <p className="text-responsive-sm text-tertiary">
-              This may take a few moments
+              Did you know? {tips[tipIndex]}
             </p>
           </div>
         </main>
@@ -211,23 +213,64 @@ function Results() {
   }
 
   const confidenceLevel = result?.metadata?.confidence_level || 'Unspecified'
+  const confidenceIcon = getConfidenceIcon(confidenceLevel)
   const confidenceBadgeClass = getConfidenceBadgeClass(confidenceLevel)
   const hasReport = result?.customer_report?.trim()
+  const companyName = result?.company || 'Report'
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      addToast({
+        title: 'Link copied',
+        description: 'Share the report link with your team.',
+        variant: 'success',
+      })
+    } catch (error) {
+      addToast({
+        title: 'Copy failed',
+        description: 'Unable to copy the link.',
+        variant: 'error',
+      })
+    }
+  }
+
+  const handleDownload = () => {
+    const reportText = result?.customer_report || 'No report content available.'
+    const fileName = `${companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'report'}-scan.txt`
+    const blob = new Blob([reportText], { type: 'text/plain' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
+  }
 
   return (
     <>
       {header}
       <main className="page container">
-        <header className="page__header">
-          <h1 className="text-responsive-xl">{result?.company || 'Report'}</h1>
+        <header className="report-header">
+          <Link href="https://www.storylineos.com/" openInNewTab className="home__back-link">
+            Back to StorylineOS
+          </Link>
+          <div className="report-header__title">
+            <h1 className="text-responsive-xl">{companyName}</h1>
+            <p className="text-responsive-sm text-tertiary">Security scan report</p>
+          </div>
 
-          <div className="header-meta">
+          <div className="report-header__meta">
             <div
               className={`confidence-badge ${confidenceBadgeClass}`}
               role="status"
               aria-label={`Confidence level: ${confidenceLevel}`}
             >
               <span className="confidence-badge__indicator" aria-hidden="true" />
+              <span className="confidence-badge__icon" aria-hidden="true">
+                {confidenceIcon}
+              </span>
               <span>Confidence: {confidenceLevel}</span>
             </div>
 
@@ -240,12 +283,49 @@ function Results() {
               </time>
             )}
           </div>
+          <div className="report-header__actions">
+            <Button variant="secondary" size="sm" onClick={handleCopyLink}>
+              Copy link
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleDownload}>
+              Download report
+            </Button>
+          </div>
         </header>
 
         <section className="report" aria-labelledby="report-heading">
           <h2 id="report-heading" className="text-responsive-lg">Customer report</h2>
           {hasReport ? (
-            <div className="report__body">{result.customer_report}</div>
+            <TabView variant="boxed">
+              <TabView.Tab label="Overview">
+                <dl className="report-meta">
+                  <div>
+                    <dt>Confidence</dt>
+                    <dd>{confidenceLevel}</dd>
+                  </div>
+                  <div>
+                    <dt>Scope</dt>
+                    <dd>{result?.metadata?.source_scope || 'Public sources'}</dd>
+                  </div>
+                  <div>
+                    <dt>Shareable</dt>
+                    <dd>
+                      {result?.metadata?.shareability?.customer_safe ? 'Yes' : 'No'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Report ID</dt>
+                    <dd>{result?.publicId || publicId}</dd>
+                  </div>
+                </dl>
+              </TabView.Tab>
+              <TabView.Tab label="Findings">
+                <ReportRenderer report={result.customer_report} />
+              </TabView.Tab>
+              <TabView.Tab label="Raw report">
+                <pre className="report-raw">{result.customer_report}</pre>
+              </TabView.Tab>
+            </TabView>
           ) : (
             <div className="empty-state">
               <p className="text-secondary text-italic">
@@ -258,6 +338,21 @@ function Results() {
       <Footer copyright="StorylineOS" />
     </>
   )
+}
+
+const tips = [
+  'We analyze only public information.',
+  'Confidence reflects source consistency.',
+  'Reports are safe to share externally.',
+  'You can download this report as text.',
+]
+
+const getConfidenceIcon = (level) => {
+  const normalizedLevel = level?.toLowerCase()
+  if (normalizedLevel === 'high') return '++'
+  if (normalizedLevel === 'medium') return '+'
+  if (normalizedLevel === 'low') return '!'
+  return '-'
 }
 
 export default Results

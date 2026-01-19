@@ -104,16 +104,6 @@ fieldset.radio-group > .radio-group__label {
   gap: var(--spacing-md);
 }
 
-.radio-group__item {
-  display: grid;
-  gap: var(--spacing-2xs);
-}
-
-.radio-group__description {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
-}
-
 @media (max-width: 640px) {
   .home__benefits {
     gap: var(--spacing-xs);
@@ -242,10 +232,92 @@ fieldset.radio-group > .radio-group__label {
 }
 
 .confidence-badge__indicator {
-  width: 8px;
-  height: 8px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background-color: currentColor;
+}
+
+.confidence-badge__icon {
+  font-weight: var(--font-weight-semibold);
+  margin-right: var(--spacing-2xs);
+}
+
+.report-header {
+  display: grid;
+  gap: var(--spacing-sm);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
+  padding-bottom: var(--spacing-md);
+}
+
+.report-header__title h1 {
+  margin: 0;
+}
+
+.report-header .text-responsive-xl {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.report-header__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.report-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.report-meta {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: 0;
+}
+
+.report-meta div {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.report-meta dt {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+}
+
+.report-meta dd {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.report-raw {
+  margin: 0;
+  padding: var(--spacing-md);
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.progress {
+  width: min(360px, 100%);
+  height: 8px;
+  border-radius: 0;
+  background: var(--color-background-secondary);
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  background: var(--color-action-primary);
+  transition: width var(--transition-base);
 }
 
 
@@ -497,6 +569,10 @@ fieldset.radio-group > .radio-group__label {
 }
 
 @media (max-width: 640px) {
+  .report-header__actions .btn {
+    width: 100%;
+  }
+
   .page {
     gap: var(--spacing-md);
   }

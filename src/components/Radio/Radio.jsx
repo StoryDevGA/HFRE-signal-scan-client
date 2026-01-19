@@ -7,6 +7,7 @@ export const Radio = forwardRef(function Radio(
     name,
     value,
     label,
+    description,
     checked = false,
     onChange,
     disabled = false,
@@ -42,7 +43,14 @@ export const Radio = forwardRef(function Radio(
       <span className="radio-button" aria-hidden="true">
         <span className="radio-inner" />
       </span>
-      {label && <span className="radio-label">{label}</span>}
+      {label && (
+        <span className="radio-text">
+          <span className="radio-label">{label}</span>
+          {description ? (
+            <span className="radio-description">{description}</span>
+          ) : null}
+        </span>
+      )}
     </label>
   )
 })

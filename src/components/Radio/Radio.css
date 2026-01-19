@@ -42,6 +42,18 @@
   letter-spacing: 0.08em;
 }
 
+.radio-text {
+  display: grid;
+  gap: var(--spacing-2xs);
+}
+
+.radio-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
 .radio-input:focus-visible + .radio-button {
   border-color: var(--color-border-focus);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 15%, transparent);

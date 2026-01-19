@@ -102,7 +102,7 @@ function AdminLayout() {
         logo={
           <img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />
         }
-        logoLink={null}
+        logoLink="/"
         showNavigation={false}
       >
         <div className="header__actions-group">

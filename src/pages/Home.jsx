@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
@@ -22,16 +22,15 @@ function Home() {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors, isSubmitting, isValid },
   } = useForm({
     mode: 'onBlur',
     reValidateMode: 'onChange',
+    defaultValues: {
+      product_name: 'Product',
+    },
   })
-
-  const productNameField = register(
-    'product_name',
-    getValidationRules('product_name')
-  )
 
   const [name, email, companyName, homepageUrl, productName, productPageUrl] =
     watch([
@@ -60,7 +59,7 @@ function Home() {
         email: sanitizeInput(values.email),
         company_name: sanitizeInput(values.company_name),
         homepage_url: sanitizeInput(values.homepage_url),
-        product_name: sanitizeInput(values.product_name),
+        product_name: values.product_name, // Radio button - use as-is (fixed values only)
         product_page_url: sanitizeInput(values.product_page_url),
       }
 
@@ -87,7 +86,7 @@ function Home() {
     <>
       <Header
         logo={<img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />}
-        logoLink={null}
+        logoLink="/"
         showNavigation={false}
       />
       <main className="page container">
@@ -171,45 +170,51 @@ function Home() {
                   Product or solution
                   <span className="input-label__required"> *</span>
                 </legend>
-                <div className="radio-group__options">
-                  <div className="radio-group__item">
-                    <Radio
-                      id="product_type_product"
-                      name={productNameField.name}
-                      value="Product"
-                      label="Product"
-                      checked={productName === 'Product'}
-                      onChange={productNameField.onChange}
-                      onBlur={productNameField.onBlur}
-                      aria-describedby={errors.product_name ? 'product_name-error' : undefined}
-                      aria-invalid={errors.product_name ? 'true' : 'false'}
-                      aria-required="true"
-                      required
-                      ref={productNameField.ref}
-                    />
-                    <span className="radio-group__description">
-                      A standalone service or platform.
-                    </span>
-                  </div>
-                  <div className="radio-group__item">
-                    <Radio
-                      id="product_type_solution"
-                      name={productNameField.name}
-                      value="Solution"
-                      label="Solution"
-                      checked={productName === 'Solution'}
-                      onChange={productNameField.onChange}
-                      onBlur={productNameField.onBlur}
-                      aria-describedby={errors.product_name ? 'product_name-error' : undefined}
-                      aria-invalid={errors.product_name ? 'true' : 'false'}
-                      aria-required="true"
-                      required
-                    />
-                    <span className="radio-group__description">
-                      A bundled offering or service package.
-                    </span>
-                  </div>
-                </div>
+                <Controller
+                  name="product_name"
+                  control={control}
+                  rules={{
+                    required: 'Please select Product or Solution.',
+                    validate: (value) => {
+                      if (!['Product', 'Solution'].includes(value)) {
+                        return 'Invalid selection.';
+                      }
+                      return true;
+                    },
+                  }}
+                  render={({ field }) => (
+                    <div className="radio-group__options">
+                      <Radio
+                        id="product_type_product"
+                        name={field.name}
+                        value="Product"
+                        label="Product"
+                        description="A standalone service or platform."
+                        checked={field.value === 'Product'}
+                        onChange={() => field.onChange('Product')}
+                        onBlur={field.onBlur}
+                        aria-describedby={errors.product_name ? 'product_name-error' : undefined}
+                        aria-invalid={errors.product_name ? 'true' : 'false'}
+                        aria-required="true"
+                        required
+                      />
+                      <Radio
+                        id="product_type_solution"
+                        name={field.name}
+                        value="Solution"
+                        label="Solution"
+                        description="A bundled offering or service package."
+                        checked={field.value === 'Solution'}
+                        onChange={() => field.onChange('Solution')}
+                        onBlur={field.onBlur}
+                        aria-describedby={errors.product_name ? 'product_name-error' : undefined}
+                        aria-invalid={errors.product_name ? 'true' : 'false'}
+                        aria-required="true"
+                        required
+                      />
+                    </div>
+                  )}
+                />
                 {errors.product_name?.message ? (
                   <span className="input-error" id="product_name-error" role="alert">
                     {errors.product_name?.message}
@@ -237,7 +242,7 @@ function Home() {
               >
                 {isSubmitting ? 'Submitting...' : 'Generate My Report'}
               </Button>
-              {!isComplete || !isValid ? (
+              {!isComplete ? (
                 <span className="text-responsive-sm text-tertiary">
                   Complete all fields to proceed.
                 </span>

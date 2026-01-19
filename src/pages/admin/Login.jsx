@@ -41,7 +41,7 @@ function AdminLogin() {
         logo={
           <img src={storylineLogo} alt="StorylineOS" className="home__brand-logo" />
         }
-        logoLink={null}
+        logoLink="/"
         showNavigation={false}
       >
         <Link href="https://www.storylineos.com/" openInNewTab>

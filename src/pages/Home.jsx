@@ -47,7 +47,6 @@ function Home() {
     email,
     companyName,
     homepageUrl,
-    productName,
     productPageUrl,
   ].every((value) => String(value || '').trim().length > 0)
 
@@ -237,7 +236,7 @@ function Home() {
               <Button
                 type="submit"
                 loading={isSubmitting}
-                disabled={!isComplete || !isValid || isSubmitting}
+                disabled={!isComplete || isSubmitting}
                 fullWidth
               >
                 {isSubmitting ? 'Submitting...' : 'Generate My Report'}

@@ -5,6 +5,7 @@ import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Header from '../components/Header/Header.jsx'
 import Input from '../components/Input/Input.jsx'
 import Link from '../components/Link/Link.jsx'
+import Radio from '../components/Radio/Radio.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { submitPublicScan } from '../services/publicScans.js'
@@ -26,6 +27,11 @@ function Home() {
     mode: 'onChange',
     reValidateMode: 'onChange',
   })
+
+  const productNameField = register(
+    'product_name',
+    getValidationRules('product_name')
+  )
 
   const [name, email, companyName, homepageUrl, productName, productPageUrl] =
     watch([
@@ -147,19 +153,45 @@ function Home() {
                 required
                 fullWidth
                 maxLength="2048"
-                placeholder="https://example.com"
                 {...register('homepage_url', getValidationRules('homepage_url'))}
               />
 
-              <Input
-                id="product_name"
-                label="Product or solution"
-                error={errors.product_name?.message}
-                required
-                fullWidth
-                maxLength="150"
-                {...register('product_name', getValidationRules('product_name'))}
-              />
+              <div className="radio-group" role="group" aria-labelledby="product_type_label">
+                <span id="product_type_label" className="radio-group__label">
+                  Product or solution
+                </span>
+                <div className="radio-group__options">
+                  <Radio
+                    id="product_type_product"
+                    name={productNameField.name}
+                    value="Product"
+                    label="Product"
+                    checked={productName === 'Product'}
+                    onChange={productNameField.onChange}
+                    onBlur={productNameField.onBlur}
+                    aria-describedby={errors.product_name ? 'product_name-error' : undefined}
+                    aria-invalid={errors.product_name ? 'true' : 'false'}
+                    ref={productNameField.ref}
+                  />
+                  <Radio
+                    id="product_type_solution"
+                    name={productNameField.name}
+                    value="Solution"
+                    label="Solution"
+                    checked={productName === 'Solution'}
+                    onChange={productNameField.onChange}
+                    onBlur={productNameField.onBlur}
+                    aria-describedby={errors.product_name ? 'product_name-error' : undefined}
+                    aria-invalid={errors.product_name ? 'true' : 'false'}
+                    ref={productNameField.ref}
+                  />
+                </div>
+                {errors.product_name?.message ? (
+                  <span className="input-error" id="product_name-error" role="alert">
+                    {errors.product_name?.message}
+                  </span>
+                ) : null}
+              </div>
 
               <Input
                 id="product_page_url"
@@ -169,7 +201,6 @@ function Home() {
                 required
                 fullWidth
                 maxLength="2048"
-                placeholder="https://example.com/product"
                 {...register('product_page_url', getValidationRules('product_page_url'))}
               />
               <Button

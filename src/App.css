@@ -63,6 +63,23 @@
   gap: var(--spacing-md);
 }
 
+.radio-group {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.radio-group__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.radio-group__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
 .status-block {
   display: grid;
   gap: var(--spacing-sm);

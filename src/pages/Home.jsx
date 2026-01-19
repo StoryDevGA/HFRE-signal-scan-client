@@ -8,6 +8,7 @@ import Link from '../components/Link/Link.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { submitPublicScan } from '../services/publicScans.js'
+import { getValidationRules, sanitizeInput } from '../utils/formValidation.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
 import storylineIcon from '../assets/icons/storylineOS-icon.png'
 
@@ -47,7 +48,17 @@ function Home() {
 
   const onSubmit = async (values) => {
     try {
-      const result = await submitPublicScan(values)
+      // Sanitize all inputs before sending to backend
+      const sanitizedValues = {
+        name: sanitizeInput(values.name),
+        email: sanitizeInput(values.email),
+        company_name: sanitizeInput(values.company_name),
+        homepage_url: sanitizeInput(values.homepage_url),
+        product_name: sanitizeInput(values.product_name),
+        product_page_url: sanitizeInput(values.product_page_url),
+      }
+
+      const result = await submitPublicScan(sanitizedValues)
       if (!result?.publicId) {
         throw new Error('Missing publicId in response.')
       }
@@ -103,7 +114,8 @@ function Home() {
                 error={errors.name?.message}
                 required
                 fullWidth
-                {...register('name', { required: 'Name is required.' })}
+                maxLength="100"
+                {...register('name', getValidationRules('name'))}
               />
 
               <Input
@@ -113,13 +125,8 @@ function Home() {
                 error={errors.email?.message}
                 required
                 fullWidth
-                {...register('email', {
-                  required: 'Email is required.',
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: 'Enter a valid email address.',
-                  },
-                })}
+                maxLength="254"
+                {...register('email', getValidationRules('email'))}
               />
 
               <Input
@@ -128,9 +135,8 @@ function Home() {
                 error={errors.company_name?.message}
                 required
                 fullWidth
-                {...register('company_name', {
-                  required: 'Company name is required.',
-                })}
+                maxLength="200"
+                {...register('company_name', getValidationRules('company_name'))}
               />
 
               <Input
@@ -140,13 +146,9 @@ function Home() {
                 error={errors.homepage_url?.message}
                 required
                 fullWidth
-                {...register('homepage_url', {
-                  required: 'Website URL is required.',
-                  pattern: {
-                    value: urlPattern,
-                    message: 'Enter a full URL starting with http or https.',
-                  },
-                })}
+                maxLength="2048"
+                placeholder="https://example.com"
+                {...register('homepage_url', getValidationRules('homepage_url'))}
               />
 
               <Input
@@ -155,9 +157,8 @@ function Home() {
                 error={errors.product_name?.message}
                 required
                 fullWidth
-                {...register('product_name', {
-                  required: 'Product or solution is required.',
-                })}
+                maxLength="150"
+                {...register('product_name', getValidationRules('product_name'))}
               />
 
               <Input
@@ -167,13 +168,9 @@ function Home() {
                 error={errors.product_page_url?.message}
                 required
                 fullWidth
-                {...register('product_page_url', {
-                  required: 'Product page URL is required.',
-                  pattern: {
-                    value: urlPattern,
-                    message: 'Enter a full URL starting with http or https.',
-                  },
-                })}
+                maxLength="2048"
+                placeholder="https://example.com/product"
+                {...register('product_page_url', getValidationRules('product_page_url'))}
               />
               <Button
                 type="submit"

@@ -61,6 +61,7 @@ function AdminAnalytics() {
   const countsByDay = summary?.countsByDay || []
   const topBrowsers = summary?.topBrowsers || []
   const topDevices = summary?.topDevices || []
+  const usage = summary?.usage || {}
 
   return (
     <section className="admin-section">
@@ -98,6 +99,40 @@ function AdminAnalytics() {
             <div>
               <dt>Conversion</dt>
               <dd>{totals.conversionRate ?? 0}%</dd>
+            </div>
+          </dl>
+        </Card>
+
+        <Card className="detail-card">
+          <h2 className="detail-title">Token usage</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>Submissions with usage</dt>
+              <dd>{usage.submissionsWithUsage ?? 0}</dd>
+            </div>
+            <div>
+              <dt>Total tokens</dt>
+              <dd>{usage.totalTokens ?? 0}</dd>
+            </div>
+            <div>
+              <dt>Avg total</dt>
+              <dd>{usage.averageTotalTokens ?? 0}</dd>
+            </div>
+            <div>
+              <dt>Total prompt</dt>
+              <dd>{usage.promptTokens ?? 0}</dd>
+            </div>
+            <div>
+              <dt>Total completion</dt>
+              <dd>{usage.completionTokens ?? 0}</dd>
+            </div>
+            <div>
+              <dt>Avg prompt</dt>
+              <dd>{usage.averagePromptTokens ?? 0}</dd>
+            </div>
+            <div>
+              <dt>Avg completion</dt>
+              <dd>{usage.averageCompletionTokens ?? 0}</dd>
             </div>
           </dl>
         </Card>

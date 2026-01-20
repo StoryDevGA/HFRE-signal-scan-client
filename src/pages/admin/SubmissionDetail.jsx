@@ -22,6 +22,36 @@ const formatTimestamp = (value) => {
   return date.toLocaleString()
 }
 
+const normalizeUsage = (usage) => {
+  if (!usage || typeof usage !== 'object') return null
+  const promptTokens =
+    usage.promptTokens ??
+    usage.prompt_tokens ??
+    usage.input_tokens ??
+    usage.inputTokens ??
+    null
+  const completionTokens =
+    usage.completionTokens ??
+    usage.completion_tokens ??
+    usage.output_tokens ??
+    usage.outputTokens ??
+    null
+  const totalTokens =
+    usage.totalTokens ??
+    usage.total_tokens ??
+    (Number(promptTokens || 0) + Number(completionTokens || 0) || null)
+
+  if (promptTokens == null && completionTokens == null && totalTokens == null) {
+    return null
+  }
+
+  return {
+    promptTokens: Number(promptTokens || 0),
+    completionTokens: Number(completionTokens || 0),
+    totalTokens: Number(totalTokens || 0),
+  }
+}
+
 function AdminSubmissionDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -72,6 +102,7 @@ function AdminSubmissionDetail() {
         metadata: {},
         createdAt: '',
         status: '',
+        usage: null,
       }
     }
     return {
@@ -81,6 +112,7 @@ function AdminSubmissionDetail() {
       metadata: submission.outputs?.metadata || submission.metadata || {},
       createdAt: submission.createdAt || '',
       status: submission.status || '',
+      usage: normalizeUsage(submission.usage),
     }
   }, [submission])
 
@@ -160,6 +192,11 @@ function AdminSubmissionDetail() {
         <p className="text-responsive-base">
           Status: {detail.status || 'unknown'}
         </p>
+        {detail.usage ? (
+          <p className="text-responsive-sm text-secondary">
+            Usage: {detail.usage.totalTokens} tokens (prompt {detail.usage.promptTokens}, completion {detail.usage.completionTokens})
+          </p>
+        ) : null}
         {failureMessage ? (
           <p className="text-responsive-sm text-secondary">
             Failure: {failureMessage}

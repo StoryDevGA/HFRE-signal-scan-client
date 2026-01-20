@@ -18,6 +18,12 @@ const formatPercent = (value) => {
   return `${Math.round(normalized)}%`
 }
 
+const formatDurationMs = (value) => {
+  const ms = Number(value)
+  if (!Number.isFinite(ms)) return '0 ms'
+  return `${ms.toLocaleString()} ms`
+}
+
 function AdminAnalytics() {
   const [summary, setSummary] = useState(null)
   const [detailId, setDetailId] = useState('')
@@ -75,6 +81,12 @@ function AdminAnalytics() {
   const topBrowsers = summary?.topBrowsers || []
   const topDevices = summary?.topDevices || []
   const usage = summary?.usage || {}
+  const latency = summary?.latencyMs || {}
+  const latencyByDay = (summary?.latencyByDay || []).map((item) => ({
+    date: item.date,
+    p50: formatDurationMs(item.p50),
+    p90: formatDurationMs(item.p90),
+  }))
   const completeRate = totals.completeRate ?? totals.conversionRate ?? 0
   const failedRate = totals.failedRate ?? 0
 
@@ -157,6 +169,30 @@ function AdminAnalytics() {
         </Card>
 
         <Card className="detail-card">
+          <h2 className="detail-title">Time to complete</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>P50</dt>
+              <dd>{formatDurationMs(latency.p50)}</dd>
+            </div>
+            <div>
+              <dt>P90</dt>
+              <dd>{formatDurationMs(latency.p90)}</dd>
+            </div>
+            <div>
+              <dt>P95</dt>
+              <dd>{formatDurationMs(latency.p95)}</dd>
+            </div>
+            <div>
+              <dt>Max</dt>
+              <dd>{formatDurationMs(latency.max)}</dd>
+            </div>
+          </dl>
+        </Card>
+      </div>
+
+      <div className="detail-grid">
+        <Card className="detail-card">
           <h2 className="detail-title">Counts by day</h2>
           <HorizontalScroll ariaLabel="Counts by day table" className="admin-scroll">
             <Table
@@ -171,6 +207,23 @@ function AdminAnalytics() {
               loading={loading}
               emptyMessage="No data yet."
               ariaLabel="Counts by day"
+            />
+          </HorizontalScroll>
+        </Card>
+
+        <Card className="detail-card">
+          <h2 className="detail-title">Latency by day</h2>
+          <HorizontalScroll ariaLabel="Latency by day table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'date', label: 'Date' },
+                { key: 'p50', label: 'P50' },
+                { key: 'p90', label: 'P90' },
+              ]}
+              data={latencyByDay}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Latency by day"
             />
           </HorizontalScroll>
         </Card>

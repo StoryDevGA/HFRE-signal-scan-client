@@ -22,6 +22,28 @@ const formatTimestamp = (value) => {
   return date.toLocaleString()
 }
 
+const getConfidenceBadgeClass = (level) => {
+  const normalizedLevel = level?.toLowerCase()
+  switch (normalizedLevel) {
+    case 'high':
+      return 'confidence-badge--high'
+    case 'medium':
+      return 'confidence-badge--medium'
+    case 'low':
+      return 'confidence-badge--low'
+    default:
+      return 'confidence-badge--default'
+  }
+}
+
+const getConfidenceIcon = (level) => {
+  const normalizedLevel = level?.toLowerCase()
+  if (normalizedLevel === 'high') return '++'
+  if (normalizedLevel === 'medium') return '+'
+  if (normalizedLevel === 'low') return '!'
+  return '-'
+}
+
 function normalizeSubmissions(payload) {
   if (!payload) {
     return { items: [], page: 1, totalPages: 1 }
@@ -96,17 +118,38 @@ function AdminSubmissions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const rows = data.map((submission) => ({
-    id: submission._id || submission.id || submission.publicId,
-    createdAt: formatTimestamp(submission.createdAt),
-    company: submission.inputs?.company_name || submission.company || '',
-    email: submission.inputs?.email || submission.email || '',
-    status: submission.status || '',
-    confidence:
+  const rows = data.map((submission) => {
+    const statusText = submission.status || ''
+    const confidence =
       submission.outputs?.metadata?.confidence_level ||
       submission.metadata?.confidence_level ||
-      '',
-  }))
+      ''
+    const confidenceBadgeClass = getConfidenceBadgeClass(confidence)
+
+    return {
+      id: submission._id || submission.id || submission.publicId,
+      createdAt: formatTimestamp(submission.createdAt),
+      company: submission.inputs?.company_name || submission.company || '',
+      email: submission.inputs?.email || submission.email || '',
+      status:
+        statusText.toLowerCase() === 'failed' ? (
+          <span className="admin-status admin-status--failed">Failed</span>
+        ) : (
+          statusText
+        ),
+      confidence: confidence ? (
+        <span className={`confidence-badge ${confidenceBadgeClass}`}>
+          <span className="confidence-badge__indicator" aria-hidden="true" />
+          <span className="confidence-badge__icon" aria-hidden="true">
+            {getConfidenceIcon(confidence)}
+          </span>
+          <span>{confidence}</span>
+        </span>
+      ) : (
+        '—'
+      ),
+    }
+  })
 
   return (
     <section className="admin-section">

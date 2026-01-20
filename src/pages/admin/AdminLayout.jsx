@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import Avatar from '../../components/Avatar/Avatar.jsx'
+import { useEffect, useMemo, useState } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button/Button.jsx'
 import Footer from '../../components/Footer/Footer.jsx'
+import Fieldset from '../../components/Fieldset/Fieldset.jsx'
 import Header from '../../components/Header/Header.jsx'
-import Link from '../../components/Link/Link.jsx'
 import Spinner from '../../components/Spinner/Spinner.jsx'
+import TabView from '../../components/TabView/TabView.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { checkAdminSession, logoutAdmin } from '../../services/adminAuth.js'
 import storylineLogo from '../../assets/images/storylineOS-Logo.png'
@@ -17,20 +17,17 @@ function AdminLayout() {
   const [status, setStatus] = useState('checking')
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [adminEmail, setAdminEmail] = useState('')
 
   useEffect(() => {
     let isActive = true
     setStatus('checking')
     setErrorMessage('')
-    setAdminEmail(sessionStorage.getItem('adminEmail') || '')
 
     checkAdminSession()
       .then((ok) => {
         if (!isActive) return
         if (!ok) {
           sessionStorage.removeItem('adminEmail')
-          setAdminEmail('')
           navigate('/admin/login', {
             replace: true,
             state: { from: location.pathname },
@@ -49,6 +46,23 @@ function AdminLayout() {
       isActive = false
     }
   }, [location.pathname, navigate])
+
+  const adminTabs = useMemo(
+    () => [
+      { label: 'Submissions', path: '/admin/submissions' },
+      { label: 'Prompts', path: '/admin/prompts' },
+      { label: 'Users', path: '/admin/users' },
+      { label: 'Analytics', path: '/admin/analytics' },
+    ],
+    []
+  )
+
+  const activeTabIndex = useMemo(() => {
+    const matchIndex = adminTabs.findIndex((tab) =>
+      location.pathname.startsWith(tab.path)
+    )
+    return matchIndex === -1 ? 0 : matchIndex
+  }, [adminTabs, location.pathname])
 
   if (status === 'checking') {
     return (
@@ -78,7 +92,6 @@ function AdminLayout() {
     try {
       await logoutAdmin()
       sessionStorage.removeItem('adminEmail')
-      setAdminEmail('')
       addToast({
         title: 'Signed out',
         description: 'You have been logged out.',
@@ -104,80 +117,44 @@ function AdminLayout() {
         }
         logoLink="/"
         showNavigation={false}
-      >
-        <div className="header__actions-group">
-          <Link href="https://www.storylineos.com/" openInNewTab>
-            Back to StorylineOS
-          </Link>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleLogout}
-            loading={isLoggingOut}
-          >
-            {isLoggingOut ? 'Signing out...' : 'Sign out'}
-          </Button>
-        </div>
-      </Header>
-      <div className="admin">
-        <aside className="admin__nav">
-          <div className="admin__profile">
-            <Avatar name={adminEmail || 'Admin'} size="sm" />
-            <div className="admin__profile-info">
-              <h2 className="admin__title">Admin</h2>
-              {adminEmail ? (
-                <p className="admin__user text-responsive-sm">{adminEmail}</p>
-              ) : null}
+      />
+      <main className="page container">
+        <Fieldset>
+          <Fieldset.Legend>
+            <span className="home__legend">
+              <span>admin</span>
+            </span>
+          </Fieldset.Legend>
+          <Fieldset.Content>
+            <div className="admin-tabs__header">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleLogout}
+                loading={isLoggingOut}
+              >
+                {isLoggingOut ? 'Signing out...' : 'Sign out'}
+              </Button>
             </div>
-          </div>
-          <nav className="admin__links">
-            <NavLink
-              to="/admin/submissions"
-              className={({ isActive }) =>
-                ['admin__link', isActive ? 'admin__link--active' : '']
-                  .filter(Boolean)
-                  .join(' ')
-              }
+            <TabView
+              key={location.pathname}
+              defaultActiveTab={activeTabIndex}
+              onTabChange={(index) => {
+                navigate(adminTabs[index]?.path || '/admin/submissions')
+              }}
+              className="admin-tabs"
             >
-              Submissions
-            </NavLink>
-            <NavLink
-              to="/admin/prompts"
-              className={({ isActive }) =>
-                ['admin__link', isActive ? 'admin__link--active' : '']
-                  .filter(Boolean)
-                  .join(' ')
-              }
-            >
-              Prompts
-            </NavLink>
-            <NavLink
-              to="/admin/users"
-              className={({ isActive }) =>
-                ['admin__link', isActive ? 'admin__link--active' : '']
-                  .filter(Boolean)
-                  .join(' ')
-              }
-            >
-              Users
-            </NavLink>
-            <NavLink
-              to="/admin/analytics"
-              className={({ isActive }) =>
-                ['admin__link', isActive ? 'admin__link--active' : '']
-                  .filter(Boolean)
-                  .join(' ')
-              }
-            >
-              Analytics
-            </NavLink>
-          </nav>
-        </aside>
-        <main className="admin__content">
-          <Outlet />
-          <Footer copyright="StorylineOS" />
-        </main>
-      </div>
+              {adminTabs.map((tab) => (
+                <TabView.Tab key={tab.path} label={tab.label} />
+              ))}
+            </TabView>
+            <div className="admin-tabs__content">
+              <Outlet />
+            </div>
+          </Fieldset.Content>
+        </Fieldset>
+        <Footer copyright="StorylineOS" />
+      </main>
     </>
   )
 }

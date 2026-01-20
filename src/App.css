@@ -301,6 +301,42 @@ fieldset.radio-group > .radio-group__label {
   justify-self: start;
 }
 
+.admin-tabs {
+  width: 100%;
+}
+
+.admin-tabs .tabview__panels {
+  display: none;
+}
+
+.admin-tabs__header {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.admin-tabs__content {
+  width: 100%;
+}
+
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-2xs) var(--spacing-xs);
+  border: 1px solid transparent;
+  border-radius: 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-status--failed {
+  color: var(--color-error);
+  background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+}
+
 
 .report-raw {
   margin: 0;

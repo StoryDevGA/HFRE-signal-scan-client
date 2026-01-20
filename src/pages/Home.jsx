@@ -93,14 +93,14 @@ function Home() {
           <Link href="https://www.storylineos.com/" openInNewTab className="home__back-link">
             Back to StorylineOS
           </Link>
-          <h1 className="text-responsive-xl text-uppercase">Customer-safe signal scan</h1>
+          <h1 className="text-responsive-xl text-uppercase"> signal scan</h1>
           <p className="text-responsive-base">
             Share your details and receive a customer-safe scan report.
           </p>
           <div className="home__benefits">
-            <span>Instant results</span>
-            <span>Confidential</span>
-            <span>Free</span>
+            <div>Instant results</div>
+            <div>Confidential</div>
+            <div>Free</div>
           </div>
           <p className="text-responsive-sm text-tertiary">
             We only scan public information and never share your data.
@@ -111,11 +111,6 @@ function Home() {
           <Fieldset>
             <Fieldset.Legend>
               <span className="home__legend">
-                <img
-                  src={storylineIcon}
-                  alt="StorylineOS icon"
-                  className="home__brand-icon"
-                />
                 <span>Scan details</span>
               </span>
             </Fieldset.Legend>
@@ -156,7 +151,7 @@ function Home() {
                 type="url"
                 label="Website"
                 error={errors.homepage_url?.message}
-                helperText="Include the full URL (https://...)"
+                helperText="https://example.com"
                 required
                 fullWidth
                 maxLength="2048"
@@ -188,7 +183,6 @@ function Home() {
                         name={field.name}
                         value="Product"
                         label="Product"
-                        description="A standalone service or platform."
                         checked={field.value === 'Product'}
                         onChange={() => field.onChange('Product')}
                         onBlur={field.onBlur}
@@ -202,7 +196,6 @@ function Home() {
                         name={field.name}
                         value="Solution"
                         label="Solution"
-                        description="A bundled offering or service package."
                         checked={field.value === 'Solution'}
                         onChange={() => field.onChange('Solution')}
                         onBlur={field.onBlur}
@@ -226,7 +219,7 @@ function Home() {
                 type="url"
                 label="Product or solution page"
                 error={errors.product_page_url?.message}
-                helperText="Include the full URL (https://...)"
+                helperText="https://example.com/product"
                 required
                 fullWidth
                 maxLength="2048"

@@ -16,10 +16,13 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-text-secondary);
+  width: 100%;
+  justify-content: space-between;
 }
 
 .home__back-link {
-  font-size: calc(var(--font-size-sm) * 0.7);
+  font-size: calc(var(--font-size-sm) * 0.84);
+  padding: var(--spacing-2xs) var(--spacing-xs);
 }
 
 .home__brand {

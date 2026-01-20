@@ -81,6 +81,8 @@ function AdminAnalytics() {
   const topBrowsers = summary?.topBrowsers || []
   const topDevices = summary?.topDevices || []
   const usage = summary?.usage || {}
+  const usageBySystemVersion = usage.bySystemVersion || []
+  const usageByUserVersion = usage.byUserVersion || []
   const completeRate = totals.completeRate ?? totals.conversionRate ?? 0
   const failedRate = totals.failedRate ?? 0
   const latency = summary?.latencyMs || {}
@@ -196,6 +198,58 @@ function AdminAnalytics() {
               <dd>{formatDurationMs(latency.max)}</dd>
             </div>
           </dl>
+        </Card>
+      </div>
+
+      <div className="detail-grid">
+        <Card className="detail-card">
+          <h2 className="detail-title">Token usage by system version</h2>
+          <HorizontalScroll ariaLabel="Token usage by system version table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'version', label: 'Version' },
+                { key: 'avgTotalTokens', label: 'Avg total tokens' },
+              ]}
+              data={[...usageBySystemVersion]
+                .sort((a, b) => {
+                  const aVersion = a.version ?? Number.POSITIVE_INFINITY
+                  const bVersion = b.version ?? Number.POSITIVE_INFINITY
+                  return aVersion - bVersion
+                })
+                .map((item) => ({
+                  version: item.version ?? '—',
+                  avgTotalTokens: Number(item.avgTotalTokens ?? 0).toLocaleString(),
+                }))}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Token usage by system version"
+            />
+          </HorizontalScroll>
+        </Card>
+
+        <Card className="detail-card">
+          <h2 className="detail-title">Token usage by user version</h2>
+          <HorizontalScroll ariaLabel="Token usage by user version table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'version', label: 'Version' },
+                { key: 'avgTotalTokens', label: 'Avg total tokens' },
+              ]}
+              data={[...usageByUserVersion]
+                .sort((a, b) => {
+                  const aVersion = a.version ?? Number.POSITIVE_INFINITY
+                  const bVersion = b.version ?? Number.POSITIVE_INFINITY
+                  return aVersion - bVersion
+                })
+                .map((item) => ({
+                  version: item.version ?? '—',
+                  avgTotalTokens: Number(item.avgTotalTokens ?? 0).toLocaleString(),
+                }))}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Token usage by user version"
+            />
+          </HorizontalScroll>
         </Card>
       </div>
 

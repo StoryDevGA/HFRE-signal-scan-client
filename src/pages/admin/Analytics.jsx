@@ -99,6 +99,13 @@ function AdminAnalytics() {
   const performanceByPair = promptPerformance.byPair || []
   const performanceBySystem = promptPerformance.bySystemVersion || []
   const performanceByUser = promptPerformance.byUserVersion || []
+  const retries = summary?.retries || {}
+  const totalRetries = retries.totalRetries ?? 0
+  const retrySuccessRate = retries.retrySuccessRate ?? 0
+  const retriesPerDay = (retries.retriesPerDay || []).map((item) => ({
+    date: item.date ?? item._id,
+    retries: item.retries ?? 0,
+  }))
 
   return (
     <section className="admin-section">
@@ -286,6 +293,41 @@ function AdminAnalytics() {
               loading={loading}
               emptyMessage="No data yet."
               ariaLabel="Latency by day"
+            />
+          </HorizontalScroll>
+        </Card>
+      </div>
+
+      <div className="detail-grid">
+        <Card className="detail-card">
+          <h2 className="detail-title">Retry behavior</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>Total retries</dt>
+              <dd>{Number(totalRetries).toLocaleString()}</dd>
+            </div>
+            <div>
+              <dt>Retry success rate</dt>
+              <dd>{formatPercent(retrySuccessRate)}</dd>
+            </div>
+          </dl>
+        </Card>
+
+        <Card className="detail-card">
+          <h2 className="detail-title">Retries by day</h2>
+          <HorizontalScroll ariaLabel="Retries by day table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'date', label: 'Date' },
+                { key: 'retries', label: 'Retries' },
+              ]}
+              data={retriesPerDay.map((item) => ({
+                date: item.date,
+                retries: Number(item.retries ?? 0).toLocaleString(),
+              }))}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Retries by day"
             />
           </HorizontalScroll>
         </Card>

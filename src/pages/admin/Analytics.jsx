@@ -81,14 +81,18 @@ function AdminAnalytics() {
   const topBrowsers = summary?.topBrowsers || []
   const topDevices = summary?.topDevices || []
   const usage = summary?.usage || {}
+  const completeRate = totals.completeRate ?? totals.conversionRate ?? 0
+  const failedRate = totals.failedRate ?? 0
   const latency = summary?.latencyMs || {}
   const latencyByDay = (summary?.latencyByDay || []).map((item) => ({
     date: item.date,
     p50: formatDurationMs(item.p50),
     p90: formatDurationMs(item.p90),
   }))
-  const completeRate = totals.completeRate ?? totals.conversionRate ?? 0
-  const failedRate = totals.failedRate ?? 0
+  const failures = summary?.failures || {}
+  const topFailures = failures.topFailures || []
+  const failureByPromptVersion = failures.failureByPromptVersion || []
+  const failureRate = failures.failureRate ?? failedRate
 
   return (
     <section className="admin-section">
@@ -257,6 +261,51 @@ function AdminAnalytics() {
               loading={loading}
               emptyMessage="No data yet."
               ariaLabel="Top devices"
+            />
+          </HorizontalScroll>
+        </Card>
+      </div>
+
+      <div className="detail-grid">
+        <Card className="detail-card">
+          <h2 className="detail-title">Failure analytics</h2>
+          <dl className="detail-list">
+            <div>
+              <dt>Failure rate</dt>
+              <dd>{formatPercent(failureRate)}</dd>
+            </div>
+          </dl>
+          <HorizontalScroll ariaLabel="Top failures table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'message', label: 'Message' },
+                { key: 'count', label: 'Count' },
+              ]}
+              data={topFailures}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Top failures"
+            />
+          </HorizontalScroll>
+        </Card>
+
+        <Card className="detail-card">
+          <h2 className="detail-title">Failures by prompt version</h2>
+          <HorizontalScroll ariaLabel="Failures by prompt version table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'systemPromptVersion', label: 'System' },
+                { key: 'userPromptVersion', label: 'User' },
+                { key: 'count', label: 'Count' },
+              ]}
+              data={failureByPromptVersion.map((item) => ({
+                systemPromptVersion: item.systemPromptVersion ?? '—',
+                userPromptVersion: item.userPromptVersion ?? '—',
+                count: item.count ?? 0,
+              }))}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Failures by prompt version"
             />
           </HorizontalScroll>
         </Card>

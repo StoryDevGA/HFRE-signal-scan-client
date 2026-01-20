@@ -80,6 +80,8 @@ function AdminAnalytics() {
   }))
   const topBrowsers = summary?.topBrowsers || []
   const topDevices = summary?.topDevices || []
+  const topReferrers = summary?.topReferrers || []
+  const topCountries = summary?.topCountries || []
   const usage = summary?.usage || {}
   const usageBySystemVersion = usage.bySystemVersion || []
   const usageByUserVersion = usage.byUserVersion || []
@@ -361,6 +363,39 @@ function AdminAnalytics() {
               loading={loading}
               emptyMessage="No data yet."
               ariaLabel="Top devices"
+            />
+          </HorizontalScroll>
+        </Card>
+      </div>
+
+      <div className="detail-grid">
+        <Card className="detail-card">
+          <h2 className="detail-title">Top referrers</h2>
+          <HorizontalScroll ariaLabel="Top referrers table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'key', label: 'Referrer' },
+                { key: 'count', label: 'Count' },
+              ]}
+              data={topReferrers}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Top referrers"
+            />
+          </HorizontalScroll>
+        </Card>
+        <Card className="detail-card">
+          <h2 className="detail-title">Top countries</h2>
+          <HorizontalScroll ariaLabel="Top countries table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'key', label: 'Country' },
+                { key: 'count', label: 'Count' },
+              ]}
+              data={topCountries}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Top countries"
             />
           </HorizontalScroll>
         </Card>

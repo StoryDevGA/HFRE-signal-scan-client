@@ -43,22 +43,33 @@ function AdminLogin() {
         }
         logoLink="/"
         showNavigation={false}
-      >
-        <Link href="https://www.storylineos.com/" openInNewTab>
-          Back to StorylineOS
-        </Link>
-      </Header>
+      />
       <main className="page container">
         <header className="page__header">
-          <h1 className="text-responsive-xl">Admin Login</h1>
+          <Link href="https://www.storylineos.com/" openInNewTab className="home__back-link">
+            Back to StorylineOS
+          </Link>
+          <h1 className="text-responsive-xl text-uppercase">admin login</h1>
           <p className="text-responsive-base">
             Use your approved email and the shared password.
+          </p>
+          <div className="home__benefits">
+            <div>Restricted</div>
+            <div>Secure</div>
+            <div>Internal</div>
+          </div>
+          <p className="text-responsive-sm text-tertiary">
+            Access is limited to approved admin accounts.
           </p>
         </header>
 
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           <Fieldset>
-            <Fieldset.Legend>Credentials</Fieldset.Legend>
+            <Fieldset.Legend>
+              <span className="home__legend">
+                <span>Credentials</span>
+              </span>
+            </Fieldset.Legend>
             <Fieldset.Content>
               <Input
                 id="admin_email"
@@ -79,12 +90,12 @@ function AdminLogin() {
                 fullWidth
                 {...register('password', { required: 'Password is required.' })}
               />
+
+              <Button type="submit" loading={isSubmitting} fullWidth>
+                {isSubmitting ? 'Signing in...' : 'Sign in'}
+              </Button>
             </Fieldset.Content>
           </Fieldset>
-
-          <Button type="submit" loading={isSubmitting} fullWidth>
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </Button>
         </form>
       </main>
       <Footer copyright="StorylineOS" />

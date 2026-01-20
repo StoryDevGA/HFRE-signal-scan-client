@@ -15,7 +15,7 @@
   margin: 0;
   padding: var(--spacing-md);
   border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
-  border-radius: var(--border-radius-md);
+  border-radius: 0;
 }
 
 /* ===========================

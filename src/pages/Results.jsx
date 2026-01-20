@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
+import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Header from '../components/Header/Header.jsx'
 import Link from '../components/Link/Link.jsx'
 import ReportRenderer from '../components/ReportRenderer.jsx'
@@ -258,7 +259,7 @@ function Results() {
           </Link>
           <div className="report-header__title">
             <h1 className="text-responsive-xl">{companyName}</h1>
-            <p className="text-responsive-sm text-tertiary">Security scan report</p>
+           
           </div>
 
           <div className="report-header__meta">
@@ -293,47 +294,59 @@ function Results() {
           </div>
         </header>
 
-        <section className="report" aria-labelledby="report-heading">
-          <h2 id="report-heading" className="text-responsive-lg">Customer report</h2>
-          {hasReport ? (
-            <TabView variant="boxed">
-              <TabView.Tab label="Overview">
-                <dl className="report-meta">
-                  <div>
-                    <dt>Confidence</dt>
-                    <dd>{confidenceLevel}</dd>
-                  </div>
-                  <div>
-                    <dt>Scope</dt>
-                    <dd>{result?.metadata?.source_scope || 'Public sources'}</dd>
-                  </div>
-                  <div>
-                    <dt>Shareable</dt>
-                    <dd>
-                      {result?.metadata?.shareability?.customer_safe ? 'Yes' : 'No'}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Report ID</dt>
-                    <dd>{result?.publicId || publicId}</dd>
-                  </div>
-                </dl>
-              </TabView.Tab>
-              <TabView.Tab label="Findings">
-                <ReportRenderer report={result.customer_report} />
-              </TabView.Tab>
-              <TabView.Tab label="Raw report">
-                <pre className="report-raw">{result.customer_report}</pre>
-              </TabView.Tab>
-            </TabView>
-          ) : (
-            <div className="empty-state">
-              <p className="text-secondary text-italic">
-                No report content available.
-              </p>
-            </div>
-          )}
-        </section>
+        <Fieldset>
+          <Fieldset.Legend>
+            <span className="home__legend">
+              <span>signal scan customer report</span>
+            </span>
+          </Fieldset.Legend>
+          <Fieldset.Content>
+            {hasReport ? (
+            <TabView>
+                <TabView.Tab label="Overview">
+                  <dl className="report-meta">
+                    <div>
+                      <dt>Confidence</dt>
+                      <dd className={`confidence-badge ${confidenceBadgeClass} report-meta__badge`}>
+                        <span className="confidence-badge__indicator" aria-hidden="true" />
+                        <span className="confidence-badge__icon" aria-hidden="true">
+                          {confidenceIcon}
+                        </span>
+                        <span>{confidenceLevel}</span>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Scope</dt>
+                      <dd>{result?.metadata?.source_scope || 'Public sources'}</dd>
+                    </div>
+                    <div>
+                      <dt>Shareable</dt>
+                      <dd>
+                        {result?.metadata?.shareability?.customer_safe ? 'Yes' : 'No'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Report ID</dt>
+                      <dd>{result?.publicId || publicId}</dd>
+                    </div>
+                  </dl>
+                </TabView.Tab>
+                <TabView.Tab label="Findings">
+                  <ReportRenderer report={result.customer_report} />
+                </TabView.Tab>
+                <TabView.Tab label="Raw report">
+                  <pre className="report-raw">{result.customer_report}</pre>
+                </TabView.Tab>
+              </TabView>
+            ) : (
+              <div className="empty-state">
+                <p className="text-secondary text-italic">
+                  No report content available.
+                </p>
+              </div>
+            )}
+          </Fieldset.Content>
+        </Fieldset>
       </main>
       <Footer copyright="StorylineOS" />
     </>

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { ToasterProvider } from '../components/Toaster/Toaster.jsx'
 import Results from '../pages/Results.jsx'
 import { vi } from 'vitest'
 
@@ -16,11 +17,13 @@ vi.mock('../services/publicResults.js', () => ({
 describe('Results page', () => {
   it('renders the customer report when complete', async () => {
     render(
-      <MemoryRouter initialEntries={['/results/abc123']}>
-        <Routes>
-          <Route path="/results/:publicId" element={<Results />} />
-        </Routes>
-      </MemoryRouter>
+      <ToasterProvider>
+        <MemoryRouter initialEntries={['/results/abc123']}>
+          <Routes>
+            <Route path="/results/:publicId" element={<Results />} />
+          </Routes>
+        </MemoryRouter>
+      </ToasterProvider>
     )
 
     expect(await screen.findByText('Acme Inc')).toBeInTheDocument()

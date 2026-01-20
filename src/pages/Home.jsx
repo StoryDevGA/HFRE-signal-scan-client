@@ -229,7 +229,7 @@ function Home() {
               <Button
                 type="submit"
                 loading={isSubmitting}
-                disabled={!isComplete || isSubmitting}
+                disabled={isSubmitting}
                 fullWidth
               >
                 {isSubmitting ? 'Submitting...' : 'Generate My Report'}

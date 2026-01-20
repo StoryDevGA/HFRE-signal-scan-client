@@ -11,6 +11,13 @@ import {
   getAdminAnalyticsSummary,
 } from '../../services/adminAnalytics.js'
 
+const formatPercent = (value) => {
+  const number = Number(value)
+  if (!Number.isFinite(number)) return '0%'
+  const normalized = number > 1 ? number : number * 100
+  return `${Math.round(normalized)}%`
+}
+
 function AdminAnalytics() {
   const [summary, setSummary] = useState(null)
   const [detailId, setDetailId] = useState('')
@@ -58,10 +65,18 @@ function AdminAnalytics() {
   }
 
   const totals = summary?.totals || {}
-  const countsByDay = summary?.countsByDay || []
+  const countsByDay = (summary?.countsByDay || []).map((item) => ({
+    date: item.date,
+    total: item.total ?? item.count ?? 0,
+    pending: item.pending ?? 0,
+    complete: item.complete ?? 0,
+    failed: item.failed ?? 0,
+  }))
   const topBrowsers = summary?.topBrowsers || []
   const topDevices = summary?.topDevices || []
   const usage = summary?.usage || {}
+  const completeRate = totals.completeRate ?? totals.conversionRate ?? 0
+  const failedRate = totals.failedRate ?? 0
 
   return (
     <section className="admin-section">
@@ -97,8 +112,12 @@ function AdminAnalytics() {
               <dd>{totals.failed ?? 0}</dd>
             </div>
             <div>
-              <dt>Conversion</dt>
-              <dd>{totals.conversionRate ?? 0}%</dd>
+              <dt>Complete rate</dt>
+              <dd>{formatPercent(completeRate)}</dd>
+            </div>
+            <div>
+              <dt>Failed rate</dt>
+              <dd>{formatPercent(failedRate)}</dd>
             </div>
           </dl>
         </Card>
@@ -143,7 +162,10 @@ function AdminAnalytics() {
             <Table
               columns={[
                 { key: 'date', label: 'Date' },
-                { key: 'count', label: 'Count' },
+                { key: 'total', label: 'Total' },
+                { key: 'pending', label: 'Pending' },
+                { key: 'complete', label: 'Complete' },
+                { key: 'failed', label: 'Failed' },
               ]}
               data={countsByDay}
               loading={loading}

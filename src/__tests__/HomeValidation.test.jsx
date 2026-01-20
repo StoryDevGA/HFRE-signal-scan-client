@@ -20,9 +20,9 @@ describe('Home form validation', () => {
       </ToasterProvider>
     )
 
-    await user.click(screen.getByRole('button', { name: /generate report/i }))
+    await user.click(screen.getByRole('button', { name: /generate my report/i }))
 
-    expect(await screen.findByText('Name is required.')).toBeInTheDocument()
+    expect(await screen.findByText('Contact name is required.')).toBeInTheDocument()
     expect(screen.getByText('Email is required.')).toBeInTheDocument()
   })
 })

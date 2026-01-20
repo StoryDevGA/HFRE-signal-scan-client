@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button/Button.jsx'
+import Dialog from '../../components/Dialog/Dialog.jsx'
 import Footer from '../../components/Footer/Footer.jsx'
 import Fieldset from '../../components/Fieldset/Fieldset.jsx'
 import Header from '../../components/Header/Header.jsx'
@@ -8,6 +9,7 @@ import Spinner from '../../components/Spinner/Spinner.jsx'
 import TabView from '../../components/TabView/TabView.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { checkAdminSession, logoutAdmin } from '../../services/adminAuth.js'
+import { getAdminPrompts } from '../../services/adminPrompts.js'
 import storylineLogo from '../../assets/images/storylineOS-Logo.png'
 
 function AdminLayout() {
@@ -17,6 +19,9 @@ function AdminLayout() {
   const [status, setStatus] = useState('checking')
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isCheckingPrompts, setIsCheckingPrompts] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [logoutWarning, setLogoutWarning] = useState('')
 
   useEffect(() => {
     let isActive = true
@@ -63,6 +68,43 @@ function AdminLayout() {
     )
     return matchIndex === -1 ? 0 : matchIndex
   }, [adminTabs, location.pathname])
+
+  const handleLogoutRequest = async () => {
+    if (isLoggingOut || isCheckingPrompts) return
+    setIsCheckingPrompts(true)
+    try {
+      const response = await getAdminPrompts()
+      const prompts = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.items)
+          ? response.items
+          : []
+      const systemActive = prompts.some(
+        (prompt) => prompt.type === 'system' && prompt.isActive
+      )
+      const userActive = prompts.some(
+        (prompt) => prompt.type === 'user' && prompt.isActive
+      )
+
+      if (!systemActive || !userActive) {
+        setLogoutWarning(
+          'One or more prompts are inactive. Scans will fail until both system and user prompts are active.'
+        )
+        setShowLogoutConfirm(true)
+        return
+      }
+    } catch (error) {
+      addToast({
+        title: 'Prompt status unavailable',
+        description: error?.message || 'Unable to verify prompt status.',
+        variant: 'warning',
+      })
+    } finally {
+      setIsCheckingPrompts(false)
+    }
+
+    handleLogout()
+  }
 
   if (status === 'checking') {
     return (
@@ -130,8 +172,8 @@ function AdminLayout() {
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={handleLogout}
-                loading={isLoggingOut}
+                onClick={handleLogoutRequest}
+                loading={isLoggingOut || isCheckingPrompts}
               >
                 {isLoggingOut ? 'Signing out...' : 'Sign out'}
               </Button>
@@ -155,6 +197,23 @@ function AdminLayout() {
         </Fieldset>
         <Footer copyright="StorylineOS" />
       </main>
+
+      <Dialog open={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} size="sm">
+        <Dialog.Header>
+          <h2>Prompt inactive</h2>
+        </Dialog.Header>
+        <Dialog.Body>
+          <p>{logoutWarning}</p>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button variant="secondary" onClick={() => setShowLogoutConfirm(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleLogout} loading={isLoggingOut}>
+            {isLoggingOut ? 'Signing out...' : 'Sign out'}
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
     </>
   )
 }

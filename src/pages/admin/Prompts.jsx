@@ -6,6 +6,7 @@ import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll
 import Input from '../../components/Input/Input.jsx'
 import Select from '../../components/Select/Select.jsx'
 import Table from '../../components/Table/Table.jsx'
+import Tooltip from '../../components/Tooltip/Tooltip.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { ApiError } from '../../lib/api.js'
 import {
@@ -25,7 +26,7 @@ const emptyForm = {
   name: '',
   type: 'system',
   content: '',
-  active: false,
+  isActive: false,
   version: '',
 }
 
@@ -74,7 +75,7 @@ function AdminPrompts() {
       name: prompt.name || '',
       type: prompt.type || 'system',
       content: prompt.content || '',
-      active: Boolean(prompt.active),
+      isActive: Boolean(prompt.isActive),
       version: prompt.version ?? '',
     })
     setDialogOpen(true)
@@ -96,7 +97,7 @@ function AdminPrompts() {
         type: form.type,
         name: form.name.trim(),
         content: form.content.trim(),
-        active: Boolean(form.active),
+        isActive: Boolean(form.isActive),
         version: form.version === '' ? undefined : Number(form.version),
       }
 
@@ -118,6 +119,15 @@ function AdminPrompts() {
       setDialogOpen(false)
       await loadPrompts()
     } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        addToast({
+          title: 'Prompt already exists',
+          description:
+            error?.message || 'Update the existing prompt instead of creating a new one.',
+          variant: 'warning',
+        })
+        return
+      }
       addToast({
         title: 'Save failed',
         description: error?.message || 'Unable to save the prompt.',
@@ -154,15 +164,49 @@ function AdminPrompts() {
 
   const rows = useMemo(
     () =>
-      prompts.map((prompt) => ({
-        id: prompt._id || prompt.id,
-        name: prompt.name,
-        type: prompt.type,
-        version: prompt.version ?? '-',
-        active: prompt.active ? 'Yes' : 'No',
-      })),
+      [...prompts]
+        .sort((a, b) => {
+          if (a.type === b.type) return 0
+          if (a.type === 'system') return -1
+          if (b.type === 'system') return 1
+          return 0
+        })
+        .map((prompt) => ({
+          id: prompt._id || prompt.id,
+          name: prompt.name,
+          type: (prompt.type || '').toUpperCase(),
+          version: prompt.version ?? '-',
+          active: (
+            <span
+              className={`admin-status ${
+                prompt.isActive ? 'admin-status--active' : 'admin-status--inactive'
+              }`}
+            >
+              {prompt.isActive ? 'Active' : 'Inactive'}
+            </span>
+          ),
+        })),
     [prompts]
   )
+
+  const hasSystemPrompt = useMemo(
+    () => prompts.some((prompt) => prompt.type === 'system'),
+    [prompts]
+  )
+  const hasUserPrompt = useMemo(
+    () => prompts.some((prompt) => prompt.type === 'user'),
+    [prompts]
+  )
+  const canCreatePrompt = !(hasSystemPrompt && hasUserPrompt)
+  const missingTypes = useMemo(() => {
+    const types = []
+    if (!hasSystemPrompt) types.push('system')
+    if (!hasUserPrompt) types.push('user')
+    return types
+  }, [hasSystemPrompt, hasUserPrompt])
+  const tooltipMessage = missingTypes.length
+    ? `Add ${missingTypes.join(' and ')} prompt.`
+    : 'Both system and user prompts already exist.'
 
   return (
     <section className="admin-section">
@@ -174,7 +218,16 @@ function AdminPrompts() {
       </header>
 
       <div className="admin-actions">
-        <Button onClick={startCreate}>New prompt</Button>
+        <Tooltip
+          content={tooltipMessage}
+          disabled={canCreatePrompt}
+        >
+          <span>
+            <Button onClick={startCreate} disabled={!canCreatePrompt}>
+              New prompt
+            </Button>
+          </span>
+        </Tooltip>
       </div>
 
       {errorMessage ? (
@@ -239,15 +292,17 @@ function AdminPrompts() {
                   required
                   fullWidth
                 />
-                <Select
-                  id="prompt_type"
-                  label="Type"
-                  value={form.type}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, type: event.target.value }))
-                  }
-                  options={typeOptions}
-                />
+                {!form.id ? (
+                  <Select
+                    id="prompt_type"
+                    label="Type"
+                    value={form.type}
+                    onChange={(event) =>
+                      setForm((prev) => ({ ...prev, type: event.target.value }))
+                    }
+                    options={typeOptions}
+                  />
+                ) : null}
                 <Input
                   id="prompt_version"
                   label="Version"
@@ -260,11 +315,11 @@ function AdminPrompts() {
                 <Select
                   id="prompt_active"
                   label="Active"
-                  value={form.active ? 'true' : 'false'}
+                  value={form.isActive ? 'true' : 'false'}
                   onChange={(event) =>
                     setForm((prev) => ({
                       ...prev,
-                      active: event.target.value === 'true',
+                      isActive: event.target.value === 'true',
                     }))
                   }
                   options={[

@@ -337,6 +337,18 @@ fieldset.radio-group > .radio-group__label {
   border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
 }
 
+.admin-status--active {
+  color: var(--color-success);
+  background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
+}
+
+.admin-status--inactive {
+  color: var(--color-error);
+  background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+}
+
 
 .report-raw {
   margin: 0;

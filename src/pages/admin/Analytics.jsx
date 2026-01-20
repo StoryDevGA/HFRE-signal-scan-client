@@ -93,6 +93,10 @@ function AdminAnalytics() {
   const topFailures = failures.topFailures || []
   const failureByPromptVersion = failures.failureByPromptVersion || []
   const failureRate = failures.failureRate ?? failedRate
+  const promptPerformance = summary?.promptPerformance || {}
+  const performanceByPair = promptPerformance.byPair || []
+  const performanceBySystem = promptPerformance.bySystemVersion || []
+  const performanceByUser = promptPerformance.byUserVersion || []
 
   return (
     <section className="admin-section">
@@ -306,6 +310,94 @@ function AdminAnalytics() {
               loading={loading}
               emptyMessage="No data yet."
               ariaLabel="Failures by prompt version"
+            />
+          </HorizontalScroll>
+        </Card>
+      </div>
+
+      <div className="detail-grid">
+        <Card className="detail-card">
+          <h2 className="detail-title">Prompt performance (pair)</h2>
+          <HorizontalScroll ariaLabel="Prompt performance by pair table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'systemPromptVersion', label: 'System' },
+                { key: 'userPromptVersion', label: 'User' },
+                { key: 'completeRate', label: 'Complete rate' },
+                { key: 'avgDurationMs', label: 'Avg duration' },
+              ]}
+              data={[...performanceByPair]
+                .sort((a, b) => {
+                  const aSystem = a.systemPromptVersion ?? Number.POSITIVE_INFINITY
+                  const bSystem = b.systemPromptVersion ?? Number.POSITIVE_INFINITY
+                  const aUser = a.userPromptVersion ?? Number.POSITIVE_INFINITY
+                  const bUser = b.userPromptVersion ?? Number.POSITIVE_INFINITY
+                  if (aSystem !== bSystem) return aSystem - bSystem
+                  return aUser - bUser
+                })
+                .map((item) => ({
+                  systemPromptVersion: item.systemPromptVersion ?? '—',
+                  userPromptVersion: item.userPromptVersion ?? '—',
+                  completeRate: formatPercent(item.completeRate),
+                  avgDurationMs: formatDurationMs(item.avgDurationMs),
+                }))}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="Prompt performance by pair"
+            />
+          </HorizontalScroll>
+        </Card>
+
+        <Card className="detail-card">
+          <h2 className="detail-title">System prompt performance</h2>
+          <HorizontalScroll ariaLabel="System prompt performance table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'version', label: 'Version' },
+                { key: 'completeRate', label: 'Complete rate' },
+                { key: 'avgDurationMs', label: 'Avg duration' },
+              ]}
+              data={[...performanceBySystem]
+                .sort((a, b) => {
+                  const aVersion = a.version ?? Number.POSITIVE_INFINITY
+                  const bVersion = b.version ?? Number.POSITIVE_INFINITY
+                  return aVersion - bVersion
+                })
+                .map((item) => ({
+                  version: item.version ?? '—',
+                  completeRate: formatPercent(item.completeRate),
+                  avgDurationMs: formatDurationMs(item.avgDurationMs),
+                }))}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="System prompt performance"
+            />
+          </HorizontalScroll>
+        </Card>
+
+        <Card className="detail-card">
+          <h2 className="detail-title">User prompt performance</h2>
+          <HorizontalScroll ariaLabel="User prompt performance table" className="admin-scroll">
+            <Table
+              columns={[
+                { key: 'version', label: 'Version' },
+                { key: 'completeRate', label: 'Complete rate' },
+                { key: 'avgDurationMs', label: 'Avg duration' },
+              ]}
+              data={[...performanceByUser]
+                .sort((a, b) => {
+                  const aVersion = a.version ?? Number.POSITIVE_INFINITY
+                  const bVersion = b.version ?? Number.POSITIVE_INFINITY
+                  return aVersion - bVersion
+                })
+                .map((item) => ({
+                  version: item.version ?? '—',
+                  completeRate: formatPercent(item.completeRate),
+                  avgDurationMs: formatDurationMs(item.avgDurationMs),
+                }))}
+              loading={loading}
+              emptyMessage="No data yet."
+              ariaLabel="User prompt performance"
             />
           </HorizontalScroll>
         </Card>

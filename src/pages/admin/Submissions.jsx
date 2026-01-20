@@ -5,6 +5,7 @@ import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll
 import Input from '../../components/Input/Input.jsx'
 import Select from '../../components/Select/Select.jsx'
 import Table from '../../components/Table/Table.jsx'
+import Tooltip from '../../components/Tooltip/Tooltip.jsx'
 import { ApiError } from '../../lib/api.js'
 import { getAdminSubmissions } from '../../services/adminSubmissions.js'
 
@@ -120,23 +121,31 @@ function AdminSubmissions() {
 
   const rows = data.map((submission) => {
     const statusText = submission.status || ''
+    const failureMessage = submission.failureMessage || ''
     const confidence =
       submission.outputs?.metadata?.confidence_level ||
       submission.metadata?.confidence_level ||
       ''
     const confidenceBadgeClass = getConfidenceBadgeClass(confidence)
+    const failedStatus = statusText.toLowerCase() === 'failed'
+    const statusBadge = (
+      <span className="admin-status admin-status--failed">Failed</span>
+    )
 
     return {
       id: submission._id || submission.id || submission.publicId,
       createdAt: formatTimestamp(submission.createdAt),
       company: submission.inputs?.company_name || submission.company || '',
       email: submission.inputs?.email || submission.email || '',
-      status:
-        statusText.toLowerCase() === 'failed' ? (
-          <span className="admin-status admin-status--failed">Failed</span>
+      status: failedStatus ? (
+        failureMessage ? (
+          <Tooltip content={failureMessage}>{statusBadge}</Tooltip>
         ) : (
-          statusText
-        ),
+          statusBadge
+        )
+      ) : (
+        statusText
+      ),
       confidence: confidence ? (
         <span className={`confidence-badge ${confidenceBadgeClass}`}>
           <span className="confidence-badge__indicator" aria-hidden="true" />

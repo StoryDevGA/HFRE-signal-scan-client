@@ -30,6 +30,7 @@ function AdminSubmissionDetail() {
   const [errorMessage, setErrorMessage] = useState('')
   const [submission, setSubmission] = useState(null)
   const [analytics, setAnalytics] = useState(null)
+  const [failureMessage, setFailureMessage] = useState('')
   const [confirmAction, setConfirmAction] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -37,12 +38,14 @@ function AdminSubmissionDetail() {
     let isActive = true
     setStatus('loading')
     setErrorMessage('')
+    setFailureMessage('')
 
     getAdminSubmissionDetail(id)
       .then((data) => {
         if (!isActive) return
         setSubmission(data?.submission || null)
         setAnalytics(data?.analytics || null)
+        setFailureMessage(data?.failureMessage || '')
         setStatus('ready')
       })
       .catch((error) => {
@@ -157,6 +160,11 @@ function AdminSubmissionDetail() {
         <p className="text-responsive-base">
           Status: {detail.status || 'unknown'}
         </p>
+        {failureMessage ? (
+          <p className="text-responsive-sm text-secondary">
+            Failure: {failureMessage}
+          </p>
+        ) : null}
         {detail.createdAt ? (
           <p className="text-responsive-sm">
             Created: {formatTimestamp(detail.createdAt)}

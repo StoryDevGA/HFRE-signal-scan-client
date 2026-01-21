@@ -12,7 +12,13 @@ export function Footer({
   const year = new Date().getFullYear()
   const footerClasses = ['footer', className].filter(Boolean).join(' ')
   const appVersion = import.meta.env.VITE_APP_VERSION
-  const versionLabel = appVersion ? `v${appVersion}` : ''
+  const appBuild = import.meta.env.VITE_APP_BUILD
+  const buildLabel = appBuild ? `+${appBuild}` : ''
+  const versionLabel = appVersion
+    ? `v${appVersion}${buildLabel}`
+    : appBuild
+      ? `build ${appBuild}`
+      : ''
 
   return (
     <footer className={footerClasses} {...props}>

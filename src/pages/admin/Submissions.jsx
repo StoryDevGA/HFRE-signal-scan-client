@@ -133,6 +133,13 @@ function AdminSubmissions() {
       submission.llmModelUsed ||
       submission.processing?.llmModel ||
       ''
+    const llmTemperature =
+      submission.llmTemperatureUsed ??
+      submission.processing?.llmTemperature ??
+      null
+    const temperatureTag = Number.isFinite(Number(llmTemperature))
+      ? ` [${Number(llmTemperature)}]`
+      : ''
     const statusBadge = (
       <span className="admin-status admin-status--failed">Failed</span>
     )
@@ -162,7 +169,7 @@ function AdminSubmissions() {
       ) : (
         '—'
       ),
-      llmModel: llmModel || '—',
+      llmModel: llmModel ? `${llmModel}${temperatureTag}` : '—',
     }
   })
 

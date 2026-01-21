@@ -61,6 +61,7 @@ function AdminSubmissionDetail() {
   const [submission, setSubmission] = useState(null)
   const [analytics, setAnalytics] = useState(null)
   const [failureMessage, setFailureMessage] = useState('')
+  const [llmModelUsed, setLlmModelUsed] = useState('')
   const [confirmAction, setConfirmAction] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -76,6 +77,7 @@ function AdminSubmissionDetail() {
         setSubmission(data?.submission || null)
         setAnalytics(data?.analytics || null)
         setFailureMessage(data?.failureMessage || '')
+        setLlmModelUsed(data?.llmModelUsed || '')
         setStatus('ready')
       })
       .catch((error) => {
@@ -103,6 +105,7 @@ function AdminSubmissionDetail() {
         createdAt: '',
         status: '',
         usage: null,
+        llmModel: '',
       }
     }
     return {
@@ -113,8 +116,9 @@ function AdminSubmissionDetail() {
       createdAt: submission.createdAt || '',
       status: submission.status || '',
       usage: normalizeUsage(submission.usage),
+      llmModel: llmModelUsed || submission.processing?.llmModel || '',
     }
-  }, [submission])
+  }, [llmModelUsed, submission])
 
   const openConfirm = (action) => {
     setConfirmAction(action)
@@ -192,6 +196,11 @@ function AdminSubmissionDetail() {
         <p className="text-responsive-base">
           Status: {detail.status || 'unknown'}
         </p>
+        {detail.llmModel ? (
+          <p className="text-responsive-sm text-secondary">
+            LLM model: {detail.llmModel}
+          </p>
+        ) : null}
         {detail.usage ? (
           <p className="text-responsive-sm text-secondary">
             Usage: {detail.usage.totalTokens} tokens (prompt {detail.usage.promptTokens}, completion {detail.usage.completionTokens})

@@ -85,6 +85,7 @@ function AdminSubmissions() {
       { key: 'email', label: 'Contact Email' },
       { key: 'status', label: 'Status' },
       { key: 'confidence', label: 'Confidence' },
+      { key: 'llmModel', label: 'LLM Model' },
     ],
     []
   )
@@ -128,6 +129,10 @@ function AdminSubmissions() {
       ''
     const confidenceBadgeClass = getConfidenceBadgeClass(confidence)
     const failedStatus = statusText.toLowerCase() === 'failed'
+    const llmModel =
+      submission.llmModelUsed ||
+      submission.processing?.llmModel ||
+      ''
     const statusBadge = (
       <span className="admin-status admin-status--failed">Failed</span>
     )
@@ -157,6 +162,7 @@ function AdminSubmissions() {
       ) : (
         '—'
       ),
+      llmModel: llmModel || '—',
     }
   })
 

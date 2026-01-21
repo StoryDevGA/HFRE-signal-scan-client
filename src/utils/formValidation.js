@@ -189,6 +189,12 @@ export function getValidationRules(fieldName) {
           message: `Name cannot exceed ${FIELD_LIMITS.name.max} characters.`,
         },
         validate: {
+          notBlank: (value) => {
+            if (!sanitizeInput(value)) {
+              return 'Contact name is required.';
+            }
+            return true;
+          },
           noUnsafePatterns: (value) => {
             if (containsUnsafePatterns(value)) {
               return 'Input contains invalid characters or patterns.';
@@ -210,6 +216,12 @@ export function getValidationRules(fieldName) {
           message: `Email cannot exceed ${FIELD_LIMITS.email.max} characters.`,
         },
         validate: {
+          notBlank: (value) => {
+            if (!sanitizeInput(value)) {
+              return 'Email is required.';
+            }
+            return true;
+          },
           noUnsafePatterns: (value) => {
             if (containsUnsafePatterns(value)) {
               return 'Email contains invalid characters.';
@@ -231,6 +243,12 @@ export function getValidationRules(fieldName) {
           message: `${FIELD_LIMITS[fieldName].label} cannot exceed ${FIELD_LIMITS[fieldName].max} characters.`,
         },
         validate: {
+          notBlank: (value) => {
+            if (!sanitizeInput(value)) {
+              return `${FIELD_LIMITS[fieldName].label} is required.`;
+            }
+            return true;
+          },
           noUnsafePatterns: (value) => {
             if (containsUnsafePatterns(value)) {
               return 'Input contains invalid characters or patterns.';
@@ -266,6 +284,12 @@ export function getValidationRules(fieldName) {
           message: `URL cannot exceed ${FIELD_LIMITS[fieldName].max} characters.`,
         },
         validate: {
+          notBlank: (value) => {
+            if (!sanitizeInput(value)) {
+              return `${fieldName === 'homepage_url' ? 'Website' : 'Product page'} URL is required.`;
+            }
+            return true;
+          },
           validUrl: (value) => {
             try {
               const urlObj = new URL(value);

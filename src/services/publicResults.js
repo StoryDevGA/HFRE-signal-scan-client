@@ -21,7 +21,7 @@ export async function getPublicResult(publicId) {
     return { status: 'not_found' }
   }
   if (response.status === 500) {
-    return { status: 'failed' }
+    return { status: 'failed', message: data?.message || '' }
   }
   if (!response.ok) {
     const message =

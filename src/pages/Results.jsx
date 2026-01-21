@@ -68,7 +68,10 @@ function Results() {
         }
 
         if (data?.status === 'failed') {
-          setErrorMessage('The report failed to generate. Please try again later.')
+          const message = data?.message?.trim()
+            ? data.message
+            : 'The report failed to generate. Please try again later.'
+          setErrorMessage(message)
           setStatus('error')
           return
         }
@@ -322,7 +325,11 @@ function Results() {
                     <div>
                       <dt>Shareable</dt>
                       <dd>
-                        {result?.metadata?.shareability?.customer_safe ? 'Yes' : 'No'}
+                        {result?.metadata?.shareability?.customer_safe == null
+                          ? 'Unknown'
+                          : result.metadata.shareability.customer_safe
+                            ? 'Yes'
+                            : 'No'}
                       </dd>
                     </div>
                     <div>

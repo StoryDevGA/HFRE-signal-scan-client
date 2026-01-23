@@ -76,6 +76,7 @@ Requirements:
 Session approach:
 - Uses httpOnly cookie session (`admin_session`).
 - Frontend must send credentials on admin requests.
+- `GET /admin/auth/me` returns `{ email }` for the current admin (use for ownership checks).
 
 #### `/admin` - Dashboard (shell layout)
 Navigation (minimum):
@@ -115,18 +116,25 @@ Actions:
 - Delete this submission
 - Delete this user's data (bulk delete by email) (confirm modal)
 
-#### `/admin/prompts` - Prompt Manager (CRUD)
+#### `/admin/prompts` - Prompt Manager (CRUD + Publish)
 Prompts to manage:
 - System prompts
 - User prompts
 
 Requirements:
-- Add/Edit/Delete prompts.
-- Support versioning minimally:
-  - name, type (system|user), content, active boolean, timestamps.
-- Active prompt selection:
-  - Only one active system prompt and one active user prompt at a time.
-  - Changes affect subsequent scans only (no retroactive rewrite).
+- Create prompts with `label` (required), `type`, and `content`.
+- Prompts are owned per admin; each admin can create up to 4 system prompts and 4 user prompts.
+- Only owners can edit/delete their prompts.
+- Any admin can publish any prompt (ownership not required).
+- Defaults may be locked (`isLocked: true`) and include a `lockNote`; locked prompts cannot be edited or deleted.
+- Versioning:
+  - `version` auto-increments on content change (read-only in UI).
+  - `name` is derived/legacy; use `label` in new UI.
+- Publishing:
+  - Only one published system prompt and one published user prompt exist globally.
+  - Publish replaces the currently published prompt of that type.
+  - No unpublish action; publish another prompt instead.
+  - Use `isPublished` for status (API may also return legacy `isActive`).
 
 #### `/admin/users` - User Data Deletion
 Minimum:
@@ -204,6 +212,39 @@ For the v1 taster, implement option 1 but keep the component interface compatibl
 
 Admin detail response includes `{ submission, analytics }` and exposes `internal_report`.
 
+### 5.3 Admin prompt object (from API)
+```json
+{
+  "_id": "string",
+  "type": "system | user",
+  "ownerEmail": "string",
+  "label": "string",
+  "name": "string (derived/legacy)",
+  "content": "string",
+  "isPublished": true,
+  "isActive": true,
+  "isLocked": false,
+  "lockNote": "string | null",
+  "publishedAt": "string (ISO datetime) | null",
+  "publishedBy": "string | null",
+  "version": 3,
+  "createdAt": "string (ISO datetime)",
+  "updatedAt": "string (ISO datetime)"
+}
+```
+
+Create/update payloads:
+```json
+// POST /admin/prompts
+{ "type": "system | user", "label": "string", "content": "string", "isPublished": true }
+
+// PUT /admin/prompts/:id (edit - owner only)
+{ "label": "string", "content": "string" }
+
+// PUT /admin/prompts/:id (publish - any admin)
+{ "isPublished": true }
+```
+
 ---
 
 ## 6. API Client Contract (Frontend Expectations)
@@ -222,6 +263,7 @@ Admin (requires `credentials: "include"`):
 - `POST /admin/auth/login`
 - `POST /admin/auth/logout`
 - `GET /admin/auth/logout` (accepted)
+- `GET /admin/auth/me` -> `{ "email": "admin@example.com" }`
 - `GET /admin/submissions`
 - `GET /admin/submissions/:id`
 - `DELETE /admin/submissions/:id`
@@ -232,6 +274,15 @@ Admin (requires `credentials: "include"`):
 - `DELETE /admin/prompts/:id`
 - `GET /admin/analytics` (aggregate)
 - `GET /admin/analytics/:submissionId` (detail)
+
+Prompts:
+- `GET /admin/prompts` returns prompts across all admins with `ownerEmail`, `label`, `isPublished` (and legacy `isActive`), `publishedAt`, `publishedBy`, and `version`.
+- `POST /admin/prompts` requires `label` and enforces max 4 prompts per admin per type (409 on limit).
+- `PUT /admin/prompts/:id`:
+  - Edit (owner only): `{ label, content }`
+  - Publish (any admin): `{ isPublished: true }`
+  - No unpublish; publish another prompt instead.
+- Locked prompts (`isLocked: true`) must not be editable/deletable; display `lockNote` if present.
 
 Error shapes:
 - Validation: `{ "errors": [ { "path": "string", "message": "string" } ] }`

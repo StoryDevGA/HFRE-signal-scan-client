@@ -8,11 +8,12 @@ import Select from '../../components/Select/Select.jsx'
 import Table from '../../components/Table/Table.jsx'
 import Tooltip from '../../components/Tooltip/Tooltip.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
-import { ApiError } from '../../lib/api.js'
+import { ApiError, api } from '../../lib/api.js'
 import {
   createAdminPrompt,
   deleteAdminPrompt,
   getAdminPrompts,
+  publishAdminPrompt,
   updateAdminPrompt,
 } from '../../services/adminPrompts.js'
 
@@ -21,12 +22,13 @@ const typeOptions = [
   { value: 'user', label: 'User' },
 ]
 
+const MAX_PROMPTS_PER_TYPE = 4
 const emptyForm = {
   id: null,
-  name: '',
+  label: '',
   type: 'system',
   content: '',
-  isActive: false,
+  isPublished: false,
   version: '',
 }
 
@@ -37,14 +39,62 @@ function normalizePrompts(payload) {
   return []
 }
 
+function normalizeEmail(value) {
+  return (value || '').trim().toLowerCase()
+}
+
+function getPromptId(prompt) {
+  return prompt?._id || prompt?.id
+}
+
+function getPromptLabel(prompt) {
+  return prompt?.label || prompt?.name || '-'
+}
+
+function isPromptPublished(prompt) {
+  return Boolean(prompt?.isPublished || prompt?.isActive)
+}
+
+function isPromptLocked(prompt) {
+  return Boolean(prompt?.isLocked)
+}
+
+function formatTimestamp(value) {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '-'
+  return date.toLocaleString()
+}
+
+function formatVersion(value) {
+  if (value === null || value === undefined) return '-'
+  if (Number.isNaN(Number(value))) return '-'
+  return Number(value).toFixed(1)
+}
+
+function extractAdminEmail(payload) {
+  return (
+    payload?.email ||
+    payload?.user?.email ||
+    payload?.admin?.email ||
+    payload?.profile?.email ||
+    payload?.data?.email ||
+    ''
+  )
+}
+
 function AdminPrompts() {
   const { addToast } = useToaster()
+  const [adminEmail, setAdminEmail] = useState('')
   const [prompts, setPrompts] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [confirmPublish, setConfirmPublish] = useState(null)
+  const [publishing, setPublishing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [labelTouched, setLabelTouched] = useState(false)
   const [form, setForm] = useState(emptyForm)
 
   const loadPrompts = async () => {
@@ -61,31 +111,124 @@ function AdminPrompts() {
   }
 
   useEffect(() => {
+    let isActive = true
+
+    const loadAdminIdentity = async () => {
+      try {
+        const response = await api.get('/api/admin/auth/me', {
+          credentials: 'include',
+        })
+        const email = extractAdminEmail(response)
+        if (email && isActive) {
+          setAdminEmail(email)
+        }
+      } catch (error) {
+        // No fallback; rely on /api/admin/auth/me.
+      }
+    }
+
+    loadAdminIdentity()
+
+    return () => {
+      isActive = false
+    }
+  }, [])
+
+  useEffect(() => {
     loadPrompts()
   }, [])
 
+  const normalizedAdminEmail = useMemo(
+    () => normalizeEmail(adminEmail),
+    [adminEmail]
+  )
+
+  const ownedPromptCounts = useMemo(() => {
+    const counts = { system: 0, user: 0 }
+    if (!normalizedAdminEmail) return counts
+    prompts.forEach((prompt) => {
+      if (normalizeEmail(prompt.ownerEmail) !== normalizedAdminEmail) return
+      if (prompt.type === 'system') counts.system += 1
+      if (prompt.type === 'user') counts.user += 1
+    })
+    return counts
+  }, [prompts, normalizedAdminEmail])
+
+  const remainingByType = useMemo(
+    () => ({
+      system: Math.max(0, MAX_PROMPTS_PER_TYPE - ownedPromptCounts.system),
+      user: Math.max(0, MAX_PROMPTS_PER_TYPE - ownedPromptCounts.user),
+    }),
+    [ownedPromptCounts]
+  )
+
+  const isSystemAtLimit = ownedPromptCounts.system >= MAX_PROMPTS_PER_TYPE
+  const isUserAtLimit = ownedPromptCounts.user >= MAX_PROMPTS_PER_TYPE
+  const canCreatePrompt = !(isSystemAtLimit && isUserAtLimit)
+
+  const availableTypeOptions = useMemo(
+    () =>
+      typeOptions.filter((option) => {
+        if (option.value === 'system') return !isSystemAtLimit
+        if (option.value === 'user') return !isUserAtLimit
+        return true
+      }),
+    [isSystemAtLimit, isUserAtLimit]
+  )
+
+  const typeHelperText = useMemo(() => {
+    if (isSystemAtLimit && !isUserAtLimit) {
+      return 'System prompt limit reached.'
+    }
+    if (isUserAtLimit && !isSystemAtLimit) {
+      return 'User prompt limit reached.'
+    }
+    return `Up to ${MAX_PROMPTS_PER_TYPE} prompts per type.`
+  }, [isSystemAtLimit, isUserAtLimit])
+
+  const tooltipMessage =
+    isSystemAtLimit && isUserAtLimit
+      ? `You already have ${MAX_PROMPTS_PER_TYPE} system and ${MAX_PROMPTS_PER_TYPE} user prompts.`
+      : 'Add a new prompt.'
+
+  const isLabelValid = Boolean(form.label.trim())
+  const isContentValid = Boolean(form.content.trim())
+  const showLabelError = labelTouched && !isLabelValid
+
   const startCreate = () => {
-    setForm(emptyForm)
+    const defaultType = availableTypeOptions[0]?.value || 'system'
+    setForm({ ...emptyForm, type: defaultType })
+    setLabelTouched(false)
     setDialogOpen(true)
   }
 
   const startEdit = (prompt) => {
+    if (isPromptLocked(prompt)) {
+      addToast({
+        title: 'Prompt locked',
+        description: prompt?.lockNote || 'This prompt is locked and cannot be edited.',
+        variant: 'warning',
+      })
+      return
+    }
     setForm({
-      id: prompt._id || prompt.id,
-      name: prompt.name || '',
+      id: getPromptId(prompt),
+      label: getPromptLabel(prompt),
       type: prompt.type || 'system',
       content: prompt.content || '',
-      isActive: Boolean(prompt.isActive),
+      isPublished: isPromptPublished(prompt),
       version: prompt.version ?? '',
     })
+    setLabelTouched(false)
     setDialogOpen(true)
   }
 
   const handleSave = async () => {
-    if (!form.name.trim() || !form.content.trim()) {
+    if (!form.label.trim() || !form.content.trim()) {
+      setLabelTouched(true)
       addToast({
         title: 'Missing fields',
-        description: 'Name and content are required.',
+        description: 'Label and content are required.',
         variant: 'warning',
       })
       return
@@ -93,15 +236,11 @@ function AdminPrompts() {
 
     setSaving(true)
     try {
-      const payload = {
-        type: form.type,
-        name: form.name.trim(),
-        content: form.content.trim(),
-        isActive: Boolean(form.isActive),
-        version: form.version === '' ? undefined : Number(form.version),
-      }
-
       if (form.id) {
+        const payload = {
+          label: form.label.trim(),
+          content: form.content.trim(),
+        }
         await updateAdminPrompt(form.id, payload)
         addToast({
           title: 'Prompt updated',
@@ -109,6 +248,12 @@ function AdminPrompts() {
           variant: 'success',
         })
       } else {
+        const payload = {
+          type: form.type,
+          label: form.label.trim(),
+          content: form.content.trim(),
+          ...(form.isPublished ? { isPublished: true } : {}),
+        }
         await createAdminPrompt(payload)
         addToast({
           title: 'Prompt created',
@@ -121,9 +266,26 @@ function AdminPrompts() {
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         addToast({
-          title: 'Prompt already exists',
+          title: 'Prompt limit reached',
           description:
-            error?.message || 'Update the existing prompt instead of creating a new one.',
+            error?.message ||
+            `Each admin can create up to ${MAX_PROMPTS_PER_TYPE} prompts per type.`,
+          variant: 'warning',
+        })
+        return
+      }
+      if (error instanceof ApiError && error.status === 403) {
+        addToast({
+          title: 'Permission denied',
+          description: 'Only the owner can edit this prompt.',
+          variant: 'warning',
+        })
+        return
+      }
+      if (error instanceof ApiError && error.status === 423) {
+        addToast({
+          title: 'Prompt locked',
+          description: 'This prompt is locked and cannot be edited.',
           variant: 'warning',
         })
         return
@@ -139,13 +301,40 @@ function AdminPrompts() {
   }
 
   const confirmDeletePrompt = (prompt) => {
+    const isOwner =
+      normalizedAdminEmail &&
+      normalizeEmail(prompt?.ownerEmail) === normalizedAdminEmail
+    if (!isOwner) {
+      addToast({
+        title: 'Permission denied',
+        description: 'Only the owner can delete this prompt.',
+        variant: 'warning',
+      })
+      return
+    }
+    if (isPromptPublished(prompt)) {
+      addToast({
+        title: 'Cannot delete published prompt',
+        description: 'Publish another prompt before deleting this one.',
+        variant: 'warning',
+      })
+      return
+    }
+    if (isPromptLocked(prompt)) {
+      addToast({
+        title: 'Prompt locked',
+        description: prompt?.lockNote || 'This prompt is locked and cannot be deleted.',
+        variant: 'warning',
+      })
+      return
+    }
     setConfirmDelete(prompt)
   }
 
   const handleDelete = async () => {
     if (!confirmDelete) return
     try {
-      await deleteAdminPrompt(confirmDelete._id || confirmDelete.id)
+      await deleteAdminPrompt(getPromptId(confirmDelete))
       addToast({
         title: 'Prompt deleted',
         description: 'The prompt has been removed.',
@@ -154,6 +343,22 @@ function AdminPrompts() {
       setConfirmDelete(null)
       await loadPrompts()
     } catch (error) {
+      if (error instanceof ApiError && error.status === 403) {
+        addToast({
+          title: 'Permission denied',
+          description: 'Only the owner can delete this prompt.',
+          variant: 'warning',
+        })
+        return
+      }
+      if (error instanceof ApiError && error.status === 423) {
+        addToast({
+          title: 'Prompt locked',
+          description: 'This prompt is locked and cannot be deleted.',
+          variant: 'warning',
+        })
+        return
+      }
       addToast({
         title: 'Delete failed',
         description: error?.message || 'Unable to delete the prompt.',
@@ -162,51 +367,148 @@ function AdminPrompts() {
     }
   }
 
+  const handlePublish = async () => {
+    if (!confirmPublish) return
+    setPublishing(true)
+    try {
+      await publishAdminPrompt(getPromptId(confirmPublish))
+      addToast({
+        title: 'Prompt published',
+        description: 'The prompt is now active for scans.',
+        variant: 'success',
+      })
+      setConfirmPublish(null)
+      await loadPrompts()
+    } catch (error) {
+      addToast({
+        title: 'Publish failed',
+        description: error?.message || 'Unable to publish the prompt.',
+        variant: 'error',
+      })
+    } finally {
+      setPublishing(false)
+    }
+  }
+
   const rows = useMemo(
     () =>
       [...prompts]
         .sort((a, b) => {
-          if (a.type === b.type) return 0
-          if (a.type === 'system') return -1
-          if (b.type === 'system') return 1
-          return 0
+          if (a.type !== b.type) {
+            if (a.type === 'system') return -1
+            if (b.type === 'system') return 1
+          }
+          const aPublished = isPromptPublished(a)
+          const bPublished = isPromptPublished(b)
+          if (aPublished !== bPublished) {
+            return aPublished ? -1 : 1
+          }
+          return getPromptLabel(a).localeCompare(getPromptLabel(b))
         })
-        .map((prompt) => ({
-          id: prompt._id || prompt.id,
-          name: prompt.name,
-          type: (prompt.type || '').toUpperCase(),
-          version: prompt.version ?? '-',
-          active: (
-            <span
-              className={`admin-status ${
-                prompt.isActive ? 'admin-status--active' : 'admin-status--inactive'
-              }`}
-            >
-              {prompt.isActive ? 'Active' : 'Inactive'}
-            </span>
-          ),
-        })),
-    [prompts]
+        .map((prompt) => {
+          const ownerEmail = prompt.ownerEmail || ''
+          const published = isPromptPublished(prompt)
+          const isOwner =
+            normalizedAdminEmail &&
+            normalizeEmail(ownerEmail) === normalizedAdminEmail
+          const locked = isPromptLocked(prompt)
+          return {
+            id: getPromptId(prompt),
+            label: getPromptLabel(prompt),
+            type: prompt.type || '',
+            ownerEmail: ownerEmail || '-',
+            published,
+            publishedAt: prompt.publishedAt,
+            publishedBy: prompt.publishedBy || '-',
+            version: prompt.version ?? '-',
+            isOwner,
+            isPublished: published,
+            isLocked: locked,
+            lockNote: prompt.lockNote || '',
+            prompt,
+          }
+        }),
+    [prompts, normalizedAdminEmail]
   )
 
-  const hasSystemPrompt = useMemo(
-    () => prompts.some((prompt) => prompt.type === 'system'),
-    [prompts]
-  )
-  const hasUserPrompt = useMemo(
-    () => prompts.some((prompt) => prompt.type === 'user'),
-    [prompts]
-  )
-  const canCreatePrompt = !(hasSystemPrompt && hasUserPrompt)
-  const missingTypes = useMemo(() => {
-    const types = []
-    if (!hasSystemPrompt) types.push('system')
-    if (!hasUserPrompt) types.push('user')
-    return types
-  }, [hasSystemPrompt, hasUserPrompt])
-  const tooltipMessage = missingTypes.length
-    ? `Add ${missingTypes.join(' and ')} prompt.`
-    : 'Both system and user prompts already exist.'
+  const renderWithTooltip = (content, child) => {
+    if (!content) return child
+    return (
+      <Tooltip content={content}>
+        <span>{child}</span>
+      </Tooltip>
+    )
+  }
+
+  const renderActions = (row) => {
+    const prompt = row.prompt
+    const isOwner = row.isOwner
+    const isPublished = row.isPublished
+    const isLocked = row.isLocked
+    const lockNote = row.lockNote
+
+    const editButton = (
+      <Button
+        variant="ghost"
+        size="xs"
+        disabled={!isOwner || isLocked}
+        onClick={() => {
+          if (isOwner && !isLocked) startEdit(prompt)
+        }}
+      >
+        Edit
+      </Button>
+    )
+
+    const deleteDisabled = !isOwner || isPublished || isLocked
+    const deleteTooltip = !isOwner
+      ? 'Only the owner can delete this prompt.'
+      : isPublished
+        ? 'Publish another prompt before deleting this one.'
+        : isLocked
+          ? lockNote || 'This prompt is locked and cannot be deleted.'
+        : ''
+
+    const deleteButton = (
+      <Button
+        variant="danger"
+        size="xs"
+        disabled={deleteDisabled}
+        onClick={() => {
+          if (!deleteDisabled) confirmDeletePrompt(prompt)
+        }}
+      >
+        Delete
+      </Button>
+    )
+
+    return (
+      <div className="table__actions">
+        {isPublished ? (
+          <Button variant="secondary" size="xs" disabled>
+            PUBLISHED
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            size="xs"
+            onClick={() => setConfirmPublish(prompt)}
+          >
+            Publish
+          </Button>
+        )}
+        {renderWithTooltip(
+          !isOwner
+            ? 'Only the owner can edit this prompt.'
+            : isLocked
+              ? lockNote || 'This prompt is locked and cannot be edited.'
+              : '',
+          editButton
+        )}
+        {renderWithTooltip(deleteTooltip, deleteButton)}
+      </div>
+    )
+  }
 
   return (
     <section className="admin-section">
@@ -218,16 +520,17 @@ function AdminPrompts() {
       </header>
 
       <div className="admin-actions">
-        <Tooltip
-          content={tooltipMessage}
-          disabled={canCreatePrompt}
-        >
-          <span>
-            <Button onClick={startCreate} disabled={!canCreatePrompt}>
-              New prompt
-            </Button>
-          </span>
-        </Tooltip>
+        {canCreatePrompt ? (
+          <Button onClick={startCreate} size="xs">New prompt</Button>
+        ) : (
+          <Tooltip content={tooltipMessage}>
+            <span>
+              <Button onClick={startCreate} size="xs" disabled>
+                New prompt
+              </Button>
+            </span>
+          </Tooltip>
+        )}
       </div>
 
       {errorMessage ? (
@@ -236,39 +539,63 @@ function AdminPrompts() {
 
       <HorizontalScroll ariaLabel="Prompts table" className="admin-scroll">
         <Table
+          className="admin-table--compact"
           columns={[
-            { key: 'name', label: 'Name' },
-            { key: 'type', label: 'Type' },
-            { key: 'version', label: 'Version' },
-            { key: 'active', label: 'Active' },
+            { key: 'label', label: 'LABEL' },
+            {
+              key: 'type',
+              label: 'TYPE',
+              render: (value) => (value ? value.toUpperCase() : '-'),
+            },
+            { key: 'ownerEmail', label: 'OWNER', sortable: true },
+            {
+              key: 'isLocked',
+              label: 'LOCKED',
+              render: (value, row) =>
+                value ? (
+                  <Tooltip content={row.lockNote || 'Locked prompt'}>
+                    <span className="admin-status admin-status--inactive">Locked</span>
+                  </Tooltip>
+                ) : (
+                  <span className="admin-status admin-status--active">Open</span>
+                ),
+            },
+            {
+              key: 'published',
+              label: 'PUBLISHED',
+              sortable: true,
+              render: (value) => (
+                <span
+                  className={`admin-status ${
+                    value ? 'admin-status--active' : 'admin-status--inactive'
+                  }`}
+                >
+                  {value ? 'Published' : 'Draft'}
+                </span>
+              ),
+            },
+            {
+              key: 'publishedAt',
+              label: 'PUBLISHED AT',
+              render: (value) => formatTimestamp(value),
+            },
+            { key: 'publishedBy', label: 'PUBLISHED BY' },
+            {
+              key: 'version',
+              label: 'VERSION',
+              render: (value) => formatVersion(value),
+            },
+            {
+              key: 'actions',
+              label: 'ACTIONS',
+              render: (_, row) => renderActions(row),
+            },
           ]}
           data={rows}
           variant="striped"
           hoverable
           loading={loading}
           emptyMessage="No prompts found."
-          actions={[
-            {
-              label: 'Edit',
-              variant: 'ghost',
-              onClick: (row) => {
-                const prompt = prompts.find(
-                  (item) => (item._id || item.id) === row.id
-                )
-                if (prompt) startEdit(prompt)
-              },
-            },
-            {
-              label: 'Delete',
-              variant: 'danger',
-              onClick: (row) => {
-                const prompt = prompts.find(
-                  (item) => (item._id || item.id) === row.id
-                )
-                if (prompt) confirmDeletePrompt(prompt)
-              },
-            },
-          ]}
           ariaLabel="Prompts list"
         />
       </HorizontalScroll>
@@ -283,55 +610,84 @@ function AdminPrompts() {
               <Fieldset.Legend>Prompt details</Fieldset.Legend>
               <Fieldset.Content>
                 <Input
-                  id="prompt_name"
-                  label="Name"
-                  value={form.name}
+                  id="prompt_label"
+                  label="Label"
+                  value={form.label}
+                  error={showLabelError ? 'Label is required.' : ''}
                   onChange={(event) =>
-                    setForm((prev) => ({ ...prev, name: event.target.value }))
+                    setForm((prev) => ({ ...prev, label: event.target.value }))
                   }
+                  onBlur={() => setLabelTouched(true)}
                   required
                   fullWidth
                 />
                 {!form.id ? (
-                  <Select
-                    id="prompt_type"
-                    label="Type"
-                    value={form.type}
-                    onChange={(event) =>
-                      setForm((prev) => ({ ...prev, type: event.target.value }))
-                    }
-                    options={typeOptions}
-                  />
+                  <>
+                    <Select
+                      id="prompt_type"
+                      label="Type"
+                      value={form.type}
+                      onChange={(event) =>
+                        setForm((prev) => ({ ...prev, type: event.target.value }))
+                      }
+                      options={availableTypeOptions.length ? availableTypeOptions : typeOptions}
+                      disabled={availableTypeOptions.length === 1}
+                      helperText={typeHelperText}
+                    />
+                    <div className="prompt-limit-badges">
+                      <span
+                        className={`admin-status ${
+                          remainingByType.system > 0
+                            ? 'admin-status--active'
+                            : 'admin-status--inactive'
+                        } ${form.type === 'system' ? 'prompt-limit-badges__item--selected' : ''}`}
+                      >
+                        SYSTEM: {remainingByType.system} LEFT
+                      </span>
+                      <span
+                        className={`admin-status ${
+                          remainingByType.user > 0
+                            ? 'admin-status--active'
+                            : 'admin-status--inactive'
+                        } ${form.type === 'user' ? 'prompt-limit-badges__item--selected' : ''}`}
+                      >
+                        USER: {remainingByType.user} LEFT
+                      </span>
+                    </div>
+                  </>
                 ) : null}
                 <Input
                   id="prompt_version"
                   label="Version"
-                  type="number"
-                  value={form.version}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, version: event.target.value }))
-                  }
+                  value={form.version == null || form.version === '' ? '' : formatVersion(form.version)}
+                  placeholder="Auto"
+                  helperText="Auto-assigned when content changes."
+                  disabled
                 />
-                <Select
-                  id="prompt_active"
-                  label="Active"
-                  value={form.isActive ? 'true' : 'false'}
-                  onChange={(event) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      isActive: event.target.value === 'true',
-                    }))
-                  }
-                  options={[
-                    { value: 'true', label: 'Active' },
-                    { value: 'false', label: 'Inactive' },
-                  ]}
-                />
+                {!form.id ? (
+                  <Select
+                    id="prompt_publish"
+                    label="Publish now"
+                    value={form.isPublished ? 'true' : 'false'}
+                    onChange={(event) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        isPublished: event.target.value === 'true',
+                      }))
+                    }
+                    options={[
+                      { value: 'false', label: 'Save as draft' },
+                      { value: 'true', label: 'Publish now' },
+                    ]}
+                  />
+                ) : null}
               </Fieldset.Content>
             </Fieldset>
 
             <Fieldset>
-              <Fieldset.Legend>Content</Fieldset.Legend>
+              <Fieldset.Legend>
+                Content <span className="input-label__required"> *</span>
+              </Fieldset.Legend>
               <Fieldset.Content>
                 <textarea
                   className="prompt-textarea"
@@ -346,10 +702,15 @@ function AdminPrompts() {
           </form>
         </Dialog.Body>
         <Dialog.Footer>
-          <Button variant="secondary" onClick={() => setDialogOpen(false)}>
+          <Button variant="secondary" onClick={() => setDialogOpen(false)} size="xs">
             Cancel
           </Button>
-          <Button onClick={handleSave} loading={saving}>
+          <Button
+            onClick={handleSave}
+            loading={saving}
+            disabled={!isLabelValid || !isContentValid}
+            size="xs"
+          >
             {saving ? 'Saving...' : 'Save prompt'}
           </Button>
         </Dialog.Footer>
@@ -361,16 +722,37 @@ function AdminPrompts() {
         </Dialog.Header>
         <Dialog.Body>
           <p>
-            Delete "{confirmDelete?.name}"? Active prompts must be disabled
-            before deletion.
+            Delete "{getPromptLabel(confirmDelete)}"? Published prompts cannot be
+            deleted. Publish another prompt first.
           </p>
         </Dialog.Body>
         <Dialog.Footer>
-          <Button variant="secondary" onClick={() => setConfirmDelete(null)}>
+          <Button variant="secondary" onClick={() => setConfirmDelete(null)} size="xs">
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button variant="danger" onClick={handleDelete} size="xs">
             Delete
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
+
+      <Dialog open={Boolean(confirmPublish)} onClose={() => setConfirmPublish(null)} size="sm">
+        <Dialog.Header>
+          <h2>Publish prompt</h2>
+        </Dialog.Header>
+        <Dialog.Body>
+          <p>
+            Publish "{getPromptLabel(confirmPublish)}"? This will replace the
+            currently published{' '}
+            {confirmPublish?.type ? `${confirmPublish.type} prompt` : 'prompt'}.
+          </p>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button variant="secondary" onClick={() => setConfirmPublish(null)} size="xs">
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handlePublish} loading={publishing} size="xs">
+            {publishing ? 'Publishing...' : 'Publish'}
           </Button>
         </Dialog.Footer>
       </Dialog>

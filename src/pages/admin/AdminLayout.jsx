@@ -32,7 +32,6 @@ function AdminLayout() {
       .then((ok) => {
         if (!isActive) return
         if (!ok) {
-          sessionStorage.removeItem('adminEmail')
           navigate('/admin/login', {
             replace: true,
             state: { from: location.pathname },
@@ -80,10 +79,10 @@ function AdminLayout() {
           ? response.items
           : []
       const systemActive = prompts.some(
-        (prompt) => prompt.type === 'system' && prompt.isActive
+        (prompt) => prompt.type === 'system' && (prompt.isPublished || prompt.isActive)
       )
       const userActive = prompts.some(
-        (prompt) => prompt.type === 'user' && prompt.isActive
+        (prompt) => prompt.type === 'user' && (prompt.isPublished || prompt.isActive)
       )
 
       if (!systemActive || !userActive) {
@@ -133,7 +132,6 @@ function AdminLayout() {
     setIsLoggingOut(true)
     try {
       await logoutAdmin()
-      sessionStorage.removeItem('adminEmail')
       addToast({
         title: 'Signed out',
         description: 'You have been logged out.',
@@ -171,7 +169,7 @@ function AdminLayout() {
             <div className="admin-tabs__header">
               <Button
                 variant="secondary"
-                size="sm"
+                size="xs"
                 onClick={handleLogoutRequest}
                 loading={isLoggingOut || isCheckingPrompts}
               >
@@ -206,10 +204,10 @@ function AdminLayout() {
           <p>{logoutWarning}</p>
         </Dialog.Body>
         <Dialog.Footer>
-          <Button variant="secondary" onClick={() => setShowLogoutConfirm(false)}>
+          <Button variant="secondary" onClick={() => setShowLogoutConfirm(false)} size="xs">
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleLogout} loading={isLoggingOut}>
+          <Button variant="danger" onClick={handleLogout} loading={isLoggingOut} size="xs">
             {isLoggingOut ? 'Signing out...' : 'Sign out'}
           </Button>
         </Dialog.Footer>

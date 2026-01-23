@@ -359,7 +359,7 @@ export const Table = forwardRef(function Table({
                 </span>
               </th>
             ))}
-            {actions && <th className="table__header">Actions</th>}
+            {actions && <th className="table__header">ACTIONS</th>}
           </tr>
         </thead>
 
@@ -409,7 +409,7 @@ export const Table = forwardRef(function Table({
                           <Button
                             key={idx}
                             variant={action.variant || 'ghost'}
-                            size="sm"
+                            size="xs"
                             onClick={() => {
                               action.onClick(row)
                               onRowAction?.(action.label, row)

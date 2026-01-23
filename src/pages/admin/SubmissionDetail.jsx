@@ -194,7 +194,20 @@ function AdminSubmissionDetail() {
           {detail.inputs.company_name || 'Submission detail'}
         </h1>
         <p className="text-responsive-base">
-          Status: {detail.status || 'unknown'}
+          Status:{' '}
+          <span
+            className={`admin-status ${
+              detail.status?.toLowerCase() === 'complete'
+                ? 'admin-status--active'
+                : detail.status?.toLowerCase() === 'failed'
+                  ? 'admin-status--failed'
+                  : detail.status?.toLowerCase() === 'pending'
+                    ? 'admin-status--pending'
+                    : 'admin-status--inactive'
+            }`}
+          >
+            {detail.status || 'unknown'}
+          </span>
         </p>
         {detail.llmModel ? (
           <p className="text-responsive-sm text-secondary">
@@ -224,6 +237,7 @@ function AdminSubmissionDetail() {
             variant="danger"
             onClick={() => openConfirm('submission')}
             disabled={isDeleting}
+            size="xs"
           >
             Delete submission
           </Button>
@@ -232,6 +246,7 @@ function AdminSubmissionDetail() {
           variant="outline"
           onClick={() => openConfirm('user')}
           disabled={!detail.inputs.email || isDeleting}
+          size="xs"
         >
           Delete user data
         </Button>
@@ -349,10 +364,10 @@ function AdminSubmissionDetail() {
           </p>
         </Dialog.Body>
         <Dialog.Footer>
-          <Button variant="secondary" onClick={closeConfirm} disabled={isDeleting}>
+          <Button variant="secondary" onClick={closeConfirm} disabled={isDeleting} size="xs">
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleConfirm} loading={isDeleting}>
+          <Button variant="danger" onClick={handleConfirm} loading={isDeleting} size="xs">
             {isDeleting ? 'Deleting...' : 'Confirm delete'}
           </Button>
         </Dialog.Footer>

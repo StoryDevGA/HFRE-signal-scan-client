@@ -216,8 +216,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Token usage by system version table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'version', label: 'Version' },
-                { key: 'avgTotalTokens', label: 'Avg total tokens' },
+                { key: 'version', label: 'VERSION' },
+                { key: 'avgTotalTokens', label: 'AVG TOTAL TOKENS' },
               ]}
               data={[...usageBySystemVersion]
                 .sort((a, b) => {
@@ -241,8 +241,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Token usage by user version table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'version', label: 'Version' },
-                { key: 'avgTotalTokens', label: 'Avg total tokens' },
+                { key: 'version', label: 'VERSION' },
+                { key: 'avgTotalTokens', label: 'AVG TOTAL TOKENS' },
               ]}
               data={[...usageByUserVersion]
                 .sort((a, b) => {
@@ -268,11 +268,11 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Counts by day table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'date', label: 'Date' },
-                { key: 'total', label: 'Total' },
-                { key: 'pending', label: 'Pending' },
-                { key: 'complete', label: 'Complete' },
-                { key: 'failed', label: 'Failed' },
+                { key: 'date', label: 'DATE' },
+                { key: 'total', label: 'TOTAL' },
+                { key: 'pending', label: 'PENDING' },
+                { key: 'complete', label: 'COMPLETE' },
+                { key: 'failed', label: 'FAILED' },
               ]}
               data={countsByDay}
               loading={loading}
@@ -287,7 +287,7 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Latency by day table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'date', label: 'Date' },
+                { key: 'date', label: 'DATE' },
                 { key: 'p50', label: 'P50' },
                 { key: 'p90', label: 'P90' },
               ]}
@@ -320,8 +320,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Retries by day table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'date', label: 'Date' },
-                { key: 'retries', label: 'Retries' },
+                { key: 'date', label: 'DATE' },
+                { key: 'retries', label: 'RETRIES' },
               ]}
               data={retriesPerDay.map((item) => ({
                 date: item.date,
@@ -341,8 +341,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Top browsers table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'key', label: 'Browser' },
-                { key: 'count', label: 'Count' },
+                { key: 'key', label: 'BROWSER' },
+                { key: 'count', label: 'COUNT' },
               ]}
               data={topBrowsers}
               loading={loading}
@@ -356,8 +356,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Top devices table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'key', label: 'Device' },
-                { key: 'count', label: 'Count' },
+                { key: 'key', label: 'DEVICE' },
+                { key: 'count', label: 'COUNT' },
               ]}
               data={topDevices}
               loading={loading}
@@ -374,8 +374,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Top referrers table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'key', label: 'Referrer' },
-                { key: 'count', label: 'Count' },
+                { key: 'key', label: 'REFERRER' },
+                { key: 'count', label: 'COUNT' },
               ]}
               data={topReferrers}
               loading={loading}
@@ -389,8 +389,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Top countries table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'key', label: 'Country' },
-                { key: 'count', label: 'Count' },
+                { key: 'key', label: 'COUNTRY' },
+                { key: 'count', label: 'COUNT' },
               ]}
               data={topCountries}
               loading={loading}
@@ -413,8 +413,8 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Top failures table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'message', label: 'Message' },
-                { key: 'count', label: 'Count' },
+                { key: 'message', label: 'MESSAGE' },
+                { key: 'count', label: 'COUNT' },
               ]}
               data={topFailures}
               loading={loading}
@@ -429,9 +429,9 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Failures by prompt version table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'systemPromptVersion', label: 'System' },
-                { key: 'userPromptVersion', label: 'User' },
-                { key: 'count', label: 'Count' },
+                { key: 'systemPromptVersion', label: 'SYSTEM' },
+                { key: 'userPromptVersion', label: 'USER' },
+                { key: 'count', label: 'COUNT' },
               ]}
               data={failureByPromptVersion.map((item) => ({
                 systemPromptVersion: item.systemPromptVersion ?? '—',
@@ -452,10 +452,10 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="Prompt performance by pair table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'systemPromptVersion', label: 'System' },
-                { key: 'userPromptVersion', label: 'User' },
-                { key: 'completeRate', label: 'Complete rate' },
-                { key: 'avgDurationMs', label: 'Avg duration' },
+                { key: 'systemPromptVersion', label: 'SYSTEM' },
+                { key: 'userPromptVersion', label: 'USER' },
+                { key: 'completeRate', label: 'COMPLETE RATE' },
+                { key: 'avgDurationMs', label: 'AVG DURATION' },
               ]}
               data={[...performanceByPair]
                 .sort((a, b) => {
@@ -484,9 +484,9 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="System prompt performance table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'version', label: 'Version' },
-                { key: 'completeRate', label: 'Complete rate' },
-                { key: 'avgDurationMs', label: 'Avg duration' },
+                { key: 'version', label: 'VERSION' },
+                { key: 'completeRate', label: 'COMPLETE RATE' },
+                { key: 'avgDurationMs', label: 'AVG DURATION' },
               ]}
               data={[...performanceBySystem]
                 .sort((a, b) => {
@@ -511,9 +511,9 @@ function AdminAnalytics() {
           <HorizontalScroll ariaLabel="User prompt performance table" className="admin-scroll">
             <Table
               columns={[
-                { key: 'version', label: 'Version' },
-                { key: 'completeRate', label: 'Complete rate' },
-                { key: 'avgDurationMs', label: 'Avg duration' },
+                { key: 'version', label: 'VERSION' },
+                { key: 'completeRate', label: 'COMPLETE RATE' },
+                { key: 'avgDurationMs', label: 'AVG DURATION' },
               ]}
               data={[...performanceByUser]
                 .sort((a, b) => {
@@ -547,7 +547,7 @@ function AdminAnalytics() {
                 onChange={(event) => setDetailId(event.target.value)}
                 fullWidth
               />
-              <Button variant="secondary" onClick={loadDetail} type="button">
+              <Button variant="secondary" onClick={loadDetail} type="button" size="xs">
                 Fetch detail
               </Button>
             </Fieldset.Content>

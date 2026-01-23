@@ -23,7 +23,6 @@ function AdminLogin() {
   const onSubmit = async (values) => {
     try {
       await loginAdmin(values)
-      sessionStorage.setItem('adminEmail', values.email.trim())
       const destination = location.state?.from || '/admin/submissions'
       navigate(destination, { replace: true })
     } catch (error) {
@@ -91,7 +90,7 @@ function AdminLogin() {
                 {...register('password', { required: 'Password is required.' })}
               />
 
-              <Button type="submit" loading={isSubmitting} fullWidth>
+              <Button type="submit" loading={isSubmitting} fullWidth size="xs">
                 {isSubmitting ? 'Signing in...' : 'Sign in'}
               </Button>
             </Fieldset.Content>

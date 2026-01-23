@@ -25,10 +25,10 @@ function AdminUsers() {
 
   const columns = useMemo(
     () => [
-      { key: 'email', label: 'Email' },
-      { key: 'company', label: 'Company' },
-      { key: 'count', label: 'Submissions' },
-      { key: 'lastSeen', label: 'Last submission' },
+      { key: 'email', label: 'EMAIL' },
+      { key: 'company', label: 'COMPANY' },
+      { key: 'count', label: 'SUBMISSIONS' },
+      { key: 'lastSeen', label: 'LAST SUBMISSION' },
     ],
     []
   )
@@ -202,7 +202,7 @@ function AdminUsers() {
 
               <div className="admin-actions">
                 <Tooltip content="Deletes all submissions and analytics for this email.">
-                  <Button variant="danger" onClick={openConfirm}>
+                  <Button variant="danger" onClick={openConfirm} size="xs">
                     Delete user data
                   </Button>
                 </Tooltip>
@@ -227,10 +227,11 @@ function AdminUsers() {
             variant="secondary"
             onClick={() => setConfirmOpen(false)}
             disabled={isDeleting}
+            size="xs"
           >
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDelete} loading={isDeleting}>
+          <Button variant="danger" onClick={handleDelete} loading={isDeleting} size="xs">
             {isDeleting ? 'Deleting...' : 'Confirm delete'}
           </Button>
         </Dialog.Footer>

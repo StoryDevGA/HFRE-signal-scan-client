@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../components/Button/Button.jsx'
 import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll.jsx'
@@ -45,6 +45,14 @@ const getConfidenceIcon = (level) => {
   return '-'
 }
 
+const getStatusBadgeClass = (statusValue) => {
+  const normalized = statusValue?.toLowerCase()
+  if (normalized === 'complete') return 'admin-status--active'
+  if (normalized === 'failed') return 'admin-status--failed'
+  if (normalized === 'pending') return 'admin-status--pending'
+  return 'admin-status--inactive'
+}
+
 function normalizeSubmissions(payload) {
   if (!payload) {
     return { items: [], page: 1, totalPages: 1 }
@@ -77,15 +85,17 @@ function AdminSubmissions() {
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const filterTimeoutRef = useRef(null)
+  const isFirstLoadRef = useRef(true)
 
   const columns = useMemo(
     () => [
-      { key: 'createdAt', label: 'Created' },
-      { key: 'company', label: 'Company' },
-      { key: 'email', label: 'Contact Email' },
-      { key: 'status', label: 'Status' },
-      { key: 'confidence', label: 'Confidence' },
-      { key: 'llmModel', label: 'LLM Model' },
+      { key: 'createdAt', label: 'CREATED' },
+      { key: 'company', label: 'COMPANY' },
+      { key: 'email', label: 'CONTACT EMAIL' },
+      { key: 'status', label: 'STATUS' },
+      { key: 'confidence', label: 'CONFIDENCE' },
+      { key: 'llmModel', label: 'LLM MODEL' },
     ],
     []
   )
@@ -120,6 +130,32 @@ function AdminSubmissions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    if (isFirstLoadRef.current) {
+      isFirstLoadRef.current = false
+      return
+    }
+    if (filterTimeoutRef.current) {
+      window.clearTimeout(filterTimeoutRef.current)
+    }
+    filterTimeoutRef.current = window.setTimeout(() => {
+      fetchSubmissions({ nextPage: 1 })
+    }, 300)
+    return () => {
+      if (filterTimeoutRef.current) {
+        window.clearTimeout(filterTimeoutRef.current)
+      }
+    }
+  }, [query, status])
+
+  const handleFilterSubmit = (event) => {
+    event.preventDefault()
+    if (filterTimeoutRef.current) {
+      window.clearTimeout(filterTimeoutRef.current)
+    }
+    fetchSubmissions({ nextPage: 1 })
+  }
+
   const rows = data.map((submission) => {
     const statusText = submission.status || ''
     const failureMessage = submission.failureMessage || ''
@@ -128,7 +164,9 @@ function AdminSubmissions() {
       submission.metadata?.confidence_level ||
       ''
     const confidenceBadgeClass = getConfidenceBadgeClass(confidence)
-    const failedStatus = statusText.toLowerCase() === 'failed'
+    const normalizedStatus = statusText.toLowerCase()
+    const failedStatus = normalizedStatus === 'failed'
+    const statusBadgeClass = getStatusBadgeClass(statusText)
     const llmModel =
       submission.llmModelUsed ||
       submission.processing?.llmModel ||
@@ -141,7 +179,9 @@ function AdminSubmissions() {
       ? ` [${Number(llmTemperature)}]`
       : ''
     const statusBadge = (
-      <span className="admin-status admin-status--failed">Failed</span>
+      <span className={`admin-status ${statusBadgeClass}`}>
+        {statusText || 'unknown'}
+      </span>
     )
 
     return {
@@ -149,15 +189,11 @@ function AdminSubmissions() {
       createdAt: formatTimestamp(submission.createdAt),
       company: submission.inputs?.company_name || submission.company || '',
       email: submission.inputs?.email || submission.email || '',
-      status: failedStatus ? (
-        failureMessage ? (
-          <Tooltip content={failureMessage}>{statusBadge}</Tooltip>
-        ) : (
-          statusBadge
-        )
-      ) : (
-        statusText
-      ),
+      status: failedStatus
+        ? failureMessage
+          ? <Tooltip content={failureMessage}>{statusBadge}</Tooltip>
+          : statusBadge
+        : statusBadge,
       confidence: confidence ? (
         <span className={`confidence-badge ${confidenceBadgeClass}`}>
           <span className="confidence-badge__indicator" aria-hidden="true" />
@@ -182,7 +218,7 @@ function AdminSubmissions() {
         </p>
       </header>
 
-      <div className="admin-filters">
+      <form className="admin-filters" onSubmit={handleFilterSubmit}>
         <Input
           id="submission_search"
           label="Search"
@@ -199,11 +235,12 @@ function AdminSubmissions() {
         />
         <Button
           variant="secondary"
-          onClick={() => fetchSubmissions({ nextPage: 1 })}
+          size="xs"
+          type="submit"
         >
           Apply filters
         </Button>
-      </div>
+      </form>
 
       {errorMessage ? (
         <p className="text-responsive-base">{errorMessage}</p>
@@ -231,7 +268,7 @@ function AdminSubmissions() {
       <div className="admin-pagination">
         <Button
           variant="ghost"
-          size="sm"
+          size="xs"
           disabled={page <= 1 || loading}
           onClick={() => fetchSubmissions({ nextPage: Math.max(1, page - 1) })}
         >
@@ -242,7 +279,7 @@ function AdminSubmissions() {
         </span>
         <Button
           variant="ghost"
-          size="sm"
+          size="xs"
           disabled={page >= totalPages || loading}
           onClick={() =>
             fetchSubmissions({ nextPage: Math.min(totalPages, page + 1) })

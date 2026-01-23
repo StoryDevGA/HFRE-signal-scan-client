@@ -4,12 +4,14 @@ import Button from '../components/Button/Button.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Header from '../components/Header/Header.jsx'
 import Link from '../components/Link/Link.jsx'
+import Pill from '../components/Pill/Pill.jsx'
 import ReportRenderer from '../components/ReportRenderer.jsx'
 import TabView from '../components/TabView/TabView.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { getPublicResult } from '../services/publicResults.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
+import { MdArrowBack } from 'react-icons/md'
 
 const formatTimestamp = (value) => {
   if (!value) return ''
@@ -254,12 +256,20 @@ function Results() {
 
   return (
     <>
-      {header}
-      <main className="page container">
+        {header}
+        <main className="page container">
         <header className="report-header">
-          <Link href="https://www.storylineos.com/" openInNewTab className="home__back-link">
+          <Pill
+            as={Link}
+            href="https://www.storylineos.com/"
+            openInNewTab
+            className="home__back-link"
+            variant="neutral"
+            size="md"
+            leftIcon={<MdArrowBack />}
+          >
             Back to StorylineOS
-          </Link>
+          </Pill>
           <div className="report-header__title">
             <h1 className="text-responsive-xl">{companyName}</h1>
            

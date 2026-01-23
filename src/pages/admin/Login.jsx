@@ -6,9 +6,11 @@ import Footer from '../../components/Footer/Footer.jsx'
 import Header from '../../components/Header/Header.jsx'
 import Input from '../../components/Input/Input.jsx'
 import Link from '../../components/Link/Link.jsx'
+import Pill from '../../components/Pill/Pill.jsx'
 import { useToaster } from '../../components/Toaster/Toaster.jsx'
 import { loginAdmin } from '../../services/adminAuth.js'
 import storylineLogo from '../../assets/images/storylineOS-Logo.png'
+import { MdArrowBack } from 'react-icons/md'
 
 function AdminLogin() {
   const navigate = useNavigate()
@@ -45,17 +47,25 @@ function AdminLogin() {
       />
       <main className="page container">
         <header className="page__header">
-          <Link href="https://www.storylineos.com/" openInNewTab className="home__back-link">
+          <Pill
+            as={Link}
+            href="https://www.storylineos.com/"
+            openInNewTab
+            className="home__back-link"
+            variant="neutral"
+            size="md"
+            leftIcon={<MdArrowBack />}
+          >
             Back to StorylineOS
-          </Link>
+          </Pill>
           <h1 className="text-responsive-xl text-uppercase">admin login</h1>
           <p className="text-responsive-base">
             Use your approved email and the shared password.
           </p>
           <div className="home__benefits">
-            <div>Restricted</div>
-            <div>Secure</div>
-            <div>Internal</div>
+            <Pill size="sm">Restricted</Pill>
+            <Pill size="sm">Secure</Pill>
+            <Pill size="sm">Internal</Pill>
           </div>
           <p className="text-responsive-sm text-tertiary">
             Access is limited to approved admin accounts.

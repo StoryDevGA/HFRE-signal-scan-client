@@ -5,6 +5,7 @@ import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Header from '../components/Header/Header.jsx'
 import Input from '../components/Input/Input.jsx'
 import Link from '../components/Link/Link.jsx'
+import Pill from '../components/Pill/Pill.jsx'
 import Radio from '../components/Radio/Radio.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
@@ -89,25 +90,25 @@ function Home() {
       />
       <main className="page container">
         <header className="page__header">
-          <Link
+          <Pill
+            as={Link}
             href="https://www.storylineos.com/"
             openInNewTab
             className="home__back-link"
-            underline="hover"
+            variant="neutral"
+            size="md"
+            leftIcon={<MdArrowBack />}
           >
-            <span className="home__back-icon" aria-hidden="true">
-              <MdArrowBack />
-            </span>
-            <span className="home__back-text">Back to StorylineOS</span>
-          </Link>
+            Back to StorylineOS
+          </Pill>
           <h1 className="text-responsive-xl text-uppercase">Customer-safe signal scan</h1>
           <p className="text-responsive-base">
             Get a shareable scan of your company's public signals in minutes.
           </p>
           <div className="home__benefits">
-            <span className="home__benefit">Instant results</span>
-            <span className="home__benefit">Confidential</span>
-            <span className="home__benefit">Free</span>
+            <Pill size="sm">Instant results</Pill>
+            <Pill size="sm">Confidential</Pill>
+            <Pill size="sm">Free</Pill>
           </div>
           <p className="text-responsive-sm text-tertiary">
             We only scan public information and never share your data.

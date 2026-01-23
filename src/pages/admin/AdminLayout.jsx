@@ -120,7 +120,7 @@ function AdminLayout() {
     return (
       <main className="page container">
         <header className="page__header">
-          <h1 className="text-responsive-xl">Admin unavailable</h1>
+          <h1 className="text-responsive-xl text-uppercase">Admin unavailable</h1>
           <p className="text-responsive-base">{errorMessage}</p>
         </header>
       </main>

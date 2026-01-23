@@ -151,7 +151,7 @@ function AdminUsers() {
   return (
     <section className="admin-section">
       <header className="page__header">
-        <h1 className="text-responsive-lg">Users</h1>
+        <h1 className="text-responsive-lg text-uppercase">Users</h1>
         <p className="text-responsive-base">
           Review users from submissions and delete data by email.
         </p>

@@ -180,7 +180,7 @@ function AdminSubmissionDetail() {
     return (
       <main className="page">
         <header className="page__header">
-          <h1 className="text-responsive-lg">Unable to load submission</h1>
+          <h1 className="text-responsive-lg text-uppercase">Unable to load submission</h1>
           <p className="text-responsive-base">{errorMessage}</p>
         </header>
       </main>
@@ -190,9 +190,9 @@ function AdminSubmissionDetail() {
   return (
     <section className="admin-section">
       <header className="page__header">
-        <h1 className="text-responsive-lg">
-          {detail.inputs.company_name || 'Submission detail'}
-        </h1>
+          <h1 className="text-responsive-lg text-uppercase">
+            {detail.inputs.company_name || 'Submission detail'}
+          </h1>
         <p className="text-responsive-base">
           Status:{' '}
           <span

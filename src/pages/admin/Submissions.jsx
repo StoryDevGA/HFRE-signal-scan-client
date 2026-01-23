@@ -212,7 +212,7 @@ function AdminSubmissions() {
   return (
     <section className="admin-section">
       <header className="page__header">
-        <h1 className="text-responsive-lg">Submissions</h1>
+        <h1 className="text-responsive-lg text-uppercase">Submissions</h1>
         <p className="text-responsive-base">
           Review incoming scans and track completion status.
         </p>

@@ -513,7 +513,7 @@ function AdminPrompts() {
   return (
     <section className="admin-section">
       <header className="page__header">
-        <h1 className="text-responsive-lg">Prompts</h1>
+        <h1 className="text-responsive-lg text-uppercase">Prompts</h1>
         <p className="text-responsive-base">
           Manage system and user prompts for the scan agent.
         </p>

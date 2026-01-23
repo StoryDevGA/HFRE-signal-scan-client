@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import CountUp from 'react-countup'
 import Button from '../../components/Button/Button.jsx'
 import Card from '../../components/Card/Card.jsx'
 import Fieldset from '../../components/Fieldset/Fieldset.jsx'
@@ -18,6 +19,12 @@ const formatPercent = (value) => {
   return `${Math.round(normalized)}%`
 }
 
+const getPercentValue = (value) => {
+  const number = Number(value)
+  if (!Number.isFinite(number)) return 0
+  return number > 1 ? number : number * 100
+}
+
 const formatDurationMs = (value) => {
   const ms = Number(value)
   if (!Number.isFinite(ms)) return '0 ms'
@@ -26,6 +33,7 @@ const formatDurationMs = (value) => {
 
 function AdminAnalytics() {
   const [summary, setSummary] = useState(null)
+  const [hasAnimatedTotals, setHasAnimatedTotals] = useState(false)
   const [detailId, setDetailId] = useState('')
   const [detail, setDetail] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -58,6 +66,12 @@ function AdminAnalytics() {
       isActive = false
     }
   }, [])
+
+  useEffect(() => {
+    if (summary && !hasAnimatedTotals) {
+      setHasAnimatedTotals(true)
+    }
+  }, [summary, hasAnimatedTotals])
 
   const loadDetail = async () => {
     if (!detailId.trim()) return
@@ -108,6 +122,27 @@ function AdminAnalytics() {
     date: item.date ?? item._id,
     retries: item.retries ?? 0,
   }))
+  const shouldAnimateTotals = Boolean(summary && !hasAnimatedTotals)
+  const renderCount = (value, options = {}) => (
+    <CountUp
+      start={shouldAnimateTotals ? 0 : Number(value ?? 0)}
+      end={Number(value ?? 0)}
+      duration={0.9}
+      preserveValue={!shouldAnimateTotals}
+      separator=","
+      {...options}
+    />
+  )
+  const renderPercent = (value) => (
+    <CountUp
+      start={shouldAnimateTotals ? 0 : getPercentValue(value)}
+      end={getPercentValue(value)}
+      duration={0.9}
+      preserveValue={!shouldAnimateTotals}
+      decimals={0}
+      suffix="%"
+    />
+  )
 
   return (
     <section className="admin-section">
@@ -130,27 +165,27 @@ function AdminAnalytics() {
               <dl className="detail-list">
                 <div>
                   <dt>Total</dt>
-                  <dd>{totals.total ?? 0}</dd>
+                  <dd>{renderCount(totals.total)}</dd>
                 </div>
                 <div>
                   <dt>Pending</dt>
-                  <dd>{totals.pending ?? 0}</dd>
+                  <dd>{renderCount(totals.pending)}</dd>
                 </div>
                 <div>
                   <dt>Complete</dt>
-                  <dd>{totals.complete ?? 0}</dd>
+                  <dd>{renderCount(totals.complete)}</dd>
                 </div>
                 <div>
                   <dt>Failed</dt>
-                  <dd>{totals.failed ?? 0}</dd>
+                  <dd>{renderCount(totals.failed)}</dd>
                 </div>
                 <div>
                   <dt>Complete rate</dt>
-                  <dd>{formatPercent(completeRate)}</dd>
+                  <dd>{renderPercent(completeRate)}</dd>
                 </div>
                 <div>
                   <dt>Failed rate</dt>
-                  <dd>{formatPercent(failedRate)}</dd>
+                  <dd>{renderPercent(failedRate)}</dd>
                 </div>
               </dl>
             </Card>
@@ -164,31 +199,31 @@ function AdminAnalytics() {
               <dl className="detail-list">
                 <div>
                   <dt>Submissions with usage</dt>
-                  <dd>{usage.submissionsWithUsage ?? 0}</dd>
+                  <dd>{renderCount(usage.submissionsWithUsage)}</dd>
                 </div>
                 <div>
                   <dt>Total tokens</dt>
-                  <dd>{usage.totalTokens ?? 0}</dd>
+                  <dd>{renderCount(usage.totalTokens)}</dd>
                 </div>
                 <div>
                   <dt>Avg total</dt>
-                  <dd>{usage.averageTotalTokens ?? 0}</dd>
+                  <dd>{renderCount(usage.averageTotalTokens)}</dd>
                 </div>
                 <div>
                   <dt>Total prompt</dt>
-                  <dd>{usage.promptTokens ?? 0}</dd>
+                  <dd>{renderCount(usage.promptTokens)}</dd>
                 </div>
                 <div>
                   <dt>Total completion</dt>
-                  <dd>{usage.completionTokens ?? 0}</dd>
+                  <dd>{renderCount(usage.completionTokens)}</dd>
                 </div>
                 <div>
                   <dt>Avg prompt</dt>
-                  <dd>{usage.averagePromptTokens ?? 0}</dd>
+                  <dd>{renderCount(usage.averagePromptTokens)}</dd>
                 </div>
                 <div>
                   <dt>Avg completion</dt>
-                  <dd>{usage.averageCompletionTokens ?? 0}</dd>
+                  <dd>{renderCount(usage.averageCompletionTokens)}</dd>
                 </div>
               </dl>
             </Card>
@@ -336,11 +371,11 @@ function AdminAnalytics() {
               <dl className="detail-list">
                 <div>
                   <dt>Total retries</dt>
-                  <dd>{Number(totalRetries).toLocaleString()}</dd>
+                  <dd>{renderCount(totalRetries)}</dd>
                 </div>
                 <div>
                   <dt>Retry success rate</dt>
-                  <dd>{formatPercent(retrySuccessRate)}</dd>
+                  <dd>{renderPercent(retrySuccessRate)}</dd>
                 </div>
               </dl>
             </Card>
@@ -461,7 +496,7 @@ function AdminAnalytics() {
               <dl className="detail-list">
                 <div>
                   <dt>Failure rate</dt>
-                  <dd>{formatPercent(failureRate)}</dd>
+                  <dd>{renderPercent(failureRate)}</dd>
                 </div>
               </dl>
               <HorizontalScroll ariaLabel="Top failures table" className="admin-scroll">

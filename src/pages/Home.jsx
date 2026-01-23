@@ -11,9 +11,7 @@ import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { submitPublicScan } from '../services/publicScans.js'
 import { getValidationRules, sanitizeInput } from '../utils/formValidation.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
-import storylineIcon from '../assets/icons/storylineOS-icon.png'
-
-const urlPattern = /^https?:\/\/.+/i
+import { MdArrowBack } from 'react-icons/md'
 
 function Home() {
   const navigate = useNavigate()
@@ -23,7 +21,7 @@ function Home() {
     handleSubmit,
     watch,
     control,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isSubmitting },
   } = useForm({
     mode: 'onBlur',
     reValidateMode: 'onChange',
@@ -47,6 +45,7 @@ function Home() {
     email,
     companyName,
     homepageUrl,
+    productName,
     productPageUrl,
   ].every((value) => String(value || '').trim().length > 0)
 
@@ -90,17 +89,25 @@ function Home() {
       />
       <main className="page container">
         <header className="page__header">
-          <Link href="https://www.storylineos.com/" openInNewTab className="home__back-link">
-            Back to StorylineOS
+          <Link
+            href="https://www.storylineos.com/"
+            openInNewTab
+            className="home__back-link"
+            underline="hover"
+          >
+            <span className="home__back-icon" aria-hidden="true">
+              <MdArrowBack />
+            </span>
+            <span className="home__back-text">Back to StorylineOS</span>
           </Link>
-          <h1 className="text-responsive-xl text-uppercase"> signal scan</h1>
+          <h1 className="text-responsive-xl text-uppercase">Customer-safe signal scan</h1>
           <p className="text-responsive-base">
-            Share your details and receive a customer-safe scan report.
+            Get a shareable scan of your company's public signals in minutes.
           </p>
           <div className="home__benefits">
-            <div>Instant results</div>
-            <div>Confidential</div>
-            <div>Free</div>
+            <span className="home__benefit">Instant results</span>
+            <span className="home__benefit">Confidential</span>
+            <span className="home__benefit">Free</span>
           </div>
           <p className="text-responsive-sm text-tertiary">
             We only scan public information and never share your data.
@@ -164,6 +171,9 @@ function Home() {
                   Product or solution
                   <span className="input-label__required"> *</span>
                 </legend>
+                <p className="radio-group__helper text-responsive-sm text-tertiary">
+                  Choose the option that best describes what you offer.
+                </p>
                 <Controller
                   name="product_name"
                   control={control}
@@ -183,6 +193,8 @@ function Home() {
                         name={field.name}
                         value="Product"
                         label="Product"
+                        description="A standalone product or platform."
+                        size="lg"
                         checked={field.value === 'Product'}
                         onChange={() => field.onChange('Product')}
                         onBlur={field.onBlur}
@@ -196,6 +208,8 @@ function Home() {
                         name={field.name}
                         value="Solution"
                         label="Solution"
+                        description="A service or outcome-based offer."
+                        size="lg"
                         checked={field.value === 'Solution'}
                         onChange={() => field.onChange('Solution')}
                         onBlur={field.onBlur}
@@ -229,7 +243,7 @@ function Home() {
               <Button
                 type="submit"
                 loading={isSubmitting}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isComplete}
                 fullWidth
               >
                 {isSubmitting ? 'Submitting...' : 'Generate My Report'}

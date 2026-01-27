@@ -48,6 +48,11 @@
   height: 48px;
 }
 
+.spinner--xl {
+  width: var(--spacing-3xl);
+  height: var(--spacing-3xl);
+}
+
 /* ===========================
    COLORS
    =========================== */

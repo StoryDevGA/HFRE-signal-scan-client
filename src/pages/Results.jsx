@@ -1,18 +1,45 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Button from '../components/Button/Button.jsx'
+import Card from '../components/Card/Card.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Header from '../components/Header/Header.jsx'
 import Link from '../components/Link/Link.jsx'
 import Pill from '../components/Pill/Pill.jsx'
 import ReportRenderer from '../components/ReportRenderer.jsx'
+import Spinner from '../components/Spinner/Spinner.jsx'
 import TabView from '../components/TabView/TabView.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
+import Typewriter from '../components/Typewriter/Typewriter.jsx'
 import { getPublicResult } from '../services/publicResults.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
 import { MdArrowBack } from 'react-icons/md'
 
+/* ===========================
+   CONSTANTS
+   =========================== */
+/**
+ * TIP_ROTATION_INTERVAL - How long each tip displays during loading/pending states
+ * Allows users enough time to read tips while waiting for reports to generate
+ */
+const TIP_ROTATION_INTERVAL = 4500 // ms
+
+/**
+ * RESULT_POLL_INTERVAL - How often to poll the backend for result updates
+ * Balanced between responsiveness and server load
+ */
+const RESULT_POLL_INTERVAL = 1500 // ms
+
+/**
+ * TYPEWRITER_SPEED - Speed of typewriter animation per character
+ * Used for the animated tip display during loading states
+ */
+const TYPEWRITER_SPEED = 40 // ms
+
+/* ===========================
+   UTILITY FUNCTIONS
+   =========================== */
 const formatTimestamp = (value) => {
   if (!value) return ''
   const date = new Date(value)
@@ -40,7 +67,6 @@ function Results() {
   const [status, setStatus] = useState('loading')
   const [errorMessage, setErrorMessage] = useState('')
   const [result, setResult] = useState(null)
-  const [progress, setProgress] = useState(0)
   const [tipIndex, setTipIndex] = useState(0)
 
   const timestamp = useMemo(
@@ -60,7 +86,7 @@ function Results() {
 
         if (data?.status === 'pending') {
           setStatus('pending')
-          timeoutId = window.setTimeout(pollResult, 1500)
+          timeoutId = window.setTimeout(pollResult, RESULT_POLL_INTERVAL)
           return
         }
 
@@ -89,10 +115,11 @@ function Results() {
       }
     }
 
-    setStatus('loading')
+    setErrorMessage('')
     setResult(null)
-    setProgress(0)
     setTipIndex(0)
+
+    setStatus('loading')
     pollResult()
 
     return () => {
@@ -105,26 +132,14 @@ function Results() {
 
   useEffect(() => {
     if (status !== 'loading' && status !== 'pending') {
-      setProgress(100)
       return undefined
     }
 
-    let progressTimer
-    let tipTimer
-
-    progressTimer = window.setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev
-        return prev + Math.floor(Math.random() * 6) + 2
-      })
-    }, 1200)
-
-    tipTimer = window.setInterval(() => {
+    const tipTimer = window.setInterval(() => {
       setTipIndex((prev) => (prev + 1) % tips.length)
-    }, 4500)
+    }, TIP_ROTATION_INTERVAL)
 
     return () => {
-      window.clearInterval(progressTimer)
       window.clearInterval(tipTimer)
     }
   }, [status])
@@ -139,24 +154,93 @@ function Results() {
     />
   )
 
+  /**
+   * renderPageHeader - Shared header component for all page states
+   * 
+   * Displays consistent branding, navigation, and description across
+   * loading, error, and success states. Extracted to follow DRY principle
+   * and ensure consistent UI/UX throughout the page.
+   * 
+   * NOTE: The progress state was previously used here but has been removed
+   * in favor of a Spinner component with animated tips, providing better
+   * visual feedback and perceived wait time.
+   * 
+   * @returns {JSX.Element} Header with back link, title, benefits, and info
+   */
+  const renderPageHeader = () => (
+    <header className="page__header">
+      <Pill
+        as={Link}
+        href="https://www.storylineos.com/"
+        openInNewTab
+        className="home__back-link"
+        variant="neutral"
+        size="md"
+        leftIcon={<MdArrowBack />}
+      >
+        Back to StorylineOS
+      </Pill>
+      <h1 className="text-responsive-xl text-uppercase">Customer-safe signal scan</h1>
+      <p className="text-responsive-base">
+        Get a shareable scan of your company's public signals in minutes.
+      </p>
+      <div className="home__benefits">
+        <Pill size="sm">Instant results</Pill>
+        <Pill size="sm">Confidential</Pill>
+        <Pill size="sm">Free</Pill>
+      </div>
+      <p className="text-responsive-sm text-tertiary">
+        We only scan public information and never share your data.
+      </p>
+    </header>
+  )
+
   if (status === 'loading' || status === 'pending') {
+    const legendText =
+      status === 'pending' ? 'Generating report' : 'Loading report'
     return (
       <>
         {header}
         <main className="page container" aria-busy="true">
-          <div className="status-block" role="status" aria-live="polite">
-            <p className="text-responsive-base">
-              {status === 'pending'
-                ? 'We are generating your report.'
-                : 'Loading your report.'}
-            </p>
-            <div className="progress" aria-hidden="true">
-              <div className="progress__bar" style={{ width: `${progress}%` }} />
-            </div>
-            <p className="text-responsive-sm text-tertiary">
-              Did you know? {tips[tipIndex]}
-            </p>
-          </div>
+          {renderPageHeader()}
+          <Fieldset>
+            <Fieldset.Legend>
+              <span className="home__legend">
+                <span>{legendText}</span>
+              </span>
+            </Fieldset.Legend>
+            <Fieldset.Content>
+              <Card className="report-card">
+                <div className="status-block status-block--inset" role="status" aria-live="polite">
+                  <Spinner
+                    type="circle"
+                    size="xl"
+                    color="inherit"
+                    className="text-tertiary"
+                  />
+                  <p className="text-responsive-base">
+                    {status === 'pending'
+                      ? 'We are generating your report.'
+                      : 'Loading your report.'}
+                  </p>
+                  <p className="text-responsive-md text-tertiary">
+                    <Typewriter
+                      key={tipIndex}
+                      text={tips[tipIndex]}
+                      speed={TYPEWRITER_SPEED}
+                      showCursor={false}
+                      ariaLabel={tips[tipIndex]}
+                    />
+                    <span className="loading-ellipsis" aria-hidden="true">
+                      <span>.</span>
+                      <span>.</span>
+                      <span>.</span>
+                    </span>
+                  </p>
+                </div>
+              </Card>
+            </Fieldset.Content>
+          </Fieldset>
         </main>
         <Footer copyright="StorylineOS" />
       </>
@@ -168,6 +252,7 @@ function Results() {
       <>
         {header}
         <main className="page container">
+          {renderPageHeader()}
           <div className="error-state" role="alert" aria-live="assertive">
             <div className="error-state__icon" aria-hidden="true">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -176,7 +261,7 @@ function Results() {
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
             </div>
-            <h1 className="text-responsive-xl">Report not found</h1>
+            <h2 className="text-responsive-xl">Report not found</h2>
             <p className="text-responsive-base text-secondary">
               This report link is invalid or may have expired. Please check the URL and try again.
             </p>
@@ -196,6 +281,7 @@ function Results() {
       <>
         {header}
         <main className="page container">
+          {renderPageHeader()}
           <div className="error-state" role="alert" aria-live="assertive">
             <div className="error-state__icon error-state__icon--error" aria-hidden="true">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -204,7 +290,7 @@ function Results() {
                 <line x1="9" y1="9" x2="15" y2="15" />
               </svg>
             </div>
-            <h1 className="text-responsive-xl">Unable to load report</h1>
+            <h2 className="text-responsive-xl">Unable to load report</h2>
             <p className="text-responsive-base text-secondary">
               {errorMessage}
             </p>
@@ -256,25 +342,10 @@ function Results() {
 
   return (
     <>
-        {header}
-        <main className="page container">
+      {header}
+      <main className="page container">
+        {renderPageHeader()}
         <header className="report-header">
-          <Pill
-            as={Link}
-            href="https://www.storylineos.com/"
-            openInNewTab
-            className="home__back-link"
-            variant="neutral"
-            size="md"
-            leftIcon={<MdArrowBack />}
-          >
-            Back to StorylineOS
-          </Pill>
-          <div className="report-header__title">
-            <h1 className="text-responsive-xl">{companyName}</h1>
-           
-          </div>
-
           <div className="report-header__meta">
             <div
               className={`confidence-badge ${confidenceBadgeClass}`}
@@ -314,54 +385,56 @@ function Results() {
             </span>
           </Fieldset.Legend>
           <Fieldset.Content>
-            {hasReport ? (
-            <TabView>
-                <TabView.Tab label="Overview">
-                  <dl className="report-meta">
-                    <div>
-                      <dt>Confidence</dt>
-                      <dd className={`confidence-badge ${confidenceBadgeClass} report-meta__badge`}>
-                        <span className="confidence-badge__indicator" aria-hidden="true" />
-                        <span className="confidence-badge__icon" aria-hidden="true">
-                          {confidenceIcon}
-                        </span>
-                        <span>{confidenceLevel}</span>
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Scope</dt>
-                      <dd>{result?.metadata?.source_scope || 'Public sources'}</dd>
-                    </div>
-                    <div>
-                      <dt>Shareable</dt>
-                      <dd>
-                        {result?.metadata?.shareability?.customer_safe == null
-                          ? 'Unknown'
-                          : result.metadata.shareability.customer_safe
-                            ? 'Yes'
-                            : 'No'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Report ID</dt>
-                      <dd>{result?.publicId || publicId}</dd>
-                    </div>
-                  </dl>
-                </TabView.Tab>
-                <TabView.Tab label="Findings">
-                  <ReportRenderer report={result.customer_report} />
-                </TabView.Tab>
-                <TabView.Tab label="Raw report">
-                  <pre className="report-raw">{result.customer_report}</pre>
-                </TabView.Tab>
-              </TabView>
-            ) : (
-              <div className="empty-state">
-                <p className="text-secondary text-italic">
-                  No report content available.
-                </p>
-              </div>
-            )}
+            <Card className="report-card">
+              {hasReport ? (
+                <TabView>
+                  <TabView.Tab label="Overview">
+                    <dl className="report-meta">
+                      <div>
+                        <dt>Confidence</dt>
+                        <dd className={`confidence-badge ${confidenceBadgeClass} report-meta__badge`}>
+                          <span className="confidence-badge__indicator" aria-hidden="true" />
+                          <span className="confidence-badge__icon" aria-hidden="true">
+                            {confidenceIcon}
+                          </span>
+                          <span>{confidenceLevel}</span>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Scope</dt>
+                        <dd>{result?.metadata?.source_scope || 'Public sources'}</dd>
+                      </div>
+                      <div>
+                        <dt>Shareable</dt>
+                        <dd>
+                          {result?.metadata?.shareability?.customer_safe == null
+                            ? 'Unknown'
+                            : result.metadata.shareability.customer_safe
+                              ? 'Yes'
+                              : 'No'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Report ID</dt>
+                        <dd>{result?.publicId || publicId}</dd>
+                      </div>
+                    </dl>
+                  </TabView.Tab>
+                  <TabView.Tab label="Findings">
+                    <ReportRenderer report={result.customer_report} />
+                  </TabView.Tab>
+                  <TabView.Tab label="Raw report">
+                    <pre className="report-raw">{result.customer_report}</pre>
+                  </TabView.Tab>
+                </TabView>
+              ) : (
+                <div className="empty-state">
+                  <p className="text-secondary text-italic">
+                    No report content available.
+                  </p>
+                </div>
+              )}
+            </Card>
           </Fieldset.Content>
         </Fieldset>
       </main>
@@ -371,10 +444,10 @@ function Results() {
 }
 
 const tips = [
-  'We analyze only public information.',
-  'Confidence reflects source consistency.',
-  'Reports are safe to share externally.',
-  'You can download this report as text.',
+  'We analyze only public information',
+  'Confidence reflects source consistency',
+  'Reports are safe to share externally',
+  'You can download this report as text',
 ]
 
 const getConfidenceIcon = (level) => {

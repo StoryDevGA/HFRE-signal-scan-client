@@ -167,35 +167,33 @@ function Results() {
               </span>
             </Fieldset.Legend>
             <Fieldset.Content>
-              <Card className="report-card">
-                <div className="status-block status-block--inset" role="status" aria-live="polite">
-                  <Spinner
-                    type="circle"
-                    size="xl"
-                    color="inherit"
-                    className="text-tertiary"
+              <div className="status-block status-block--plain" role="status" aria-live="polite">
+                <Spinner
+                  type="circle"
+                  size="xl"
+                  color="inherit"
+                  className="text-tertiary"
+                />
+                <p className="text-responsive-base">
+                  {status === 'pending'
+                    ? 'We are generating your report.'
+                    : 'Loading your report.'}
+                </p>
+                <p className="text-responsive-md text-tertiary">
+                  <Typewriter
+                    key={tipIndex}
+                    text={tips[tipIndex]}
+                    speed={TYPEWRITER_SPEED}
+                    showCursor={false}
+                    ariaLabel={tips[tipIndex]}
                   />
-                  <p className="text-responsive-base">
-                    {status === 'pending'
-                      ? 'We are generating your report.'
-                      : 'Loading your report.'}
-                  </p>
-                  <p className="text-responsive-md text-tertiary">
-                    <Typewriter
-                      key={tipIndex}
-                      text={tips[tipIndex]}
-                      speed={TYPEWRITER_SPEED}
-                      showCursor={false}
-                      ariaLabel={tips[tipIndex]}
-                    />
-                    <span className="loading-ellipsis" aria-hidden="true">
-                      <span>.</span>
-                      <span>.</span>
-                      <span>.</span>
-                    </span>
-                  </p>
-                </div>
-              </Card>
+                  <span className="loading-ellipsis" aria-hidden="true">
+                    <span>.</span>
+                    <span>.</span>
+                    <span>.</span>
+                  </span>
+                </p>
+              </div>
             </Fieldset.Content>
           </Fieldset>
         </main>

@@ -168,7 +168,7 @@ function AdminSubmissionDetail() {
   if (status === 'loading') {
     return (
       <main className="page">
-        <div className="status-block">
+        <div className="status-block status-block--plain">
           <Spinner type="circle" size="lg" />
           <p className="text-responsive-base">Loading submission...</p>
         </div>

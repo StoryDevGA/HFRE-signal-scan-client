@@ -108,7 +108,7 @@ function AdminLayout() {
   if (status === 'checking') {
     return (
       <main className="page container">
-        <div className="status-block">
+        <div className="status-block status-block--plain">
           <Spinner type="circle" size="lg" />
           <p className="text-responsive-base">Checking admin access...</p>
         </div>

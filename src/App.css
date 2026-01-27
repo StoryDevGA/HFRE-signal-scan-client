@@ -188,10 +188,7 @@ fieldset.radio-group > .radio-group__label {
   box-shadow: var(--shadow-sm);
 }
 
-.status-block--inset {
-  width: 100%;
-  margin: 0;
-  padding: 0;
+.status-block--plain {
   background: transparent;
   border: 0;
   box-shadow: none;

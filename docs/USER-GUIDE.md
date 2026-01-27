@@ -58,3 +58,21 @@ Notes:
 - **“Prompt locked”**: The prompt is locked (see lock note). Use another prompt or ask an admin to unlock.
 - **Publish fails**: Ensure you’re still logged in and try again. Only one published prompt per type is allowed.
 
+
+## 4. LLM configuration (admin)
+Go to **Admin -> Prompts** and open **LLM config**.
+
+### 4.1 Model
+- Fixed-only: select a single model for all scans.
+- gpt-5.2-pro is not available in admin config.
+
+### 4.2 Reasoning effort
+- Options: none, low, medium, high, xhigh (xhigh is treated as high).
+- Higher reasoning can improve quality but may increase latency.
+
+### 4.3 Temperature
+- Range: 0.0 to 2.0.
+- For GPT-5.2 and GPT-5.1, temperature is ignored when reasoning effort is set
+  (anything other than none). In that case the UI disables temperature.
+- For GPT-4o and GPT-4o-mini, temperature is always honored.
+- For GPT-5-mini and GPT-5-nano, temperature is not supported.

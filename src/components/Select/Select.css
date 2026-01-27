@@ -131,6 +131,6 @@
 }
 
 .select-helper {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  font-size: calc(var(--font-size-sm) * 0.8);
+  color: color-mix(in srgb, var(--color-text-secondary) 60%, transparent);
 }

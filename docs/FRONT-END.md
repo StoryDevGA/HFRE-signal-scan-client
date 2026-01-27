@@ -116,7 +116,7 @@ Actions:
 - Delete this submission
 - Delete this user's data (bulk delete by email) (confirm modal)
 
-#### `/admin/prompts` - Prompt Manager (CRUD + Publish)
+#### `/admin/prompts` - Prompt Manager (CRUD + Publish + LLM Config)
 Prompts to manage:
 - System prompts
 - User prompts
@@ -135,6 +135,27 @@ Requirements:
   - Publish replaces the currently published prompt of that type.
   - No unpublish action; publish another prompt instead.
   - Use `isPublished` for status (API may also return legacy `isActive`).
+
+#### LLM Config Dialog (accessed from Prompts page)
+Allows admins to configure the global LLM settings used by the scan agent.
+
+UI Elements:
+- **Model selector** (dropdown):
+  - Options: `gpt-5.2`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5.1`, `gpt-4.1`, `gpt-4o-mini`, `gpt-4o`
+  - Note: `gpt-5.2-pro` is explicitly blocked
+- **Temperature input** (number, 0.0 to 2.0):
+  - Disabled when reasoning effort is active for GPT-5.2/5.1 models
+  - Disabled for GPT-5-mini, GPT-5-nano, and older GPT-5 models (temperature not supported)
+  - Shows placeholder "Temperature cannot be set for this model" when disabled
+- **Reasoning effort selector** (dropdown):
+  - Options: `None`, `Low`, `Medium`, `High`, `XHigh (coerced to High)`
+  - Note: `xhigh` is coerced to `high` at runtime
+- **Updated by** (read-only): Shows the admin who last updated the config
+
+Temperature and Reasoning Interaction:
+- For `gpt-5.2` and `gpt-5.1`: temperature is suppressed when reasoning effort is not `none`
+- For `gpt-5-mini`, `gpt-5-nano`: temperature is always suppressed
+- For `gpt-4.x` models: temperature is always available
 
 #### `/admin/users` - User Data Deletion
 Minimum:
@@ -272,8 +293,37 @@ Admin (requires `credentials: "include"`):
 - `POST /admin/prompts`
 - `PUT /admin/prompts/:id`
 - `DELETE /admin/prompts/:id`
+- `GET /admin/llm-config`
+- `PUT /admin/llm-config`
 - `GET /admin/analytics` (aggregate)
 - `GET /admin/analytics/:submissionId` (detail)
+
+LLM Config:
+- `GET /admin/llm-config` returns the global LLM configuration:
+  ```json
+  {
+    "mode": "fixed",
+    "temperature": 0.2,
+    "reasoningEffort": "none",
+    "modelFixed": "gpt-5.2",
+    "updatedBy": "admin@example.com",
+    "source": "db"
+  }
+  ```
+- `PUT /admin/llm-config` updates the global config:
+  ```json
+  {
+    "mode": "fixed",
+    "temperature": 0.2,
+    "reasoningEffort": "none",
+    "modelFixed": "gpt-5.2"
+  }
+  ```
+- Allowed models: `gpt-5.2`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5.1`, `gpt-4.1`, `gpt-4o-mini`, `gpt-4o`
+- `gpt-5.2-pro` is explicitly blocked (returns 400)
+- Temperature range: `0.0` to `2.0` (or `null`)
+- Reasoning effort: `none`, `low`, `medium`, `high`, `xhigh` (or `null`)
+- `xhigh` is coerced to `high` at runtime
 
 Prompts:
 - `GET /admin/prompts` returns prompts across all admins with `ownerEmail`, `label`, `isPublished` (and legacy `isActive`), `publishedAt`, `publishedBy`, and `version`.
@@ -404,3 +454,7 @@ async function adminLogout() {
 - Results page displays only customer-safe report.
 - Admin login gates all /admin routes; only 3 allowed emails can login.
 - Admin dashboard supports: view submissions + outcomes, manage prompts, delete user data, view analytics.
+- LLM Config dialog allows admins to set model, temperature, and reasoning effort.
+- Temperature input is disabled when reasoning is active for GPT-5.2/5.1 models.
+- Temperature input is disabled for GPT-5-mini, GPT-5-nano, and older GPT-5 models.
+- `gpt-5.2-pro` is not available in the model selector.

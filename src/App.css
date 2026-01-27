@@ -402,6 +402,13 @@ fieldset.radio-group > .radio-group__label {
   border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
 }
 
+.admin-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+}
+
 .prompt-limit-badges {
   display: flex;
   flex-wrap: wrap;
@@ -571,6 +578,11 @@ fieldset.radio-group > .radio-group__label {
 .admin-actions {
   display: flex;
   justify-content: flex-end;
+}
+
+.admin-actions--prompts {
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 
 .admin-actions--spread {

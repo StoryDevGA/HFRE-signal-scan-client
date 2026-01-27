@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Button from '../../components/Button/Button.jsx'
 import Dialog from '../../components/Dialog/Dialog.jsx'
 import Fieldset from '../../components/Fieldset/Fieldset.jsx'
@@ -16,10 +16,32 @@ import {
   publishAdminPrompt,
   updateAdminPrompt,
 } from '../../services/adminPrompts.js'
+import {
+  getAdminLlmConfig,
+  updateAdminLlmConfig,
+} from '../../services/adminLlmConfig.js'
 
 const typeOptions = [
   { value: 'system', label: 'System' },
   { value: 'user', label: 'User' },
+]
+
+const llmFixedModelOptions = [
+  { value: 'gpt-5.2', label: 'gpt-5.2' },
+  { value: 'gpt-5-mini', label: 'gpt-5-mini' },
+  { value: 'gpt-5-nano', label: 'gpt-5-nano' },
+  { value: 'gpt-5.1', label: 'gpt-5.1' },
+  { value: 'gpt-4.1', label: 'gpt-4.1' },
+  { value: 'gpt-4o-mini', label: 'gpt-4o-mini' },
+  { value: 'gpt-4o', label: 'gpt-4o' },
+]
+
+const reasoningEffortOptions = [
+  { value: 'none', label: 'None' },
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'xhigh', label: 'XHigh (coerced to High)' },
 ]
 
 const MAX_PROMPTS_PER_TYPE = 4
@@ -30,6 +52,14 @@ const emptyForm = {
   content: '',
   isPublished: false,
   version: '',
+}
+
+const emptyConfig = {
+  mode: 'fixed',
+  temperature: '',
+  reasoningEffort: 'none',
+  modelFixed: 'gpt-5.2',
+  updatedBy: '',
 }
 
 function normalizePrompts(payload) {
@@ -72,6 +102,48 @@ function formatVersion(value) {
   return Number(value).toFixed(1)
 }
 
+function normalizeConfig(payload = {}) {
+  const root = payload?.data || payload || {}
+  const config = root.config || root.llmConfig || root || {}
+  const modeValue =
+    typeof config.mode === 'string'
+      ? config.mode.trim().toLowerCase()
+      : config.mode
+  const normalizedMode = 'fixed' // Only 'fixed' mode is supported
+  const resolvedModelFixed =
+    config.modelFixed ||
+    config.model ||
+    config.model_fixed ||
+    config.modelLarge ||
+    config.modelSmall ||
+    'gpt-5.2'
+  const normalizedModelFixed = llmFixedModelOptions.some(
+    (option) => option.value === resolvedModelFixed
+  )
+    ? resolvedModelFixed
+    : 'gpt-5.2'
+  const resolvedReasoningEffort =
+    config.reasoningEffort ??
+    config.reasoning_effort ??
+    config.reasoning ??
+    'none'
+  const normalizedReasoningEffort = reasoningEffortOptions.some(
+    (option) => option.value === String(resolvedReasoningEffort).toLowerCase()
+  )
+    ? String(resolvedReasoningEffort).toLowerCase()
+    : 'none'
+  return {
+    mode: normalizedMode,
+    temperature:
+      config.temperature === null || config.temperature === undefined
+        ? ''
+        : String(config.temperature),
+    reasoningEffort: normalizedReasoningEffort,
+    modelFixed: normalizedModelFixed,
+    updatedBy: config.updatedBy || '',
+  }
+}
+
 function extractAdminEmail(payload) {
   return (
     payload?.email ||
@@ -85,6 +157,7 @@ function extractAdminEmail(payload) {
 
 function AdminPrompts() {
   const { addToast } = useToaster()
+  const lastTemperatureRef = useRef('')
   const [adminEmail, setAdminEmail] = useState('')
   const [prompts, setPrompts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -96,6 +169,17 @@ function AdminPrompts() {
   const [saving, setSaving] = useState(false)
   const [labelTouched, setLabelTouched] = useState(false)
   const [form, setForm] = useState(emptyForm)
+  const [configDialogOpen, setConfigDialogOpen] = useState(false)
+  const [configForm, setConfigForm] = useState(emptyConfig)
+  const [configTouched, setConfigTouched] = useState({})
+  const [configLoading, setConfigLoading] = useState(false)
+  const [configSaving, setConfigSaving] = useState(false)
+  const [configError, setConfigError] = useState('')
+  const [currentLlm, setCurrentLlm] = useState({
+    modelFixed: '',
+    temperature: '',
+  })
+  const [currentLlmError, setCurrentLlmError] = useState('')
 
   const loadPrompts = async () => {
     setLoading(true)
@@ -137,6 +221,18 @@ function AdminPrompts() {
   useEffect(() => {
     loadPrompts()
   }, [])
+
+  useEffect(() => {
+    loadConfig()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (!configDialogOpen) return
+    setConfigTouched({})
+    loadConfig()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configDialogOpen])
 
   const normalizedAdminEmail = useMemo(
     () => normalizeEmail(adminEmail),
@@ -194,6 +290,64 @@ function AdminPrompts() {
   const isLabelValid = Boolean(form.label.trim())
   const isContentValid = Boolean(form.content.trim())
   const showLabelError = labelTouched && !isLabelValid
+
+  const isValidModel = (value, options) =>
+    options.some((option) => option.value === value)
+  const showTemperature = configForm.mode === 'fixed'
+  const temperatureSupport = useMemo(() => {
+    if (!showTemperature) return 'none'
+    const model = String(configForm.modelFixed || '').toLowerCase()
+    if (model.startsWith('gpt-5.2-pro')) return 'none'
+    if (model.startsWith('gpt-5-mini') || model.startsWith('gpt-5-nano')) {
+      return 'none'
+    }
+    if (model.startsWith('gpt-5.2') || model.startsWith('gpt-5.1')) {
+      return 'conditional'
+    }
+    if (model.startsWith('gpt-5')) return 'none'
+    return 'full'
+  }, [showTemperature, configForm.modelFixed])
+  const supportsTemperature = temperatureSupport !== 'none'
+  const normalizedReasoningEffort = configForm.reasoningEffort || 'none'
+  const isReasoningActive = normalizedReasoningEffort !== 'none'
+  const temperatureEnabled =
+    supportsTemperature &&
+    !(temperatureSupport === 'conditional' && isReasoningActive)
+  const temperatureValue = Number(configForm.temperature)
+  const temperatureValid =
+    !showTemperature ||
+    configForm.temperature === '' ||
+    (Number.isFinite(temperatureValue) &&
+      temperatureValue >= 0 &&
+      temperatureValue <= 2)
+  const modelFixedValid =
+    configForm.mode !== 'fixed' ||
+    isValidModel(configForm.modelFixed, llmFixedModelOptions)
+  const reasoningEffortValid = reasoningEffortOptions.some(
+    (option) => option.value === normalizedReasoningEffort
+  )
+  const configValid =
+    Boolean(configForm.mode) &&
+    temperatureValid &&
+    modelFixedValid &&
+    reasoningEffortValid
+
+  useEffect(() => {
+    if (!showTemperature) return
+    if (!temperatureEnabled) {
+      if (configForm.temperature !== '') {
+        lastTemperatureRef.current = configForm.temperature
+        setConfigForm((prev) => ({ ...prev, temperature: '' }))
+      }
+      return
+    }
+    if (configForm.temperature === '' && lastTemperatureRef.current !== '') {
+      setConfigForm((prev) => ({
+        ...prev,
+        temperature: lastTemperatureRef.current,
+      }))
+    }
+  }, [showTemperature, temperatureEnabled, configForm.temperature])
 
   const startCreate = () => {
     const defaultType = availableTypeOptions[0]?.value || 'system'
@@ -390,6 +544,73 @@ function AdminPrompts() {
     }
   }
 
+  const loadConfig = async () => {
+    setConfigLoading(true)
+    setConfigError('')
+    setCurrentLlmError('')
+    try {
+      const response = await getAdminLlmConfig()
+      const normalizedConfig = normalizeConfig(response)
+      setConfigForm(normalizedConfig)
+      setCurrentLlm({
+        modelFixed: normalizedConfig.modelFixed || '',
+        temperature: normalizedConfig.temperature ?? '',
+      })
+    } catch (error) {
+      setConfigError(error?.message || 'Unable to load the LLM config.')
+      setCurrentLlm({ modelFixed: '', temperature: '' })
+      setCurrentLlmError(error?.message || 'Unable to load the LLM config.')
+      setConfigForm(emptyConfig)
+    } finally {
+      setConfigLoading(false)
+    }
+  }
+
+  const handleConfigSave = async () => {
+    setConfigTouched({
+      temperature: true,
+      reasoningEffort: true,
+      modelFixed: true,
+    })
+
+    if (!configValid) {
+      addToast({
+        title: 'Check required fields',
+        description: 'Please fix the highlighted fields before saving.',
+        variant: 'warning',
+      })
+      return
+    }
+
+    setConfigSaving(true)
+    try {
+      const payload = {
+        mode: 'fixed',
+      }
+      payload.temperature =
+        configForm.temperature !== '' ? Number(configForm.temperature) : null
+      payload.reasoningEffort =
+        normalizedReasoningEffort === 'none' ? null : normalizedReasoningEffort
+      payload.modelFixed = configForm.modelFixed
+      await updateAdminLlmConfig(payload)
+      addToast({
+        title: 'LLM config updated',
+        description: 'The configuration has been saved.',
+        variant: 'success',
+      })
+      await loadConfig()
+      setConfigDialogOpen(false)
+    } catch (error) {
+      addToast({
+        title: 'Save failed',
+        description: error?.message || 'Unable to save the LLM config.',
+        variant: 'error',
+      })
+    } finally {
+      setConfigSaving(false)
+    }
+  }
+
   const rows = useMemo(
     () =>
       [...prompts]
@@ -517,9 +738,55 @@ function AdminPrompts() {
         <p className="text-responsive-base">
           Manage system and user prompts for the scan agent.
         </p>
+        <p className="text-responsive-sm text-secondary text-uppercase">
+          Current model settings
+        </p>
+        <div className="admin-status-row">
+          <span
+            className={`admin-status ${
+              configLoading
+                ? 'admin-status--pending'
+                : currentLlmError
+                  ? 'admin-status--inactive'
+                  : 'admin-status--active'
+            }`}
+          >
+            LLM:{' '}
+            {configLoading
+              ? 'Loading'
+              : currentLlmError
+                ? 'Unavailable'
+                : currentLlm.modelFixed || '—'}
+          </span>
+          <span
+            className={`admin-status ${
+              configLoading
+                ? 'admin-status--pending'
+                : currentLlmError
+                  ? 'admin-status--inactive'
+                  : currentLlm.temperature === '' || currentLlm.temperature == null
+                    ? 'admin-status--inactive'
+                    : 'admin-status--active'
+            }`}
+          >
+            Temp:{' '}
+            {configLoading
+              ? 'Loading'
+              : currentLlmError
+                ? 'Unavailable'
+                : currentLlm.temperature === '' || currentLlm.temperature == null
+                  ? 'Disabled'
+                  : Number.isFinite(Number(currentLlm.temperature))
+                    ? Number(currentLlm.temperature).toFixed(1)
+                    : currentLlm.temperature}
+          </span>
+        </div>
       </header>
 
-      <div className="admin-actions">
+      <div className="admin-actions admin-actions--prompts">
+        <Button variant="outline" size="xs" onClick={() => setConfigDialogOpen(true)}>
+          LLM config
+        </Button>
         {canCreatePrompt ? (
           <Button onClick={startCreate} size="xs">New prompt</Button>
         ) : (
@@ -756,8 +1023,133 @@ function AdminPrompts() {
           </Button>
         </Dialog.Footer>
       </Dialog>
+
+      <Dialog open={configDialogOpen} onClose={() => setConfigDialogOpen(false)} size="md">
+        <Dialog.Header>
+          <h2>LLM config</h2>
+        </Dialog.Header>
+        <Dialog.Body>
+          {configLoading ? (
+            <p className="text-responsive-base text-secondary">Loading LLM config...</p>
+          ) : (
+            <div className="form">
+              <Fieldset>
+                <Fieldset.Legend>Models</Fieldset.Legend>
+                <Fieldset.Content>
+                  <Select
+                    id="llm_model_fixed"
+                    label="Model"
+                    value={configForm.modelFixed}
+                    onChange={(event) =>
+                      setConfigForm((prev) => ({ ...prev, modelFixed: event.target.value }))
+                    }
+                    onBlur={() =>
+                      setConfigTouched((prev) => ({ ...prev, modelFixed: true }))
+                    }
+                    options={llmFixedModelOptions}
+                    error={
+                      configTouched.modelFixed && !modelFixedValid
+                        ? 'Select an allowed model.'
+                        : ''
+                    }
+                    required
+                  />
+                  <Input
+                    id="llm_updated_by"
+                    label="Updated by"
+                    value={configForm.updatedBy || '—'}
+                    disabled
+                  />
+                </Fieldset.Content>
+              </Fieldset>
+
+              <Fieldset>
+                <Fieldset.Legend>Configuration</Fieldset.Legend>
+                <Fieldset.Content>
+                  {showTemperature ? (
+                    <Select
+                      id="llm_reasoning_effort"
+                      label="Reasoning effort"
+                      value={normalizedReasoningEffort}
+                      onChange={(event) =>
+                        setConfigForm((prev) => ({
+                          ...prev,
+                          reasoningEffort: event.target.value,
+                        }))
+                      }
+                      onBlur={() =>
+                        setConfigTouched((prev) => ({ ...prev, reasoningEffort: true }))
+                      }
+                      options={reasoningEffortOptions}
+                      helperText="Higher reasoning can improve quality but may increase latency. When set, GPT-5.2/5.1 will ignore temperature."
+                    />
+                  ) : null}
+                  {showTemperature ? (
+                    <Input
+                      id="llm_temperature"
+                      label="Temperature"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.1"
+                    min="0"
+                    max="2"
+                      value={configForm.temperature}
+                      placeholder={
+                        supportsTemperature
+                          ? '0.2'
+                          : 'Temperature is not supported for this model'
+                      }
+                      onChange={(event) =>
+                        setConfigForm((prev) => ({ ...prev, temperature: event.target.value }))
+                      }
+                      onBlur={() =>
+                        setConfigTouched((prev) => ({ ...prev, temperature: true }))
+                      }
+                      error={
+                        configTouched.temperature && !temperatureValid
+                          ? 'Enter a value between 0.0 and 2.0.'
+                          : ''
+                      }
+                      helperText={
+                        temperatureSupport === 'full'
+                          ? '0.0 to 2.0'
+                          : temperatureSupport === 'conditional' && isReasoningActive
+                          ? 'Ignored because reasoning effort is set.'
+                          : temperatureSupport === 'conditional'
+                          ? 'Honored only when reasoning effort is unset or none.'
+                          : 'Temperature is not supported for this model.'
+                      }
+                      disabled={!temperatureEnabled}
+                      fullWidth
+                    />
+                  ) : null}
+                </Fieldset.Content>
+              </Fieldset>
+
+              {configError ? (
+                <p className="text-responsive-sm text-secondary">{configError}</p>
+              ) : null}
+            </div>
+          )}
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button variant="secondary" size="xs" onClick={() => setConfigDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            size="xs"
+            onClick={handleConfigSave}
+            loading={configSaving}
+            disabled={configLoading || configSaving}
+          >
+            {configSaving ? 'Saving...' : 'Save config'}
+          </Button>
+        </Dialog.Footer>
+      </Dialog>
     </section>
   )
 }
 
 export default AdminPrompts
+

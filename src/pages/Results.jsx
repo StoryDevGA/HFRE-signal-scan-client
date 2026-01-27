@@ -4,8 +4,7 @@ import Button from '../components/Button/Button.jsx'
 import Card from '../components/Card/Card.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Header from '../components/Header/Header.jsx'
-import Link from '../components/Link/Link.jsx'
-import Pill from '../components/Pill/Pill.jsx'
+import PublicPageHeader from '../components/PublicPageHeader/PublicPageHeader.jsx'
 import ReportRenderer from '../components/ReportRenderer.jsx'
 import Spinner from '../components/Spinner/Spinner.jsx'
 import TabView from '../components/TabView/TabView.jsx'
@@ -14,7 +13,6 @@ import { useToaster } from '../components/Toaster/Toaster.jsx'
 import Typewriter from '../components/Typewriter/Typewriter.jsx'
 import { getPublicResult } from '../services/publicResults.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
-import { MdArrowBack } from 'react-icons/md'
 
 /* ===========================
    CONSTANTS
@@ -154,47 +152,6 @@ function Results() {
     />
   )
 
-  /**
-   * renderPageHeader - Shared header component for all page states
-   * 
-   * Displays consistent branding, navigation, and description across
-   * loading, error, and success states. Extracted to follow DRY principle
-   * and ensure consistent UI/UX throughout the page.
-   * 
-   * NOTE: The progress state was previously used here but has been removed
-   * in favor of a Spinner component with animated tips, providing better
-   * visual feedback and perceived wait time.
-   * 
-   * @returns {JSX.Element} Header with back link, title, benefits, and info
-   */
-  const renderPageHeader = () => (
-    <header className="page__header">
-      <Pill
-        as={Link}
-        href="https://www.storylineos.com/"
-        openInNewTab
-        className="home__back-link"
-        variant="neutral"
-        size="md"
-        leftIcon={<MdArrowBack />}
-      >
-        Back to StorylineOS
-      </Pill>
-      <h1 className="text-responsive-xl text-uppercase">Customer-safe signal scan</h1>
-      <p className="text-responsive-base">
-        Get a shareable scan of your company's public signals in minutes.
-      </p>
-      <div className="home__benefits">
-        <Pill size="sm">Instant results</Pill>
-        <Pill size="sm">Confidential</Pill>
-        <Pill size="sm">Free</Pill>
-      </div>
-      <p className="text-responsive-sm text-tertiary">
-        We only scan public information and never share your data.
-      </p>
-    </header>
-  )
-
   if (status === 'loading' || status === 'pending') {
     const legendText =
       status === 'pending' ? 'Generating report' : 'Loading report'
@@ -202,7 +159,7 @@ function Results() {
       <>
         {header}
         <main className="page container" aria-busy="true">
-          {renderPageHeader()}
+          <PublicPageHeader />
           <Fieldset>
             <Fieldset.Legend>
               <span className="home__legend">
@@ -252,7 +209,7 @@ function Results() {
       <>
         {header}
         <main className="page container">
-          {renderPageHeader()}
+          <PublicPageHeader />
           <div className="error-state" role="alert" aria-live="assertive">
             <div className="error-state__icon" aria-hidden="true">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -281,7 +238,7 @@ function Results() {
       <>
         {header}
         <main className="page container">
-          {renderPageHeader()}
+          <PublicPageHeader />
           <div className="error-state" role="alert" aria-live="assertive">
             <div className="error-state__icon error-state__icon--error" aria-hidden="true">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -344,7 +301,7 @@ function Results() {
     <>
       {header}
       <main className="page container">
-        {renderPageHeader()}
+        <PublicPageHeader />
         <header className="report-header">
           <div className="report-header__meta">
             <div

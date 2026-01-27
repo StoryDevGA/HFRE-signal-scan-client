@@ -4,15 +4,13 @@ import Button from '../components/Button/Button.jsx'
 import Fieldset from '../components/Fieldset/Fieldset.jsx'
 import Header from '../components/Header/Header.jsx'
 import Input from '../components/Input/Input.jsx'
-import Link from '../components/Link/Link.jsx'
-import Pill from '../components/Pill/Pill.jsx'
+import PublicPageHeader from '../components/PublicPageHeader/PublicPageHeader.jsx'
 import Radio from '../components/Radio/Radio.jsx'
 import Footer from '../components/Footer/Footer.jsx'
 import { useToaster } from '../components/Toaster/Toaster.jsx'
 import { submitPublicScan } from '../services/publicScans.js'
 import { getValidationRules, sanitizeInput } from '../utils/formValidation.js'
 import storylineLogo from '../assets/images/storylineOS-Logo.png'
-import { MdArrowBack } from 'react-icons/md'
 
 function Home() {
   const navigate = useNavigate()
@@ -89,31 +87,7 @@ function Home() {
         showNavigation={false}
       />
       <main className="page container">
-        <header className="page__header">
-          <Pill
-            as={Link}
-            href="https://www.storylineos.com/"
-            openInNewTab
-            className="home__back-link"
-            variant="neutral"
-            size="md"
-            leftIcon={<MdArrowBack />}
-          >
-            Back to StorylineOS
-          </Pill>
-          <h1 className="text-responsive-xl text-uppercase">Customer-safe signal scan</h1>
-          <p className="text-responsive-base">
-            Get a shareable scan of your company's public signals in minutes.
-          </p>
-          <div className="home__benefits">
-            <Pill size="sm">Instant results</Pill>
-            <Pill size="sm">Confidential</Pill>
-            <Pill size="sm">Free</Pill>
-          </div>
-          <p className="text-responsive-sm text-tertiary">
-            We only scan public information and never share your data.
-          </p>
-        </header>
+        <PublicPageHeader />
 
         <form className="form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <Fieldset>

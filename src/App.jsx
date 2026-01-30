@@ -8,7 +8,7 @@ import AdminSubmissions from './pages/admin/Submissions.jsx'
 import AdminSubmissionDetail from './pages/admin/SubmissionDetail.jsx'
 import AdminPrompts from './pages/admin/Prompts.jsx'
 import AdminUsers from './pages/admin/Users.jsx'
-import AdminAnalytics from './pages/admin/Analytics.jsx'
+import AdminAnalytics from './pages/admin/insights/index.js'
 
 function NotFound() {
   return (

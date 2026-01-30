@@ -47,6 +47,23 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.fieldset__legend-icon {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.fieldset__legend-icon svg {
+  display: block;
+}
+
+.fieldset__legend-text {
+  display: inline;
 }
 
 /* Legend breaks the border naturally */

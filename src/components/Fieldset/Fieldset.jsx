@@ -42,12 +42,22 @@ export function Fieldset({
 /**
  * Fieldset Legend
  */
-Fieldset.Legend = function FieldsetLegend({ children, className = '', ...props }) {
+Fieldset.Legend = function FieldsetLegend({
+  children,
+  icon = null,
+  className = '',
+  ...props
+}) {
   const legendClasses = ['fieldset__legend', className].filter(Boolean).join(' ')
 
   return (
     <legend className={legendClasses} {...props}>
-      {children}
+      {icon ? (
+        <span className="fieldset__legend-icon" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
+      <span className="fieldset__legend-text">{children}</span>
     </legend>
   )
 }

@@ -15,6 +15,7 @@ const UsageByVersionSection = ({
   loading,
 }) => {
   const [systemChartRef, systemChartSize] = useChartSize()
+  const [userChartRef, userChartSize] = useChartSize()
   const systemUsage = [...usageBySystemVersion].sort((a, b) => {
     const aVersion = a.version ?? Number.POSITIVE_INFINITY
     const bVersion = b.version ?? Number.POSITIVE_INFINITY
@@ -47,16 +48,34 @@ const UsageByVersionSection = ({
     avgTotalTokens: Number(item.avgTotalTokens ?? 0).toLocaleString(),
   }))
 
-  const userData = [...usageByUserVersion]
-    .sort((a, b) => {
-      const aVersion = a.version ?? Number.POSITIVE_INFINITY
-      const bVersion = b.version ?? Number.POSITIVE_INFINITY
-      return aVersion - bVersion
-    })
-    .map((item) => ({
-      version: item.version ?? EMPTY_PLACEHOLDER,
-      avgTotalTokens: Number(item.avgTotalTokens ?? 0).toLocaleString(),
-    }))
+  const userUsage = [...usageByUserVersion].sort((a, b) => {
+    const aVersion = a.version ?? Number.POSITIVE_INFINITY
+    const bVersion = b.version ?? Number.POSITIVE_INFINITY
+    return aVersion - bVersion
+  })
+  const userChartData = userUsage.map((item) => ({
+    version: item.version == null ? '' : String(item.version),
+    avgTotalTokens: Number(item.avgTotalTokens ?? 0),
+  }))
+  const hasUserChartData = userChartData.some((item) => item.avgTotalTokens > 0)
+  const topUserEntry = userChartData.reduce((best, current) => {
+    if (!best || current.avgTotalTokens > best.avgTotalTokens) {
+      return current
+    }
+    return best
+  }, null)
+  const topUserLabel = topUserEntry
+    ? topUserEntry.version || EMPTY_PLACEHOLDER
+    : EMPTY_PLACEHOLDER
+  const topUserValue = topUserEntry?.avgTotalTokens ?? 0
+  const userChartHeight = Math.max(220, userChartData.length * 28 + 48)
+  const userChartWidth = userChartSize.width || 320
+  const userChartHasSize = userChartSize.width > 0
+
+  const userData = userUsage.map((item) => ({
+    version: item.version ?? EMPTY_PLACEHOLDER,
+    avgTotalTokens: Number(item.avgTotalTokens ?? 0).toLocaleString(),
+  }))
 
   return (
     <div className="detail-grid">
@@ -137,6 +156,60 @@ const UsageByVersionSection = ({
         emptyMessage="No data yet."
         tableAriaLabel="Token usage by user version"
         scrollAriaLabel="Token usage by user version table"
+        showTable={false}
+        legendIcon={<MdBarChart size={14} />}
+        topContent={
+          <>
+            <div className="status-summary status-summary--usage">
+              <div className="status-chart status-chart--usage">
+                <div
+                  className="analytics-chart analytics-chart--usage-bar"
+                  aria-hidden="true"
+                  style={{ height: userChartHeight }}
+                >
+                  <div className="analytics-chart__inner" ref={userChartRef}>
+                    {loading && !hasUserChartData ? (
+                      <div className="analytics-chart__loading">
+                        <Spinner size="sm" />
+                      </div>
+                    ) : hasUserChartData ? (
+                      userChartHasSize ? (
+                        <Bar
+                          data={userChartData}
+                          keys={['avgTotalTokens']}
+                          indexBy="version"
+                          valueScale={{ type: 'linear' }}
+                          indexScale={{ type: 'band', round: true }}
+                          width={userChartWidth}
+                          height={userChartHeight}
+                          {...tokenUsageBySystemBarProps}
+                        />
+                      ) : (
+                        <div className="analytics-chart__loading">
+                          <Spinner size="sm" />
+                        </div>
+                      )
+                    ) : (
+                      <span className="analytics-chart__empty">No token usage data</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {hasUserChartData ? (
+              <div className="status-metrics status-metrics--tokens">
+                <div className="status-metric">
+                  <Pill variant="info" size="sm">
+                    <span className="status-pill__label">Top version</span>
+                    <span className="status-pill__value">
+                      {topUserLabel} / {Number(topUserValue).toLocaleString()}
+                    </span>
+                  </Pill>
+                </div>
+              </div>
+            ) : null}
+          </>
+        }
       />
     </div>
   )

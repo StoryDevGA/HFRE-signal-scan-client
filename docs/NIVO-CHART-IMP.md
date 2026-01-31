@@ -9,6 +9,7 @@ Scope:
 - Submission status (Nivo Pie)
 - Token usage (Nivo RadialBar)
 - Token usage by system version (Nivo Bar)
+- Token usage by user version (Nivo Bar)
 - Shared layout/markup patterns
 - Sizing rules and legend consistency
 
@@ -315,7 +316,7 @@ Center label:
 Component: `<Bar />` from `@nivo/bar`
 
 File: `sections/UsageByVersionSection.jsx`
-Config: `charts/tokenUsageBySystemBarProps.jsx`
+Config: `charts/tokenUsageBySystemBarProps.jsx` (shared with user version)
 
 Data construction (keeps nulls last, numeric values for chart):
 ```
@@ -347,6 +348,31 @@ Axis/tooltip formatting:
 
 Empty/loading state:
 - Show spinner when `loading && !hasSystemChartData`
+- Show "No token usage data" when no values > 0
+
+Pill:
+- "Top version" shows `{version} / {avgTotalTokens}` for the highest avg total.
+
+## Token Usage by User Version (Bar) Spec
+
+Component: `<Bar />` from `@nivo/bar`
+
+File: `sections/UsageByVersionSection.jsx`
+Config: `charts/tokenUsageBySystemBarProps.jsx` (shared)
+
+Legend icon:
+- `MdBarChart` (matches system version chart)
+
+Data construction (keeps nulls last, numeric values for chart):
+```
+const userChartData = userUsage.map((item) => ({
+  version: item.version == null ? '' : String(item.version),
+  avgTotalTokens: Number(item.avgTotalTokens ?? 0),
+}))
+```
+
+Empty/loading state:
+- Show spinner when `loading && !hasUserChartData`
 - Show "No token usage data" when no values > 0
 
 Pill:

@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import CountUp from 'react-countup'
 import { Pie } from '@nivo/pie'
 import { RadialBar } from '@nivo/radial-bar'
-import { MdInsights, MdToken } from 'react-icons/md'
+import { Line } from '@nivo/line'
+import { MdInsights, MdTimelapse, MdToken } from 'react-icons/md'
 import Button from '../../../components/Button/Button.jsx'
 import Card from '../../../components/Card/Card.jsx'
 import Fieldset from '../../../components/Fieldset/Fieldset.jsx'
@@ -76,6 +77,7 @@ function AdminAnalytics() {
   const [errorMessage, setErrorMessage] = useState('')
   const [totalsChartRef, totalsChartSize] = useChartSize()
   const [tokenChartRef, tokenChartSize] = useChartSize()
+  const [latencyChartRef, latencyChartSize] = useChartSize()
 
   useEffect(() => {
     let isActive = true
@@ -140,6 +142,8 @@ function AdminAnalytics() {
     failedRate,
     latency,
     latencyByDay,
+    latencyLineData,
+    hasLatencyLineChart,
     topFailures,
     failureByPromptVersion,
     failureRate,
@@ -164,6 +168,9 @@ function AdminAnalytics() {
   const tokenChartWidth = tokenChartSize.width
   const tokenChartHeight = tokenChartSize.height || tokenChartSize.width
   const tokenChartHasSize = tokenChartWidth > 0 && tokenChartHeight > 0
+  const latencyChartWidth = latencyChartSize.width || 220
+  const latencyChartHeight = latencyChartSize.height || 220
+  const showLatencySpinner = loading && !hasLatencyLineChart
   const hasTokenUsageChart = hasTokenUsageRadialChart
   const tokenCenterValue = hasTokenUsageTotalSeries
     ? usage.totalTokens
@@ -258,12 +265,65 @@ function AdminAnalytics() {
       },
     },
   }
+  const latencyLineProps = {
+    margin: { top: 8, right: 8, bottom: 36, left: 8 },
+    xScale: { type: 'point' },
+    yScale: { type: 'linear', min: 'auto', max: 'auto', stacked: false },
+    curve: 'monotoneX',
+    lineWidth: 2,
+    colors: ['var(--color-info)', 'var(--color-warning)'],
+    enablePoints: false,
+    enableGridX: false,
+    enableGridY: false,
+    axisTop: null,
+    axisRight: null,
+    axisBottom: null,
+    axisLeft: null,
+    useMesh: true,
+    yFormat: (value) => formatDurationMs(value),
+    legends: [
+      {
+        anchor: 'bottom',
+        direction: 'row',
+        translateY: 28,
+        itemWidth: 80,
+        itemHeight: 18,
+        itemsSpacing: 8,
+        itemTextColor: 'var(--color-text-primary)',
+        symbolSize: 10,
+        symbolShape: 'circle',
+      },
+    ],
+    theme: {
+      fontFamily: 'var(--font-sans)',
+      textColor: 'var(--color-text-secondary)',
+      legends: {
+        text: {
+          fontWeight: 600,
+        },
+      },
+      tooltip: {
+        container: {
+          background: 'var(--color-surface)',
+          color: 'var(--color-text-primary)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 0,
+          boxShadow: 'var(--shadow-sm)',
+          fontSize: '0.85rem',
+        },
+      },
+    },
+  }
   const tokenUsagePills = [
     {
       label: 'Submissions with usage',
       value: usage.submissionsWithUsage,
       variant: 'primary',
     },
+  ]
+  const latencyPills = [
+    { label: 'P50', value: latency.p50, variant: 'info' },
+    { label: 'P90', value: latency.p90, variant: 'warning' },
   ]
 
   return (
@@ -426,27 +486,53 @@ function AdminAnalytics() {
         </Fieldset>
 
         <Fieldset>
-          <Fieldset.Legend>Time to complete</Fieldset.Legend>
+          <Fieldset.Legend icon={<MdTimelapse size={14} />}>
+            Time to complete
+          </Fieldset.Legend>
           <Fieldset.Content>
             <Card className="detail-card">
-              <dl className="detail-list">
-                <div>
-                  <dt>P50</dt>
-                  <dd>{formatDurationMs(latency.p50)}</dd>
+              <div className="status-summary">
+                <div className="status-chart status-chart--latency">
+                  <div className="analytics-chart analytics-chart--latency" aria-hidden="true">
+                    <div className="analytics-chart__inner" ref={latencyChartRef}>
+                      {showLatencySpinner ? (
+                        <div className="analytics-chart__loading">
+                          <Spinner size="sm" />
+                        </div>
+                      ) : hasLatencyLineChart ? (
+                        <Line
+                          {...latencyLineProps}
+                          data={latencyLineData}
+                          width={latencyChartWidth}
+                          height={latencyChartHeight}
+                        />
+                      ) : (
+                        <span className="analytics-chart__empty">No latency yet</span>
+                      )}
+                    </div>
+                  </div>
+                  {hasLatencyLineChart ? (
+                    <div className="status-chart__center">
+                      <span className="status-chart__total">
+                        {renderCount(latency.p50, { suffix: ' ms' })}
+                      </span>
+                      <span className="status-chart__label">P50</span>
+                    </div>
+                  ) : null}
                 </div>
-                <div>
-                  <dt>P90</dt>
-                  <dd>{formatDurationMs(latency.p90)}</dd>
-                </div>
-                <div>
-                  <dt>P95</dt>
-                  <dd>{formatDurationMs(latency.p95)}</dd>
-                </div>
-                <div>
-                  <dt>Max</dt>
-                  <dd>{formatDurationMs(latency.max)}</dd>
-                </div>
-              </dl>
+              </div>
+              <div className="status-metrics status-metrics--latency">
+                {latencyPills.map((pill) => (
+                  <div className="status-metric" key={pill.label}>
+                    <Pill variant={pill.variant} size="sm">
+                      <span className="status-pill__label">{pill.label}</span>
+                      <span className="status-pill__value">
+                        {renderCount(pill.value, { suffix: ' ms' })}
+                      </span>
+                    </Pill>
+                  </div>
+                ))}
+              </div>
             </Card>
           </Fieldset.Content>
         </Fieldset>

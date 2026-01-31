@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nivo/line": "^0.99.0",
     "@nivo/pie": "^0.99.0",
     "@nivo/radial-bar": "^0.99.0",
     "date-fns": "^3.6.0",

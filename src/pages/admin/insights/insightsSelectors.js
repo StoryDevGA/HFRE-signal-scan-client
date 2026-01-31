@@ -168,6 +168,34 @@ const buildTokenUsageRadialData = ({
 }
 
 /**
+ * Builds chart data for latency line visualization.
+ * @param {Array} latencyByDay - Array of latency entries with date, p50, p90
+ * @returns {{ latencyLineData: Array, hasLatencyLineChart: boolean }}
+ */
+const buildLatencyLineData = (latencyByDay = []) => {
+  const series = [
+    { id: 'P50', data: [] },
+    { id: 'P90', data: [] },
+  ]
+
+  latencyByDay.forEach((item) => {
+    const date = item.date ?? item._id
+    if (!date) return
+    series[0].data.push({ x: date, y: toNumber(item.p50) })
+    series[1].data.push({ x: date, y: toNumber(item.p90) })
+  })
+
+  const hasLatencyLineChart = series.some((item) =>
+    item.data.some((point) => point.y > 0)
+  )
+
+  return {
+    latencyLineData: series.filter((item) => item.data.length > 0),
+    hasLatencyLineChart,
+  }
+}
+
+/**
  * Transforms raw analytics API response into a structured view model.
  * Provides safe defaults for all fields and formats data for display.
  * @param {object|null} summary - Raw analytics summary from API
@@ -211,7 +239,8 @@ export const buildAdminAnalyticsViewModel = (summary) => {
   const completeRate = totals.completeRate ?? totals.conversionRate ?? 0
   const failedRate = totals.failedRate ?? 0
   const latency = safeSummary.latencyMs || {}
-  const latencyByDay = (safeSummary.latencyByDay || []).map((item) => ({
+  const latencyByDayRaw = safeSummary.latencyByDay || []
+  const latencyByDay = latencyByDayRaw.map((item) => ({
     date: item.date,
     p50: formatDurationMs(item.p50),
     p90: formatDurationMs(item.p90),
@@ -246,6 +275,7 @@ export const buildAdminAnalyticsViewModel = (summary) => {
     promptTokens: totalPromptTokens,
     completionTokens: totalCompletionTokens,
   })
+  const { latencyLineData, hasLatencyLineChart } = buildLatencyLineData(latencyByDayRaw)
 
   return {
     totals,
@@ -261,6 +291,8 @@ export const buildAdminAnalyticsViewModel = (summary) => {
     failedRate,
     latency,
     latencyByDay,
+    latencyLineData,
+    hasLatencyLineChart,
     topFailures,
     failureByPromptVersion,
     failureRate,

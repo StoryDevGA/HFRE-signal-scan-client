@@ -98,14 +98,22 @@ CSS (current):
 
 Sizing logic:
 - Charts use `useChartSize` to measure `.analytics-chart__inner`.
-- Only render Nivo charts when `width > 0` and `height > 0`.
+- Pie/Radial charts render only when `width > 0` and `height > 0`.
+- IMPORTANT: Line chart uses a 220x220 fallback size if measurement is not ready
+  to prevent a permanent loading state.
 
-Standard pattern:
+Standard pattern (pie/radial):
 ```
 const [chartRef, chartSize] = useChartSize()
 const chartWidth = chartSize.width
 const chartHeight = chartSize.height || chartSize.width
 const hasSize = chartWidth > 0 && chartHeight > 0
+```
+
+Line chart fallback pattern:
+```
+const chartWidth = chartSize.width || 220
+const chartHeight = chartSize.height || 220
 ```
 
 ## Shared Theme Standard
@@ -259,6 +267,55 @@ Center label:
 - If total series exists: label "Total"
 - Otherwise: label "Avg total"
 - Value uses `renderCompactCount`
+
+## Time to Complete (Line) Spec
+
+Component: `<Line />` from `@nivo/line`
+
+Data construction:
+`buildLatencyLineData()` in `insightsSelectors.js`
+
+Series structure:
+- Two series: `P50`, `P90`
+- Dates use the API `latencyByDay.date` (YYYY-MM-DD)
+
+Example:
+```
+[
+  { id: 'P50', data: [{ x: '2026-01-01', y: 1200 }, ...] },
+  { id: 'P90', data: [{ x: '2026-01-01', y: 2400 }, ...] },
+]
+```
+
+Chart props:
+```
+margin: { top: 8, right: 8, bottom: 36, left: 8 }
+xScale: { type: 'point' }
+yScale: { type: 'linear', min: 'auto', max: 'auto', stacked: false }
+curve: 'monotoneX'
+lineWidth: 2
+colors: ['var(--color-info)', 'var(--color-warning)']
+enablePoints: false
+enableGridX: false
+enableGridY: false
+axisTop: null
+axisRight: null
+axisBottom: null
+axisLeft: null
+useMesh: true
+yFormat: (value) => formatDurationMs(value)
+```
+
+Loading state:
+- IMPORTANT: Use `loading` state for the spinner instead of size checks.
+- IMPORTANT: Show spinner when `loading && !hasLatencyLineChart`.
+
+Center label:
+- Uses `latency.p50` with suffix `ms`
+- Label text: "P50"
+
+Pills:
+- P50 (info), P90 (warning)
 
 ## Pills Standard
 

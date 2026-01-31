@@ -8,6 +8,7 @@ consistent markup, sizing, legend behavior, and theme settings.
 Scope:
 - Submission status (Nivo Pie)
 - Token usage (Nivo RadialBar)
+- Token usage by system version (Nivo Bar)
 - Shared layout/markup patterns
 - Sizing rules and legend consistency
 
@@ -33,6 +34,7 @@ Chart configurations:
 - src/pages/admin/insights/charts/tokenUsageRadialProps.js (RadialBar config)
 - src/pages/admin/insights/charts/latencyLineProps.jsx (Line chart config)
 - src/pages/admin/insights/charts/LatencyBandLayer.jsx (custom Nivo layer)
+- src/pages/admin/insights/charts/tokenUsageBySystemBarProps.jsx (Bar chart config)
 
 Chart card components:
 - src/pages/admin/insights/components/StatusSummaryCard.jsx (Pie chart)
@@ -308,6 +310,48 @@ Center label:
 - Otherwise: label "Avg total"
 - Value uses `renderCompactCount`
 
+## Token Usage by System Version (Bar) Spec
+
+Component: `<Bar />` from `@nivo/bar`
+
+File: `sections/UsageByVersionSection.jsx`
+Config: `charts/tokenUsageBySystemBarProps.jsx`
+
+Data construction (keeps nulls last, numeric values for chart):
+```
+const systemChartData = systemUsage.map((item) => ({
+  version: item.version == null ? '' : String(item.version),
+  avgTotalTokens: Number(item.avgTotalTokens ?? 0),
+}))
+```
+
+Chart props:
+```
+keys: ['avgTotalTokens']
+indexBy: 'version'
+valueScale: { type: 'linear' }
+indexScale: { type: 'band', round: true }
+layout: 'horizontal'
+colors: (bar) => (bar.index % 2 === 0 ? 'var(--color-info)' : 'var(--color-warning)')
+enableLabel: false
+```
+
+Visibility note:
+- Chart uses `useChartSize` to set explicit width and reflows on resize.
+- `.analytics-chart--usage-bar` stretches to card width; height is based on version count.
+
+Axis/tooltip formatting:
+- `axisLeft.format`: show `N/A` when version is empty string
+- `axisBottom.format`: `formatCompactNumber`
+- Tooltip shows version label and avg tokens using `toLocaleString()`
+
+Empty/loading state:
+- Show spinner when `loading && !hasSystemChartData`
+- Show "No token usage data" when no values > 0
+
+Pill:
+- "Top version" shows `{version} / {avgTotalTokens}` for the highest avg total.
+
 ## Time to Complete (Line) Spec
 
 Component: `<Line />` from `@nivo/line`
@@ -485,6 +529,7 @@ insights/
 |   |-- totalsChartProps.js
 |   |-- tokenUsageRadialProps.js
 |   |-- latencyLineProps.jsx
+|   |-- tokenUsageBySystemBarProps.jsx
 |   `-- LatencyBandLayer.jsx
 |-- components/                 # Presentational components
 |   |-- StatusSummaryCard.jsx

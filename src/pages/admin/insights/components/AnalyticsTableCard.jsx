@@ -6,6 +6,7 @@ import Table from '../../../../components/Table/Table.jsx'
 
 const AnalyticsTableCard = ({
   legend,
+  legendIcon,
   columns,
   data,
   loading,
@@ -16,13 +17,15 @@ const AnalyticsTableCard = ({
   cardVariant = 'filled',
   cardBackgroundColor = 'transparent',
   cardBordered = false,
+  topContent,
+  showTable = true,
   scrollClassName = 'admin-scroll',
 }) => {
   const resolvedScrollLabel = scrollAriaLabel || tableAriaLabel
 
   return (
     <Fieldset>
-      <Fieldset.Legend>{legend}</Fieldset.Legend>
+      <Fieldset.Legend icon={legendIcon}>{legend}</Fieldset.Legend>
       <Fieldset.Content>
         <Card
           className={cardClassName}
@@ -30,15 +33,18 @@ const AnalyticsTableCard = ({
           backgroundColor={cardBackgroundColor}
           bordered={cardBordered}
         >
-          <HorizontalScroll ariaLabel={resolvedScrollLabel} className={scrollClassName}>
-            <Table
-              columns={columns}
-              data={data}
-              loading={loading}
-              emptyMessage={emptyMessage}
-              ariaLabel={tableAriaLabel}
-            />
-          </HorizontalScroll>
+          {topContent ? topContent : null}
+          {showTable ? (
+            <HorizontalScroll ariaLabel={resolvedScrollLabel} className={scrollClassName}>
+              <Table
+                columns={columns}
+                data={data}
+                loading={loading}
+                emptyMessage={emptyMessage}
+                ariaLabel={tableAriaLabel}
+              />
+            </HorizontalScroll>
+          ) : null}
         </Card>
       </Fieldset.Content>
     </Fieldset>
@@ -47,6 +53,7 @@ const AnalyticsTableCard = ({
 
 AnalyticsTableCard.propTypes = {
   legend: PropTypes.string.isRequired,
+  legendIcon: PropTypes.node,
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       key: PropTypes.string.isRequired,
@@ -59,6 +66,7 @@ AnalyticsTableCard.propTypes = {
   tableAriaLabel: PropTypes.string.isRequired,
   scrollAriaLabel: PropTypes.string,
   cardClassName: PropTypes.string,
+  showTable: PropTypes.bool,
   scrollClassName: PropTypes.string,
 }
 

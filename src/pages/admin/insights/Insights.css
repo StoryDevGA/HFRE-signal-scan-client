@@ -53,6 +53,13 @@
   place-items: center;
 }
 
+.analytics-chart--usage-bar {
+  width: 100%;
+  min-height: 220px;
+  margin: 0;
+  display: block;
+}
+
 .status-metrics {
   display: grid;
   gap: var(--spacing-sm);
@@ -133,6 +140,14 @@
   gap: var(--spacing-lg);
   align-items: center;
   grid-template-columns: 1fr;
+}
+
+.status-summary--usage {
+  align-items: start;
+}
+
+.status-chart--usage {
+  width: 100%;
 }
 
 .status-chart {

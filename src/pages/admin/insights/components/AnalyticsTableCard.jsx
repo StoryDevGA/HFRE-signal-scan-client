@@ -13,6 +13,9 @@ const AnalyticsTableCard = ({
   tableAriaLabel,
   scrollAriaLabel,
   cardClassName = 'detail-card',
+  cardVariant = 'filled',
+  cardBackgroundColor = 'transparent',
+  cardBordered = false,
   scrollClassName = 'admin-scroll',
 }) => {
   const resolvedScrollLabel = scrollAriaLabel || tableAriaLabel
@@ -21,7 +24,12 @@ const AnalyticsTableCard = ({
     <Fieldset>
       <Fieldset.Legend>{legend}</Fieldset.Legend>
       <Fieldset.Content>
-        <Card className={cardClassName}>
+        <Card
+          className={cardClassName}
+          variant={cardVariant}
+          backgroundColor={cardBackgroundColor}
+          bordered={cardBordered}
+        >
           <HorizontalScroll ariaLabel={resolvedScrollLabel} className={scrollClassName}>
             <Table
               columns={columns}

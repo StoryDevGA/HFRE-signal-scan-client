@@ -21,7 +21,12 @@ const StatusSummaryCard = ({
   <Fieldset>
     <Fieldset.Legend icon={<MdInsights size={14} />}>Submission status</Fieldset.Legend>
     <Fieldset.Content>
-      <Card className="detail-card">
+      <Card
+        className="detail-card"
+        variant="filled"
+        backgroundColor="transparent"
+        bordered={false}
+      >
         <div className="status-summary">
           <div className="status-chart">
             <div className="analytics-chart analytics-chart--totals" aria-hidden="true">

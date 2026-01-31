@@ -21,7 +21,12 @@ const LatencyCard = ({
   <Fieldset>
     <Fieldset.Legend icon={<MdTimelapse size={14} />}>Time to complete</Fieldset.Legend>
     <Fieldset.Content>
-      <Card className="detail-card">
+      <Card
+        className="detail-card"
+        variant="filled"
+        backgroundColor="transparent"
+        bordered={false}
+      >
         <div className="status-summary">
           <div className="status-chart status-chart--latency">
             <div className="analytics-chart analytics-chart--latency" aria-hidden="true">

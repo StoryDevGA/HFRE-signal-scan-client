@@ -15,7 +15,12 @@ const RetriesSection = ({
     <Fieldset>
       <Fieldset.Legend>Retry behavior</Fieldset.Legend>
       <Fieldset.Content>
-        <Card className="detail-card">
+        <Card
+          className="detail-card"
+          variant="filled"
+          backgroundColor="transparent"
+          bordered={false}
+        >
           <dl className="detail-list">
             <div>
               <dt>Total retries</dt>

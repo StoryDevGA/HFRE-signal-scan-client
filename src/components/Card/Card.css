@@ -7,6 +7,7 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
+
 .card--rounded {
   border-radius: 0;
 }

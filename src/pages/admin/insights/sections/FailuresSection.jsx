@@ -18,7 +18,12 @@ const FailuresSection = ({
     <Fieldset>
       <Fieldset.Legend>Failure analytics</Fieldset.Legend>
       <Fieldset.Content>
-        <Card className="detail-card">
+        <Card
+          className="detail-card"
+          variant="filled"
+          backgroundColor="transparent"
+          bordered={false}
+        >
           <dl className="detail-list">
             <div>
               <dt>Failure rate</dt>

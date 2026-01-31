@@ -13,7 +13,12 @@ const SubmissionLookupSection = ({
   <Fieldset>
     <Fieldset.Legend>Submission analytics</Fieldset.Legend>
     <Fieldset.Content>
-      <Card className="detail-card">
+      <Card
+        className="detail-card"
+        variant="filled"
+        backgroundColor="transparent"
+        bordered={false}
+      >
         <form className="form" onSubmit={(event) => event.preventDefault()}>
           <Fieldset>
             <Fieldset.Legend>Lookup</Fieldset.Legend>

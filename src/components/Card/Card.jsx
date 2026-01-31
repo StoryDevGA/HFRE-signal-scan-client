@@ -6,6 +6,9 @@ export function Card({
   rounded = false,
   hoverable = false,
   clickable = false,
+  bordered = true,
+  backgroundColor,
+  style,
   onClick,
   className = '',
   ...props
@@ -20,6 +23,11 @@ export function Card({
   ]
     .filter(Boolean)
     .join(' ')
+  const mergedStyle = {
+    ...(style || {}),
+    ...(backgroundColor ? { backgroundColor } : null),
+    ...(!bordered ? { border: 'none' } : null),
+  }
 
   const handleKeyDown = (event) => {
     if (!clickable) return
@@ -36,6 +44,7 @@ export function Card({
       tabIndex={clickable ? 0 : undefined}
       onClick={onClick}
       onKeyDown={handleKeyDown}
+      style={mergedStyle}
       {...props}
     >
       {children}

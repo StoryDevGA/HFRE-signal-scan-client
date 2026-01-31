@@ -22,7 +22,12 @@ const TokenUsageCard = ({
   <Fieldset>
     <Fieldset.Legend icon={<MdToken size={14} />}>Token usage</Fieldset.Legend>
     <Fieldset.Content>
-      <Card className="detail-card">
+      <Card
+        className="detail-card"
+        variant="filled"
+        backgroundColor="transparent"
+        bordered={false}
+      >
         <div className="status-summary">
           <div className="status-chart status-chart--token">
             <div className="analytics-chart analytics-chart--token-radial" aria-hidden="true">

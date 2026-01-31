@@ -297,18 +297,27 @@ lineWidth: 2
 colors: ['var(--color-info)', 'var(--color-warning)']
 enablePoints: false
 enableGridX: false
-enableGridY: false
-axisTop: null
-axisRight: null
-axisBottom: null
-axisLeft: null
-useMesh: true
-yFormat: (value) => formatDurationMs(value)
-```
+  enableGridY: false
+  axisTop: null
+  axisRight: null
+  axisBottom: null
+  axisLeft: null
+  enableSlices: 'x'
+  enableCrosshair: true
+  crosshairType: 'x'
+  useMesh: false
+  yFormat: (value) => formatDurationMs(value)
+  layers: ['areas', LatencyBandLayer, 'lines', 'slices', 'crosshair', 'legends']
+  ```
 
 Loading state:
 - IMPORTANT: Use `loading` state for the spinner instead of size checks.
 - IMPORTANT: Show spinner when `loading && !hasLatencyLineChart`.
+
+Tooltip + band:
+- Slice tooltip shows all series at a given date.
+- Crosshair uses `crosshairType: 'x'`.
+- Latency band is a custom layer between P50 and P90.
 
 Center label:
 - Uses `latency.p50` with suffix `ms`

@@ -3,6 +3,7 @@ import CountUp from 'react-countup'
 import { Pie } from '@nivo/pie'
 import { RadialBar } from '@nivo/radial-bar'
 import { Line } from '@nivo/line'
+import { Chip, TableTooltip } from '@nivo/tooltip'
 import { MdInsights, MdTimelapse, MdToken } from 'react-icons/md'
 import Button from '../../../components/Button/Button.jsx'
 import Card from '../../../components/Card/Card.jsx'
@@ -66,6 +67,56 @@ const useChartSize = () => {
   }, [])
 
   return [chartRef, chartSize]
+}
+
+const LatencyBandLayer = ({ series }) => {
+  const p50Series = series.find((item) => item.id === 'P50')
+  const p90Series = series.find((item) => item.id === 'P90')
+
+  if (!p50Series || !p90Series) return null
+
+  const p90ByX = new Map(
+    p90Series.data.map((point) => [String(point.data.x), point])
+  )
+
+  const bandPoints = p50Series.data
+    .map((point) => {
+      const match = p90ByX.get(String(point.data.x))
+      if (!match) return null
+      if (
+        point.position.x == null ||
+        point.position.y == null ||
+        match.position.x == null ||
+        match.position.y == null
+      ) {
+        return null
+      }
+      return {
+        x: point.position.x,
+        y0: point.position.y,
+        y1: match.position.y,
+      }
+    })
+    .filter(Boolean)
+
+  if (bandPoints.length < 2) return null
+
+  const path = bandPoints.reduce((acc, point, index) => {
+    const command = index === 0 ? 'M' : 'L'
+    return `${acc} ${command}${point.x} ${point.y1}`
+  }, '')
+  const reversePath = bandPoints
+    .slice()
+    .reverse()
+    .reduce((acc, point) => `${acc} L${point.x} ${point.y0}`, '')
+
+  return (
+    <path
+      d={`${path}${reversePath} Z`}
+      fill="color-mix(in srgb, var(--color-info) 16%, transparent)"
+      stroke="none"
+    />
+  )
 }
 
 function AdminAnalytics() {
@@ -279,7 +330,31 @@ function AdminAnalytics() {
     axisRight: null,
     axisBottom: null,
     axisLeft: null,
-    useMesh: true,
+    enableSlices: 'x',
+    enableCrosshair: true,
+    crosshairType: 'x',
+    useMesh: false,
+    sliceTooltip: ({ slice }) => {
+      const title =
+        slice.points[0]?.data?.xFormatted ??
+        slice.points[0]?.data?.x ??
+        'Latency'
+      return (
+        <TableTooltip
+          title={title}
+          rows={slice.points.map((point) => [
+            <Chip
+              key={`${point.id}-chip`}
+              color={point.seriesColor}
+              style={{ borderRadius: '999px' }}
+            />,
+            point.seriesId,
+            point.data.yFormatted,
+          ])}
+        />
+      )
+    },
+    layers: ['areas', LatencyBandLayer, 'lines', 'slices', 'crosshair', 'legends'],
     yFormat: (value) => formatDurationMs(value),
     legends: [
       {

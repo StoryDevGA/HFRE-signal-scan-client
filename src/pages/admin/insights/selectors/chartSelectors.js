@@ -6,10 +6,10 @@ import { toNumber } from './formatters.js'
 
 /** Chart color constants */
 export const CHART_COLORS = {
-  complete: 'var(--color-success)',
+  complete: 'var(--color-info)',
   pending: 'var(--color-warning)',
-  failed: 'var(--color-error)',
-  fallback: 'var(--color-action-primary)',
+  failed: 'var(--color-warning)',
+  fallback: 'var(--color-info)',
 }
 
 /** Token chart color constants */
@@ -30,7 +30,7 @@ export const buildTotalsChartData = (totals) => {
       label: 'Complete',
       value: toNumber(totals.complete),
       color: CHART_COLORS.complete,
-      variant: 'success',
+      variant: 'info',
     },
     {
       id: 'Pending',
@@ -44,7 +44,7 @@ export const buildTotalsChartData = (totals) => {
       label: 'Failed',
       value: toNumber(totals.failed),
       color: CHART_COLORS.failed,
-      variant: 'danger',
+      variant: 'warning',
     },
   ]
   const totalsBreakdownTotal = totalsBreakdown.reduce((sum, item) => sum + item.value, 0)

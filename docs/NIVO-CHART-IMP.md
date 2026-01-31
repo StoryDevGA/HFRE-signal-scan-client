@@ -19,8 +19,8 @@ Non-goals:
 ## File Locations
 
 Primary files:
-- src/pages/admin/insights/Insights.jsx (main orchestrator)
-- src/pages/admin/insights/Insights.css (chart styles)
+- src/pages/admin/insights/Insights.jsx (container: fetches data + renders sections)
+- src/pages/admin/insights/Insights.css (page + chart styles)
 
 Selectors (data transformation):
 - src/pages/admin/insights/selectors/index.js (barrel export)
@@ -201,8 +201,9 @@ legends={[
 ]}
 ```
 
-Legend text must be uppercase. For RadialBar, this is done by uppercasing
-category labels in the data (see `selectors/chartSelectors.js`).
+Legend text must be uppercase. Totals labels are uppercased in
+`buildTotalsChartData()` inside `selectors/chartSelectors.js`. RadialBar categories
+are already uppercase (`PROMPT`/`COMPLETION`).
 
 ## Submission Status (Pie) Spec
 
@@ -215,10 +216,10 @@ Data:
 - Derived in `buildTotalsChartData()` in `selectors/chartSelectors.js`
 - Labels uppercased before passing to the chart
 - Colors sourced from CSS variables:
-  - Complete: `var(--color-success)`
+  - Complete: `var(--color-info)`
   - Pending: `var(--color-warning)`
-  - Failed: `var(--color-error)`
-  - Fallback total: `var(--color-action-primary)`
+  - Failed: `var(--color-warning)`
+  - Fallback total: `var(--color-info)`
 
 Chart props:
 ```
@@ -405,7 +406,8 @@ Avoid direct `.toLocaleString()` for chart totals (use shared helper).
 
 Empty state rules:
 - If data is missing or totals are 0, show `analytics-chart__empty` message.
-- If size is not available (0 width/height), show "Loading chart..."
+- For Pie/Radial charts, show the spinner when size is not available.
+- For the Line chart, show the spinner when `loading && !hasLatencyLineChart`.
 
 ## Consistency Checklist (Before Shipping)
 
@@ -444,7 +446,7 @@ Issue: Colors too light
    - Export from `selectors/index.js`
    - Add to `viewModelSelector.js` return object
 
-2) Add chart props in `charts/newChartProps.js`:
+2) Add chart props in `charts/newChartProps.js` (or `.jsx` if JSX is needed):
    - Copy theme/legend config from existing chart
    - Export chart-specific settings
 
@@ -454,54 +456,57 @@ Issue: Colors too light
    - Add PropTypes validation
    - Use `useChartSize` hook for responsive sizing
 
-4) Wire up in `Insights.jsx`:
-   - Import the new card component
+4) (Optional) Create a section component in `sections/` if grouping makes sense.
+
+5) Wire up in `Insights.jsx`:
+   - Import the new card/section component
    - Wrap in `<ChartErrorBoundary>`
    - Pass data from `analyticsView`
 
-5) Add CSS only if necessary:
+6) Add CSS only if necessary:
    - Prefer existing `.analytics-chart--*` classes
    - Add new size class if dimensions differ
 
-6) Validate consistency:
+7) Validate consistency:
    - Size matches (220x220 for donut/radial charts)
    - Legend inside SVG, uppercase text
    - Theme matches existing charts
+   - Empty/loader states match existing charts
    - Error boundary wrapping
 
 ## Folder Structure Reference
 
 ```
 insights/
-├── index.js                    # Barrel export
-├── Insights.jsx                # Main orchestrator
-├── Insights.css                # All chart/section styles
-├── charts/                     # Chart configurations
-│   ├── totalsChartProps.js
-│   ├── tokenUsageRadialProps.js
-│   ├── latencyLineProps.jsx
-│   └── LatencyBandLayer.jsx
-├── components/                 # Presentational components
-│   ├── StatusSummaryCard.jsx
-│   ├── TokenUsageCard.jsx
-│   ├── LatencyCard.jsx
-│   ├── ChartErrorBoundary.jsx
-│   └── AnalyticsTableCard.jsx
-├── hooks/
-│   └── useChartSize.js
-├── sections/                   # Page sections
-│   ├── CountsLatencySection.jsx
-│   ├── TopClientsSection.jsx
-│   ├── UsageByVersionSection.jsx
-│   ├── FailuresSection.jsx
-│   ├── RetriesSection.jsx
-│   ├── PromptPerformanceSection.jsx
-│   └── SubmissionLookupSection.jsx
-├── selectors/                  # Data transformation
-│   ├── index.js
-│   ├── formatters.js
-│   ├── chartSelectors.js
-│   └── viewModelSelector.js
-└── utils/
-    └── countUp.jsx
+|-- index.js                    # Barrel export
+|-- Insights.jsx                # Main orchestrator
+|-- Insights.css                # All chart/section styles
+|-- charts/                     # Chart configurations
+|   |-- totalsChartProps.js
+|   |-- tokenUsageRadialProps.js
+|   |-- latencyLineProps.jsx
+|   `-- LatencyBandLayer.jsx
+|-- components/                 # Presentational components
+|   |-- StatusSummaryCard.jsx
+|   |-- TokenUsageCard.jsx
+|   |-- LatencyCard.jsx
+|   |-- ChartErrorBoundary.jsx
+|   `-- AnalyticsTableCard.jsx
+|-- hooks/
+|   `-- useChartSize.js
+|-- sections/                   # Page sections
+|   |-- CountsLatencySection.jsx
+|   |-- TopClientsSection.jsx
+|   |-- UsageByVersionSection.jsx
+|   |-- FailuresSection.jsx
+|   |-- RetriesSection.jsx
+|   |-- PromptPerformanceSection.jsx
+|   `-- SubmissionLookupSection.jsx
+|-- selectors/                  # Data transformation
+|   |-- index.js
+|   |-- formatters.js
+|   |-- chartSelectors.js
+|   `-- viewModelSelector.js
+`-- utils/
+    `-- countUp.jsx
 ```

@@ -54,13 +54,13 @@ const StatusSummaryCard = ({
         </div>
         <div className="status-metrics status-metrics--rates">
           <div className="status-metric">
-            <Pill variant="success" size="sm">
+            <Pill variant="info" size="sm">
               <span className="status-pill__label">Success rate</span>
               <span className="status-pill__value">{renderPercent(completeRate)}</span>
             </Pill>
           </div>
           <div className="status-metric">
-            <Pill variant="danger" size="sm">
+            <Pill variant="warning" size="sm">
               <span className="status-pill__label">Failed rate</span>
               <span className="status-pill__value">{renderPercent(failedRate)}</span>
             </Pill>

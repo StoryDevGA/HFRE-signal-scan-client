@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import CountUp from 'react-countup'
 import { Pie } from '@nivo/pie'
+import { RadialBar } from '@nivo/radial-bar'
 import { MdInsights, MdToken } from 'react-icons/md'
 import Button from '../../../components/Button/Button.jsx'
 import Card from '../../../components/Card/Card.jsx'
@@ -23,6 +24,48 @@ import {
 } from './insightsSelectors.js'
 import './Insights.css'
 
+/**
+ * Custom hook that measures a DOM element's size using ResizeObserver.
+ * Falls back to window resize events if ResizeObserver is unavailable.
+ * @returns {[React.RefObject<HTMLElement>, { width: number, height: number }]} Ref to attach and current size
+ */
+const useChartSize = () => {
+  const chartRef = useRef(null)
+  const [chartSize, setChartSize] = useState({ width: 0, height: 0 })
+
+  useEffect(() => {
+    const element = chartRef.current
+    if (!element) return
+
+    const updateSize = () => {
+      const { width, height } = element.getBoundingClientRect()
+      setChartSize((prev) => {
+        const next = {
+          width: Math.max(0, Math.floor(width)),
+          height: Math.max(0, Math.floor(height)),
+        }
+        if (prev.width === next.width && prev.height === next.height) {
+          return prev
+        }
+        return next
+      })
+    }
+
+    updateSize()
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', updateSize)
+      return () => window.removeEventListener('resize', updateSize)
+    }
+
+    const observer = new ResizeObserver(updateSize)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  return [chartRef, chartSize]
+}
+
 function AdminAnalytics() {
   const [summary, setSummary] = useState(null)
   const [hasAnimatedTotals, setHasAnimatedTotals] = useState(false)
@@ -30,8 +73,8 @@ function AdminAnalytics() {
   const [detail, setDetail] = useState(null)
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
-  const totalsChartRef = useRef(null)
-  const [totalsChartSize, setTotalsChartSize] = useState({ width: 0, height: 0 })
+  const [totalsChartRef, totalsChartSize] = useChartSize()
+  const [tokenChartRef, tokenChartSize] = useChartSize()
 
   useEffect(() => {
     let isActive = true
@@ -66,36 +109,6 @@ function AdminAnalytics() {
       setHasAnimatedTotals(true)
     }
   }, [summary, hasAnimatedTotals])
-
-  useEffect(() => {
-    const element = totalsChartRef.current
-    if (!element) return
-
-    const updateSize = () => {
-      const { width, height } = element.getBoundingClientRect()
-      setTotalsChartSize((prev) => {
-        const next = {
-          width: Math.max(0, Math.floor(width)),
-          height: Math.max(0, Math.floor(height)),
-        }
-        if (prev.width === next.width && prev.height === next.height) {
-          return prev
-        }
-        return next
-      })
-    }
-
-    updateSize()
-
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', updateSize)
-      return () => window.removeEventListener('resize', updateSize)
-    }
-
-    const observer = new ResizeObserver(updateSize)
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [])
 
   const loadDetail = async () => {
     if (!detailId.trim()) return
@@ -138,12 +151,23 @@ function AdminAnalytics() {
     totalsChartData,
     hasTotalsChart,
     totalsDisplayValue,
+    tokenUsageRadialData,
+    hasTokenUsageRadialChart,
+    hasTokenUsageTotalSeries,
   } = analyticsView
   const shouldAnimateTotals = Boolean(summary && !hasAnimatedTotals)
   const totalsChartDimension = Math.min(
     totalsChartSize.width,
     totalsChartSize.height || totalsChartSize.width
   )
+  const tokenChartWidth = tokenChartSize.width
+  const tokenChartHeight = tokenChartSize.height || tokenChartSize.width
+  const tokenChartHasSize = tokenChartWidth > 0 && tokenChartHeight > 0
+  const hasTokenUsageChart = hasTokenUsageRadialChart
+  const tokenCenterValue = hasTokenUsageTotalSeries
+    ? usage.totalTokens
+    : usage.averageTotalTokens
+  const tokenCenterLabel = hasTokenUsageTotalSeries ? 'Total' : 'Avg total'
   const renderCount = (value, options = {}) => (
     <CountUp
       start={shouldAnimateTotals ? 0 : Number(value ?? 0)}
@@ -174,6 +198,72 @@ function AdminAnalytics() {
       suffix="%"
     />
   )
+  const tokenUsageRadialProps = {
+    margin: { top: 8, right: 8, bottom: 36, left: 8 },
+    innerRadius: 0.52,
+    padding: 0.36,
+    padAngle: 0.02,
+    cornerRadius: 4,
+    startAngle: -90,
+    endAngle: 270,
+    colors: (bar) => {
+      const baseColor =
+        bar.category === 'PROMPT' ? 'var(--color-info)' : 'var(--color-warning)'
+      if (bar.groupId === 'Avg') {
+        return `color-mix(in srgb, ${baseColor} 45%, var(--color-surface))`
+      }
+      return baseColor
+    },
+    enableTracks: true,
+    tracksColor: 'color-mix(in srgb, var(--color-border) 70%, transparent)',
+    enableRadialGrid: false,
+    enableCircularGrid: false,
+    radialAxisStart: null,
+    radialAxisEnd: null,
+    circularAxisInner: null,
+    circularAxisOuter: null,
+    enableLabels: false,
+    valueFormat: formatCompactNumber,
+    legends: [
+      {
+        anchor: 'bottom',
+        direction: 'row',
+        translateY: 28,
+        itemWidth: 80,
+        itemHeight: 18,
+        itemsSpacing: 8,
+        itemTextColor: 'var(--color-text-primary)',
+        symbolSize: 10,
+        symbolShape: 'circle',
+      },
+    ],
+    theme: {
+      fontFamily: 'var(--font-sans)',
+      textColor: 'var(--color-text-secondary)',
+      legends: {
+        text: {
+          fontWeight: 600,
+        },
+      },
+      tooltip: {
+        container: {
+          background: 'var(--color-surface)',
+          color: 'var(--color-text-primary)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 0,
+          boxShadow: 'var(--shadow-sm)',
+          fontSize: '0.85rem',
+        },
+      },
+    },
+  }
+  const tokenUsagePills = [
+    {
+      label: 'Submissions with usage',
+      value: usage.submissionsWithUsage,
+      variant: 'primary',
+    },
+  ]
 
   return (
     <section className="admin-section">
@@ -228,6 +318,11 @@ function AdminAnalytics() {
                           theme={{
                             fontFamily: 'var(--font-sans)',
                             textColor: 'var(--color-text-secondary)',
+                            legends: {
+                              text: {
+                                fontWeight: 600,
+                              },
+                            },
                             tooltip: {
                               container: {
                                 background: 'var(--color-surface)',
@@ -275,36 +370,48 @@ function AdminAnalytics() {
           <Fieldset.Legend icon={<MdToken size={14} />}>Token usage</Fieldset.Legend>
           <Fieldset.Content>
             <Card className="detail-card">
-              <dl className="detail-list">
-                <div>
-                  <dt>Submissions with usage</dt>
-                  <dd>{renderCount(usage.submissionsWithUsage)}</dd>
+              <div className="status-summary">
+                <div className="status-chart status-chart--token">
+                  <div className="analytics-chart analytics-chart--token-radial" aria-hidden="true">
+                    <div className="analytics-chart__inner" ref={tokenChartRef}>
+                      {hasTokenUsageChart ? (
+                        tokenChartHasSize ? (
+                          <RadialBar
+                            {...tokenUsageRadialProps}
+                            data={tokenUsageRadialData}
+                            width={tokenChartWidth}
+                            height={tokenChartHeight}
+                          />
+                        ) : (
+                          <span className="analytics-chart__empty">Loading chart...</span>
+                        )
+                      ) : (
+                        <span className="analytics-chart__empty">No token usage yet</span>
+                      )}
+                    </div>
+                  </div>
+                  {hasTokenUsageChart && tokenChartHasSize ? (
+                    <div className="status-chart__center">
+                      <span className="status-chart__total">
+                        {renderCompactCount(tokenCenterValue)}
+                      </span>
+                      <span className="status-chart__label">{tokenCenterLabel}</span>
+                    </div>
+                  ) : null}
                 </div>
-                <div>
-                  <dt>Total tokens</dt>
-                  <dd>{renderCount(usage.totalTokens)}</dd>
-                </div>
-                <div>
-                  <dt>Avg total</dt>
-                  <dd>{renderCount(usage.averageTotalTokens)}</dd>
-                </div>
-                <div>
-                  <dt>Total prompt</dt>
-                  <dd>{renderCount(usage.promptTokens)}</dd>
-                </div>
-                <div>
-                  <dt>Total completion</dt>
-                  <dd>{renderCount(usage.completionTokens)}</dd>
-                </div>
-                <div>
-                  <dt>Avg prompt</dt>
-                  <dd>{renderCount(usage.averagePromptTokens)}</dd>
-                </div>
-                <div>
-                  <dt>Avg completion</dt>
-                  <dd>{renderCount(usage.averageCompletionTokens)}</dd>
-                </div>
-              </dl>
+              </div>
+              <div className="status-metrics status-metrics--tokens">
+                {tokenUsagePills.map((pill) => (
+                  <div className="status-metric" key={pill.label}>
+                    <Pill variant={pill.variant} size="sm">
+                      <span className="status-pill__label">{pill.label}</span>
+                      <span className="status-pill__value">
+                        {renderCompactCount(pill.value)}
+                      </span>
+                    </Pill>
+                  </div>
+                ))}
+              </div>
             </Card>
           </Fieldset.Content>
         </Fieldset>

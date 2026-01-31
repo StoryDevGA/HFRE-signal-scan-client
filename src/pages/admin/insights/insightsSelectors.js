@@ -121,6 +121,53 @@ const buildTotalsChartData = (totals) => {
 }
 
 /**
+ * Builds chart data for token usage radial bar visualization.
+ * @param {object} values - Token usage values
+ * @returns {{
+ *  tokenUsageRadialData: Array,
+ *  hasTokenUsageRadialChart: boolean,
+ *  hasTokenUsageTotalSeries: boolean,
+ * }}
+ */
+const buildTokenUsageRadialData = ({
+  averagePromptTokens,
+  averageCompletionTokens,
+  promptTokens,
+  completionTokens,
+}) => {
+  const averageSeries = {
+    id: 'Avg',
+    data: [
+      { x: 'PROMPT', y: toNumber(averagePromptTokens) },
+      { x: 'COMPLETION', y: toNumber(averageCompletionTokens) },
+    ],
+  }
+  const totalSeries = {
+    id: 'Total',
+    data: [
+      { x: 'PROMPT', y: toNumber(promptTokens) },
+      { x: 'COMPLETION', y: toNumber(completionTokens) },
+    ],
+  }
+  const averageTotal = averageSeries.data.reduce((sum, item) => sum + item.y, 0)
+  const totalTotal = totalSeries.data.reduce((sum, item) => sum + item.y, 0)
+  const tokenUsageRadialData = []
+
+  if (averageTotal > 0) {
+    tokenUsageRadialData.push(averageSeries)
+  }
+  if (totalTotal > 0) {
+    tokenUsageRadialData.push(totalSeries)
+  }
+
+  return {
+    tokenUsageRadialData,
+    hasTokenUsageRadialChart: tokenUsageRadialData.length > 0,
+    hasTokenUsageTotalSeries: totalTotal > 0,
+  }
+}
+
+/**
  * Transforms raw analytics API response into a structured view model.
  * Provides safe defaults for all fields and formats data for display.
  * @param {object|null} summary - Raw analytics summary from API
@@ -141,6 +188,24 @@ export const buildAdminAnalyticsViewModel = (summary) => {
   const topReferrers = safeSummary.topReferrers || []
   const topCountries = safeSummary.topCountries || []
   const usage = safeSummary.usage || {}
+  const averagePromptTokens = toNumber(usage.averagePromptTokens)
+  const averageCompletionTokens = toNumber(usage.averageCompletionTokens)
+  const averageTotalTokens = toNumber(usage.averageTotalTokens)
+  const resolvedAverageTotalTokens =
+    averageTotalTokens || averagePromptTokens + averageCompletionTokens
+  const totalPromptTokens = toNumber(usage.promptTokens)
+  const totalCompletionTokens = toNumber(usage.completionTokens)
+  const totalTokens = toNumber(usage.totalTokens)
+  const resolvedTotalTokens = totalTokens || totalPromptTokens + totalCompletionTokens
+  const usageView = {
+    ...usage,
+    averagePromptTokens,
+    averageCompletionTokens,
+    averageTotalTokens: resolvedAverageTotalTokens,
+    promptTokens: totalPromptTokens,
+    completionTokens: totalCompletionTokens,
+    totalTokens: resolvedTotalTokens,
+  }
   const usageBySystemVersion = usage.bySystemVersion || []
   const usageByUserVersion = usage.byUserVersion || []
   const completeRate = totals.completeRate ?? totals.conversionRate ?? 0
@@ -171,6 +236,16 @@ export const buildAdminAnalyticsViewModel = (summary) => {
     hasTotalsChart,
     totalsDisplayValue,
   } = buildTotalsChartData(totals)
+  const {
+    tokenUsageRadialData,
+    hasTokenUsageRadialChart,
+    hasTokenUsageTotalSeries,
+  } = buildTokenUsageRadialData({
+    averagePromptTokens,
+    averageCompletionTokens,
+    promptTokens: totalPromptTokens,
+    completionTokens: totalCompletionTokens,
+  })
 
   return {
     totals,
@@ -179,7 +254,7 @@ export const buildAdminAnalyticsViewModel = (summary) => {
     topDevices,
     topReferrers,
     topCountries,
-    usage,
+    usage: usageView,
     usageBySystemVersion,
     usageByUserVersion,
     completeRate,
@@ -198,5 +273,8 @@ export const buildAdminAnalyticsViewModel = (summary) => {
     totalsChartData,
     hasTotalsChart,
     totalsDisplayValue,
+    tokenUsageRadialData,
+    hasTokenUsageRadialChart,
+    hasTokenUsageTotalSeries,
   }
 }

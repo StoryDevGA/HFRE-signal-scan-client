@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@nivo/pie": "^0.99.0",
+    "@nivo/radial-bar": "^0.99.0",
     "date-fns": "^3.6.0",
     "react": "^19.2.0",
     "react-countup": "^6.5.3",

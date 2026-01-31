@@ -6,11 +6,18 @@
 }
 
 .analytics-chart--totals {
-  width: 100%;
-  min-width: 160px;
+  width: 220px;
+  height: 220px;
+  min-width: 220px;
   max-width: 220px;
-  aspect-ratio: 1 / 1;
-  height: auto;
+  margin: 0 auto;
+}
+
+.analytics-chart--token-radial {
+  width: 220px;
+  height: 220px;
+  min-width: 220px;
+  max-width: 220px;
   margin: 0 auto;
 }
 
@@ -19,6 +26,7 @@
   height: 100%;
   position: relative;
   min-height: 160px;
+  min-width: 160px;
 }
 
 .analytics-chart__empty {
@@ -37,6 +45,10 @@
 
 .status-metrics--rates {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.status-metrics--tokens {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .status-metric {
@@ -60,13 +72,19 @@
   align-items: center;
 }
 
-.status-metrics--rates .pill {
+.status-metrics--tokens .status-metric {
+  align-items: center;
+}
+
+.status-metrics--rates .pill,
+.status-metrics--tokens .pill {
   justify-content: center;
   text-align: center;
   width: 100%;
 }
 
-.status-metrics--rates .pill__content {
+.status-metrics--rates .pill__content,
+.status-metrics--tokens .pill__content {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2xs);
@@ -125,6 +143,10 @@
   }
 
   .status-metrics--rates {
+    grid-template-columns: 1fr;
+  }
+
+  .status-metrics--tokens {
     grid-template-columns: 1fr;
   }
 }

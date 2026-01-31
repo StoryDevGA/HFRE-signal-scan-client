@@ -19,9 +19,42 @@ Non-goals:
 ## File Locations
 
 Primary files:
-- src/pages/admin/insights/Insights.jsx
-- src/pages/admin/insights/insightsSelectors.js
-- src/pages/admin/insights/Insights.css
+- src/pages/admin/insights/Insights.jsx (main orchestrator)
+- src/pages/admin/insights/Insights.css (chart styles)
+
+Selectors (data transformation):
+- src/pages/admin/insights/selectors/index.js (barrel export)
+- src/pages/admin/insights/selectors/formatters.js (formatPercent, formatDurationMs, etc.)
+- src/pages/admin/insights/selectors/chartSelectors.js (buildTotalsChartData, buildTokenUsageRadialData, etc.)
+- src/pages/admin/insights/selectors/viewModelSelector.js (buildAdminAnalyticsViewModel)
+
+Chart configurations:
+- src/pages/admin/insights/charts/totalsChartProps.js (Pie chart config)
+- src/pages/admin/insights/charts/tokenUsageRadialProps.js (RadialBar config)
+- src/pages/admin/insights/charts/latencyLineProps.jsx (Line chart config)
+- src/pages/admin/insights/charts/LatencyBandLayer.jsx (custom Nivo layer)
+
+Chart card components:
+- src/pages/admin/insights/components/StatusSummaryCard.jsx (Pie chart)
+- src/pages/admin/insights/components/TokenUsageCard.jsx (RadialBar chart)
+- src/pages/admin/insights/components/LatencyCard.jsx (Line chart)
+- src/pages/admin/insights/components/ChartErrorBoundary.jsx (error handling)
+- src/pages/admin/insights/components/AnalyticsTableCard.jsx (reusable table card)
+
+Hooks:
+- src/pages/admin/insights/hooks/useChartSize.js (ResizeObserver hook with optional debounce)
+
+Utilities:
+- src/pages/admin/insights/utils/countUp.jsx (animated number renderers)
+
+Section components:
+- src/pages/admin/insights/sections/CountsLatencySection.jsx
+- src/pages/admin/insights/sections/TopClientsSection.jsx
+- src/pages/admin/insights/sections/UsageByVersionSection.jsx
+- src/pages/admin/insights/sections/FailuresSection.jsx
+- src/pages/admin/insights/sections/RetriesSection.jsx
+- src/pages/admin/insights/sections/PromptPerformanceSection.jsx
+- src/pages/admin/insights/sections/SubmissionLookupSection.jsx
 
 Shared components used:
 - src/components/Fieldset/Fieldset.jsx
@@ -169,14 +202,17 @@ legends={[
 ```
 
 Legend text must be uppercase. For RadialBar, this is done by uppercasing
-category labels in the data (see `insightsSelectors.js`).
+category labels in the data (see `selectors/chartSelectors.js`).
 
 ## Submission Status (Pie) Spec
 
 Component: `<Pie />` from `@nivo/pie`
 
+File: `components/StatusSummaryCard.jsx`
+Config: `charts/totalsChartProps.js`
+
 Data:
-- Derived in `buildTotalsChartData()` in `insightsSelectors.js`
+- Derived in `buildTotalsChartData()` in `selectors/chartSelectors.js`
 - Labels uppercased before passing to the chart
 - Colors sourced from CSS variables:
   - Complete: `var(--color-success)`
@@ -203,8 +239,11 @@ Center label:
 
 Component: `<RadialBar />` from `@nivo/radial-bar`
 
+File: `components/TokenUsageCard.jsx`
+Config: `charts/tokenUsageRadialProps.js`
+
 Data construction:
-`buildTokenUsageRadialData()` in `insightsSelectors.js`
+`buildTokenUsageRadialData()` in `selectors/chartSelectors.js`
 
 Series structure:
 - Two series: `Avg` and `Total`
@@ -272,8 +311,11 @@ Center label:
 
 Component: `<Line />` from `@nivo/line`
 
+File: `components/LatencyCard.jsx`
+Config: `charts/latencyLineProps.jsx`
+
 Data construction:
-`buildLatencyLineData()` in `insightsSelectors.js`
+`buildLatencyLineData()` in `selectors/chartSelectors.js`
 
 Series structure:
 - Two series: `P50`, `P90`
@@ -397,8 +439,69 @@ Issue: Colors too light
 
 ## Implementation Template (New Chart)
 
-1) Add data shaping in `insightsSelectors.js`.
-2) Add chart props + theme in `Insights.jsx`.
-3) Use shared layout wrapper in JSX.
-4) Add CSS only if necessary, prefer existing classes.
-5) Validate size and legend consistency with existing charts.
+1) Add data shaping in `selectors/chartSelectors.js`:
+   - Create `buildNewChartData(rawData)` function
+   - Export from `selectors/index.js`
+   - Add to `viewModelSelector.js` return object
+
+2) Add chart props in `charts/newChartProps.js`:
+   - Copy theme/legend config from existing chart
+   - Export chart-specific settings
+
+3) Create card component in `components/NewChartCard.jsx`:
+   - Copy structure from `StatusSummaryCard.jsx` or `TokenUsageCard.jsx`
+   - Import chart props from `charts/`
+   - Add PropTypes validation
+   - Use `useChartSize` hook for responsive sizing
+
+4) Wire up in `Insights.jsx`:
+   - Import the new card component
+   - Wrap in `<ChartErrorBoundary>`
+   - Pass data from `analyticsView`
+
+5) Add CSS only if necessary:
+   - Prefer existing `.analytics-chart--*` classes
+   - Add new size class if dimensions differ
+
+6) Validate consistency:
+   - Size matches (220x220 for donut/radial charts)
+   - Legend inside SVG, uppercase text
+   - Theme matches existing charts
+   - Error boundary wrapping
+
+## Folder Structure Reference
+
+```
+insights/
+├── index.js                    # Barrel export
+├── Insights.jsx                # Main orchestrator
+├── Insights.css                # All chart/section styles
+├── charts/                     # Chart configurations
+│   ├── totalsChartProps.js
+│   ├── tokenUsageRadialProps.js
+│   ├── latencyLineProps.jsx
+│   └── LatencyBandLayer.jsx
+├── components/                 # Presentational components
+│   ├── StatusSummaryCard.jsx
+│   ├── TokenUsageCard.jsx
+│   ├── LatencyCard.jsx
+│   ├── ChartErrorBoundary.jsx
+│   └── AnalyticsTableCard.jsx
+├── hooks/
+│   └── useChartSize.js
+├── sections/                   # Page sections
+│   ├── CountsLatencySection.jsx
+│   ├── TopClientsSection.jsx
+│   ├── UsageByVersionSection.jsx
+│   ├── FailuresSection.jsx
+│   ├── RetriesSection.jsx
+│   ├── PromptPerformanceSection.jsx
+│   └── SubmissionLookupSection.jsx
+├── selectors/                  # Data transformation
+│   ├── index.js
+│   ├── formatters.js
+│   ├── chartSelectors.js
+│   └── viewModelSelector.js
+└── utils/
+    └── countUp.jsx
+```

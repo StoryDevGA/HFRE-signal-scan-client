@@ -1,123 +1,24 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import CountUp from 'react-countup'
-import { Pie } from '@nivo/pie'
-import { RadialBar } from '@nivo/radial-bar'
-import { Line } from '@nivo/line'
-import { Chip, TableTooltip } from '@nivo/tooltip'
-import { MdInsights, MdTimelapse, MdToken } from 'react-icons/md'
-import Button from '../../../components/Button/Button.jsx'
-import Card from '../../../components/Card/Card.jsx'
-import Fieldset from '../../../components/Fieldset/Fieldset.jsx'
-import HorizontalScroll from '../../../components/HorizontalScroll/HorizontalScroll.jsx'
-import Input from '../../../components/Input/Input.jsx'
-import Pill from '../../../components/Pill/Pill.jsx'
-import Spinner from '../../../components/Spinner/Spinner.jsx'
-import Table from '../../../components/Table/Table.jsx'
+import { useEffect, useMemo, useState } from 'react'
 import { ApiError } from '../../../lib/api.js'
 import {
   getAdminAnalyticsDetail,
   getAdminAnalyticsSummary,
 } from '../../../services/adminAnalytics.js'
-import {
-  buildAdminAnalyticsViewModel,
-  formatCompactNumber,
-  formatDurationMs,
-  formatPercent,
-  getPercentValue,
-} from './insightsSelectors.js'
+import { buildAdminAnalyticsViewModel } from './selectors/index.js'
+import ChartErrorBoundary from './components/ChartErrorBoundary.jsx'
+import LatencyCard from './components/LatencyCard.jsx'
+import StatusSummaryCard from './components/StatusSummaryCard.jsx'
+import TokenUsageCard from './components/TokenUsageCard.jsx'
+import useChartSize from './hooks/useChartSize.js'
+import CountsLatencySection from './sections/CountsLatencySection.jsx'
+import FailuresSection from './sections/FailuresSection.jsx'
+import PromptPerformanceSection from './sections/PromptPerformanceSection.jsx'
+import RetriesSection from './sections/RetriesSection.jsx'
+import SubmissionLookupSection from './sections/SubmissionLookupSection.jsx'
+import TopClientsSection from './sections/TopClientsSection.jsx'
+import UsageByVersionSection from './sections/UsageByVersionSection.jsx'
+import { makeCountUpRenderers } from './utils/countUp.jsx'
 import './Insights.css'
-
-/**
- * Custom hook that measures a DOM element's size using ResizeObserver.
- * Falls back to window resize events if ResizeObserver is unavailable.
- * @returns {[React.RefObject<HTMLElement>, { width: number, height: number }]} Ref to attach and current size
- */
-const useChartSize = () => {
-  const chartRef = useRef(null)
-  const [chartSize, setChartSize] = useState({ width: 0, height: 0 })
-
-  useEffect(() => {
-    const element = chartRef.current
-    if (!element) return
-
-    const updateSize = () => {
-      const { width, height } = element.getBoundingClientRect()
-      setChartSize((prev) => {
-        const next = {
-          width: Math.max(0, Math.floor(width)),
-          height: Math.max(0, Math.floor(height)),
-        }
-        if (prev.width === next.width && prev.height === next.height) {
-          return prev
-        }
-        return next
-      })
-    }
-
-    updateSize()
-
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', updateSize)
-      return () => window.removeEventListener('resize', updateSize)
-    }
-
-    const observer = new ResizeObserver(updateSize)
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [])
-
-  return [chartRef, chartSize]
-}
-
-const LatencyBandLayer = ({ series }) => {
-  const p50Series = series.find((item) => item.id === 'P50')
-  const p90Series = series.find((item) => item.id === 'P90')
-
-  if (!p50Series || !p90Series) return null
-
-  const p90ByX = new Map(
-    p90Series.data.map((point) => [String(point.data.x), point])
-  )
-
-  const bandPoints = p50Series.data
-    .map((point) => {
-      const match = p90ByX.get(String(point.data.x))
-      if (!match) return null
-      if (
-        point.position.x == null ||
-        point.position.y == null ||
-        match.position.x == null ||
-        match.position.y == null
-      ) {
-        return null
-      }
-      return {
-        x: point.position.x,
-        y0: point.position.y,
-        y1: match.position.y,
-      }
-    })
-    .filter(Boolean)
-
-  if (bandPoints.length < 2) return null
-
-  const path = bandPoints.reduce((acc, point, index) => {
-    const command = index === 0 ? 'M' : 'L'
-    return `${acc} ${command}${point.x} ${point.y1}`
-  }, '')
-  const reversePath = bandPoints
-    .slice()
-    .reverse()
-    .reduce((acc, point) => `${acc} L${point.x} ${point.y0}`, '')
-
-  return (
-    <path
-      d={`${path}${reversePath} Z`}
-      fill="color-mix(in srgb, var(--color-info) 16%, transparent)"
-      stroke="none"
-    />
-  )
-}
 
 function AdminAnalytics() {
   const [summary, setSummary] = useState(null)
@@ -180,7 +81,6 @@ function AdminAnalytics() {
     [summary]
   )
   const {
-    totals,
     countsByDay,
     topBrowsers,
     topDevices,
@@ -211,7 +111,10 @@ function AdminAnalytics() {
     hasTokenUsageRadialChart,
     hasTokenUsageTotalSeries,
   } = analyticsView
+
   const shouldAnimateTotals = Boolean(summary && !hasAnimatedTotals)
+  const { renderCount, renderCompactCount, renderPercent } =
+    makeCountUpRenderers(shouldAnimateTotals)
   const totalsChartDimension = Math.min(
     totalsChartSize.width,
     totalsChartSize.height || totalsChartSize.width
@@ -227,168 +130,6 @@ function AdminAnalytics() {
     ? usage.totalTokens
     : usage.averageTotalTokens
   const tokenCenterLabel = hasTokenUsageTotalSeries ? 'Total' : 'Avg total'
-  const renderCount = (value, options = {}) => (
-    <CountUp
-      start={shouldAnimateTotals ? 0 : Number(value ?? 0)}
-      end={Number(value ?? 0)}
-      duration={0.9}
-      preserveValue={!shouldAnimateTotals}
-      separator=","
-      {...options}
-    />
-  )
-  const renderCompactCount = (value, options = {}) => (
-    <CountUp
-      start={shouldAnimateTotals ? 0 : Number(value ?? 0)}
-      end={Number(value ?? 0)}
-      duration={0.9}
-      preserveValue={!shouldAnimateTotals}
-      formattingFn={formatCompactNumber}
-      {...options}
-    />
-  )
-  const renderPercent = (value) => (
-    <CountUp
-      start={shouldAnimateTotals ? 0 : getPercentValue(value)}
-      end={getPercentValue(value)}
-      duration={0.9}
-      preserveValue={!shouldAnimateTotals}
-      decimals={0}
-      suffix="%"
-    />
-  )
-  const tokenUsageRadialProps = {
-    margin: { top: 8, right: 8, bottom: 36, left: 8 },
-    innerRadius: 0.52,
-    padding: 0.36,
-    padAngle: 0.02,
-    cornerRadius: 4,
-    startAngle: -90,
-    endAngle: 270,
-    colors: (bar) => {
-      const baseColor =
-        bar.category === 'PROMPT' ? 'var(--color-info)' : 'var(--color-warning)'
-      if (bar.groupId === 'Avg') {
-        return `color-mix(in srgb, ${baseColor} 45%, var(--color-surface))`
-      }
-      return baseColor
-    },
-    enableTracks: true,
-    tracksColor: 'color-mix(in srgb, var(--color-border) 70%, transparent)',
-    enableRadialGrid: false,
-    enableCircularGrid: false,
-    radialAxisStart: null,
-    radialAxisEnd: null,
-    circularAxisInner: null,
-    circularAxisOuter: null,
-    enableLabels: false,
-    valueFormat: formatCompactNumber,
-    legends: [
-      {
-        anchor: 'bottom',
-        direction: 'row',
-        translateY: 28,
-        itemWidth: 80,
-        itemHeight: 18,
-        itemsSpacing: 8,
-        itemTextColor: 'var(--color-text-primary)',
-        symbolSize: 10,
-        symbolShape: 'circle',
-      },
-    ],
-    theme: {
-      fontFamily: 'var(--font-sans)',
-      textColor: 'var(--color-text-secondary)',
-      legends: {
-        text: {
-          fontWeight: 600,
-        },
-      },
-      tooltip: {
-        container: {
-          background: 'var(--color-surface)',
-          color: 'var(--color-text-primary)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 0,
-          boxShadow: 'var(--shadow-sm)',
-          fontSize: '0.85rem',
-        },
-      },
-    },
-  }
-  const latencyLineProps = {
-    margin: { top: 8, right: 8, bottom: 36, left: 8 },
-    xScale: { type: 'point' },
-    yScale: { type: 'linear', min: 'auto', max: 'auto', stacked: false },
-    curve: 'monotoneX',
-    lineWidth: 2,
-    colors: ['var(--color-info)', 'var(--color-warning)'],
-    enablePoints: false,
-    enableGridX: false,
-    enableGridY: false,
-    axisTop: null,
-    axisRight: null,
-    axisBottom: null,
-    axisLeft: null,
-    enableSlices: 'x',
-    enableCrosshair: true,
-    crosshairType: 'x',
-    useMesh: false,
-    sliceTooltip: ({ slice }) => {
-      const title =
-        slice.points[0]?.data?.xFormatted ??
-        slice.points[0]?.data?.x ??
-        'Latency'
-      return (
-        <TableTooltip
-          title={title}
-          rows={slice.points.map((point) => [
-            <Chip
-              key={`${point.id}-chip`}
-              color={point.seriesColor}
-              style={{ borderRadius: '999px' }}
-            />,
-            point.seriesId,
-            point.data.yFormatted,
-          ])}
-        />
-      )
-    },
-    layers: ['areas', LatencyBandLayer, 'lines', 'slices', 'crosshair', 'legends'],
-    yFormat: (value) => formatDurationMs(value),
-    legends: [
-      {
-        anchor: 'bottom',
-        direction: 'row',
-        translateY: 28,
-        itemWidth: 80,
-        itemHeight: 18,
-        itemsSpacing: 8,
-        itemTextColor: 'var(--color-text-primary)',
-        symbolSize: 10,
-        symbolShape: 'circle',
-      },
-    ],
-    theme: {
-      fontFamily: 'var(--font-sans)',
-      textColor: 'var(--color-text-secondary)',
-      legends: {
-        text: {
-          fontWeight: 600,
-        },
-      },
-      tooltip: {
-        container: {
-          background: 'var(--color-surface)',
-          color: 'var(--color-text-primary)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 0,
-          boxShadow: 'var(--shadow-sm)',
-          fontSize: '0.85rem',
-        },
-      },
-    },
-  }
   const tokenUsagePills = [
     {
       label: 'Submissions with usage',
@@ -410,646 +151,101 @@ function AdminAnalytics() {
         </p>
       </header>
 
-      {errorMessage ? (
-        <p className="text-responsive-base">{errorMessage}</p>
-      ) : null}
+      {errorMessage ? <p className="text-responsive-base">{errorMessage}</p> : null}
 
       <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend icon={<MdInsights size={14} />}>
-            Submission status
-          </Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <div className="status-summary">
-                <div className="status-chart">
-                  <div className="analytics-chart analytics-chart--totals" aria-hidden="true">
-                    <div className="analytics-chart__inner" ref={totalsChartRef}>
-                      {hasTotalsChart ? (
-                        totalsChartDimension > 0 ? (
-                          <Pie
-                            data={totalsChartData}
-                            width={totalsChartDimension}
-                            height={totalsChartDimension}
-                            margin={{ top: 8, right: 8, bottom: 36, left: 8 }}
-                            innerRadius={0.74}
-                            padAngle={0.05}
-                            cornerRadius={4}
-                            colors={{ datum: 'data.color' }}
-                            enableArcLabels={false}
-                            enableArcLinkLabels={false}
-                            sortByValue={false}
-                            legends={[
-                              {
-                                anchor: 'bottom',
-                                direction: 'row',
-                                translateY: 28,
-                                itemWidth: 80,
-                                itemHeight: 18,
-                                itemsSpacing: 8,
-                                itemTextColor: 'var(--color-text-primary)',
-                                symbolSize: 10,
-                                symbolShape: 'circle',
-                              },
-                            ]}
-                            theme={{
-                              fontFamily: 'var(--font-sans)',
-                              textColor: 'var(--color-text-secondary)',
-                              legends: {
-                                text: {
-                                  fontWeight: 600,
-                                },
-                              },
-                              tooltip: {
-                                container: {
-                                  background: 'var(--color-surface)',
-                                  color: 'var(--color-text-primary)',
-                                  border: '1px solid var(--color-border)',
-                                  borderRadius: 0,
-                                  boxShadow: 'var(--shadow-sm)',
-                                  fontSize: '0.85rem',
-                                },
-                              },
-                            }}
-                          />
-                        ) : (
-                          <div className="analytics-chart__loading">
-                            <Spinner size="sm" />
-                          </div>
-                        )
-                      ) : (
-                        <span className="analytics-chart__empty">No totals yet</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="status-chart__center">
-                    <span className="status-chart__total">
-                      {renderCompactCount(totalsDisplayValue)}
-                    </span>
-                    <span className="status-chart__label">Total</span>
-                  </div>
-                </div>
-              </div>
-              <div className="status-metrics status-metrics--rates">
-                <div className="status-metric">
-                  <Pill variant="success" size="sm">
-                    <span className="status-pill__label">Success rate</span>
-                    <span className="status-pill__value">{renderPercent(completeRate)}</span>
-                  </Pill>
-                </div>
-                <div className="status-metric">
-                  <Pill variant="danger" size="sm">
-                    <span className="status-pill__label">Failed rate</span>
-                    <span className="status-pill__value">{renderPercent(failedRate)}</span>
-                  </Pill>
-                </div>
-              </div>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-
-        <Fieldset>
-          <Fieldset.Legend icon={<MdToken size={14} />}>Token usage</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <div className="status-summary">
-                <div className="status-chart status-chart--token">
-                  <div className="analytics-chart analytics-chart--token-radial" aria-hidden="true">
-                    <div className="analytics-chart__inner" ref={tokenChartRef}>
-                      {hasTokenUsageChart ? (
-                        tokenChartHasSize ? (
-                          <RadialBar
-                            {...tokenUsageRadialProps}
-                            data={tokenUsageRadialData}
-                            width={tokenChartWidth}
-                            height={tokenChartHeight}
-                          />
-                        ) : (
-                          <div className="analytics-chart__loading">
-                            <Spinner size="sm" />
-                          </div>
-                        )
-                      ) : (
-                        <span className="analytics-chart__empty">No token usage yet</span>
-                      )}
-                    </div>
-                  </div>
-                  {hasTokenUsageChart && tokenChartHasSize ? (
-                    <div className="status-chart__center">
-                      <span className="status-chart__total">
-                        {renderCompactCount(tokenCenterValue)}
-                      </span>
-                      <span className="status-chart__label">{tokenCenterLabel}</span>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-              <div className="status-metrics status-metrics--tokens">
-                {tokenUsagePills.map((pill) => (
-                  <div className="status-metric" key={pill.label}>
-                    <Pill variant={pill.variant} size="sm">
-                      <span className="status-pill__label">{pill.label}</span>
-                      <span className="status-pill__value">
-                        {renderCompactCount(pill.value)}
-                      </span>
-                    </Pill>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-
-        <Fieldset>
-          <Fieldset.Legend icon={<MdTimelapse size={14} />}>
-            Time to complete
-          </Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <div className="status-summary">
-                <div className="status-chart status-chart--latency">
-                  <div className="analytics-chart analytics-chart--latency" aria-hidden="true">
-                    <div className="analytics-chart__inner" ref={latencyChartRef}>
-                      {showLatencySpinner ? (
-                        <div className="analytics-chart__loading">
-                          <Spinner size="sm" />
-                        </div>
-                      ) : hasLatencyLineChart ? (
-                        <Line
-                          {...latencyLineProps}
-                          data={latencyLineData}
-                          width={latencyChartWidth}
-                          height={latencyChartHeight}
-                        />
-                      ) : (
-                        <span className="analytics-chart__empty">No latency yet</span>
-                      )}
-                    </div>
-                  </div>
-                  {hasLatencyLineChart ? (
-                    <div className="status-chart__center">
-                      <span className="status-chart__total">
-                        {renderCount(latency.p50, { suffix: ' ms' })}
-                      </span>
-                      <span className="status-chart__label">P50</span>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-              <div className="status-metrics status-metrics--latency">
-                {latencyPills.map((pill) => (
-                  <div className="status-metric" key={pill.label}>
-                    <Pill variant={pill.variant} size="sm">
-                      <span className="status-pill__label">{pill.label}</span>
-                      <span className="status-pill__value">
-                        {renderCount(pill.value, { suffix: ' ms' })}
-                      </span>
-                    </Pill>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
+        <ChartErrorBoundary fallbackMessage="Status chart failed to load">
+          <StatusSummaryCard
+            totalsChartRef={totalsChartRef}
+            totalsChartDimension={totalsChartDimension}
+            hasTotalsChart={hasTotalsChart}
+            totalsChartData={totalsChartData}
+            totalsDisplayValue={totalsDisplayValue}
+            renderCompactCount={renderCompactCount}
+            completeRate={completeRate}
+            failedRate={failedRate}
+            renderPercent={renderPercent}
+          />
+        </ChartErrorBoundary>
+        <ChartErrorBoundary fallbackMessage="Token usage chart failed to load">
+          <TokenUsageCard
+            tokenChartRef={tokenChartRef}
+            tokenChartWidth={tokenChartWidth}
+            tokenChartHeight={tokenChartHeight}
+            tokenChartHasSize={tokenChartHasSize}
+            hasTokenUsageChart={hasTokenUsageChart}
+            tokenUsageRadialData={tokenUsageRadialData}
+            tokenCenterValue={tokenCenterValue}
+            tokenCenterLabel={tokenCenterLabel}
+            tokenUsagePills={tokenUsagePills}
+            renderCompactCount={renderCompactCount}
+          />
+        </ChartErrorBoundary>
+        <ChartErrorBoundary fallbackMessage="Latency chart failed to load">
+          <LatencyCard
+            latencyChartRef={latencyChartRef}
+            showLatencySpinner={showLatencySpinner}
+            hasLatencyLineChart={hasLatencyLineChart}
+            latencyLineData={latencyLineData}
+            latencyChartWidth={latencyChartWidth}
+            latencyChartHeight={latencyChartHeight}
+            renderCount={renderCount}
+            latency={latency}
+            latencyPills={latencyPills}
+          />
+        </ChartErrorBoundary>
       </div>
 
-      <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend>Token usage by system version</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Token usage by system version table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'version', label: 'VERSION' },
-                    { key: 'avgTotalTokens', label: 'AVG TOTAL TOKENS' },
-                  ]}
-                  data={[...usageBySystemVersion]
-                    .sort((a, b) => {
-                      const aVersion = a.version ?? Number.POSITIVE_INFINITY
-                      const bVersion = b.version ?? Number.POSITIVE_INFINITY
-                      return aVersion - bVersion
-                    })
-                    .map((item) => ({
-                      version: item.version ?? '—',
-                      avgTotalTokens: Number(item.avgTotalTokens ?? 0).toLocaleString(),
-                    }))}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Token usage by system version"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
+      <UsageByVersionSection
+        usageBySystemVersion={usageBySystemVersion}
+        usageByUserVersion={usageByUserVersion}
+        loading={loading}
+      />
 
-        <Fieldset>
-          <Fieldset.Legend>Token usage by user version</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Token usage by user version table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'version', label: 'VERSION' },
-                    { key: 'avgTotalTokens', label: 'AVG TOTAL TOKENS' },
-                  ]}
-                  data={[...usageByUserVersion]
-                    .sort((a, b) => {
-                      const aVersion = a.version ?? Number.POSITIVE_INFINITY
-                      const bVersion = b.version ?? Number.POSITIVE_INFINITY
-                      return aVersion - bVersion
-                    })
-                    .map((item) => ({
-                      version: item.version ?? '—',
-                      avgTotalTokens: Number(item.avgTotalTokens ?? 0).toLocaleString(),
-                    }))}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Token usage by user version"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-      </div>
+      <CountsLatencySection
+        countsByDay={countsByDay}
+        latencyByDay={latencyByDay}
+        loading={loading}
+      />
 
-      <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend>Counts by day</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Counts by day table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'date', label: 'DATE' },
-                    { key: 'total', label: 'TOTAL' },
-                    { key: 'pending', label: 'PENDING' },
-                    { key: 'complete', label: 'COMPLETE' },
-                    { key: 'failed', label: 'FAILED' },
-                  ]}
-                  data={countsByDay}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Counts by day"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
+      <RetriesSection
+        totalRetries={totalRetries}
+        retrySuccessRate={retrySuccessRate}
+        retriesPerDay={retriesPerDay}
+        renderCount={renderCount}
+        renderPercent={renderPercent}
+        loading={loading}
+      />
 
-        <Fieldset>
-          <Fieldset.Legend>Latency by day</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Latency by day table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'date', label: 'DATE' },
-                    { key: 'p50', label: 'P50' },
-                    { key: 'p90', label: 'P90' },
-                  ]}
-                  data={latencyByDay}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Latency by day"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-      </div>
+      <TopClientsSection
+        topBrowsers={topBrowsers}
+        topDevices={topDevices}
+        topReferrers={topReferrers}
+        topCountries={topCountries}
+        loading={loading}
+      />
 
-      <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend>Retry behavior</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <dl className="detail-list">
-                <div>
-                  <dt>Total retries</dt>
-                  <dd>{renderCount(totalRetries)}</dd>
-                </div>
-                <div>
-                  <dt>Retry success rate</dt>
-                  <dd>{renderPercent(retrySuccessRate)}</dd>
-                </div>
-              </dl>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
+      <FailuresSection
+        failureRate={failureRate}
+        topFailures={topFailures}
+        failureByPromptVersion={failureByPromptVersion}
+        renderPercent={renderPercent}
+        loading={loading}
+      />
 
-        <Fieldset>
-          <Fieldset.Legend>Retries by day</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Retries by day table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'date', label: 'DATE' },
-                    { key: 'retries', label: 'RETRIES' },
-                  ]}
-                  data={retriesPerDay.map((item) => ({
-                    date: item.date,
-                    retries: Number(item.retries ?? 0).toLocaleString(),
-                  }))}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Retries by day"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-      </div>
+      <PromptPerformanceSection
+        performanceByPair={performanceByPair}
+        performanceBySystem={performanceBySystem}
+        performanceByUser={performanceByUser}
+        loading={loading}
+      />
 
-      <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend>Top browsers</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Top browsers table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'key', label: 'BROWSER' },
-                    { key: 'count', label: 'COUNT' },
-                  ]}
-                  data={topBrowsers}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Top browsers"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-        <Fieldset>
-          <Fieldset.Legend>Top devices</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Top devices table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'key', label: 'DEVICE' },
-                    { key: 'count', label: 'COUNT' },
-                  ]}
-                  data={topDevices}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Top devices"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-      </div>
-
-      <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend>Top referrers</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Top referrers table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'key', label: 'REFERRER' },
-                    { key: 'count', label: 'COUNT' },
-                  ]}
-                  data={topReferrers}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Top referrers"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-        <Fieldset>
-          <Fieldset.Legend>Top countries</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Top countries table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'key', label: 'COUNTRY' },
-                    { key: 'count', label: 'COUNT' },
-                  ]}
-                  data={topCountries}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Top countries"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-      </div>
-
-      <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend>Failure analytics</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <dl className="detail-list">
-                <div>
-                  <dt>Failure rate</dt>
-                  <dd>{renderPercent(failureRate)}</dd>
-                </div>
-              </dl>
-              <HorizontalScroll ariaLabel="Top failures table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'message', label: 'MESSAGE' },
-                    { key: 'count', label: 'COUNT' },
-                  ]}
-                  data={topFailures}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Top failures"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-
-        <Fieldset>
-          <Fieldset.Legend>Failures by prompt version</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Failures by prompt version table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'systemPromptVersion', label: 'SYSTEM' },
-                    { key: 'userPromptVersion', label: 'USER' },
-                    { key: 'count', label: 'COUNT' },
-                  ]}
-                  data={failureByPromptVersion.map((item) => ({
-                    systemPromptVersion: item.systemPromptVersion ?? '—',
-                    userPromptVersion: item.userPromptVersion ?? '—',
-                    count: item.count ?? 0,
-                  }))}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Failures by prompt version"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-      </div>
-
-      <div className="detail-grid">
-        <Fieldset>
-          <Fieldset.Legend>Prompt performance (pair)</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="Prompt performance by pair table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'systemPromptVersion', label: 'SYSTEM' },
-                    { key: 'userPromptVersion', label: 'USER' },
-                    { key: 'completeRate', label: 'COMPLETE RATE' },
-                    { key: 'avgDurationMs', label: 'AVG DURATION' },
-                  ]}
-                  data={[...performanceByPair]
-                    .sort((a, b) => {
-                      const aSystem = a.systemPromptVersion ?? Number.POSITIVE_INFINITY
-                      const bSystem = b.systemPromptVersion ?? Number.POSITIVE_INFINITY
-                      const aUser = a.userPromptVersion ?? Number.POSITIVE_INFINITY
-                      const bUser = b.userPromptVersion ?? Number.POSITIVE_INFINITY
-                      if (aSystem !== bSystem) return aSystem - bSystem
-                      return aUser - bUser
-                    })
-                    .map((item) => ({
-                      systemPromptVersion: item.systemPromptVersion ?? '—',
-                      userPromptVersion: item.userPromptVersion ?? '—',
-                      completeRate: formatPercent(item.completeRate),
-                      avgDurationMs: formatDurationMs(item.avgDurationMs),
-                    }))}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="Prompt performance by pair"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-
-        <Fieldset>
-          <Fieldset.Legend>System prompt performance</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="System prompt performance table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'version', label: 'VERSION' },
-                    { key: 'completeRate', label: 'COMPLETE RATE' },
-                    { key: 'avgDurationMs', label: 'AVG DURATION' },
-                  ]}
-                  data={[...performanceBySystem]
-                    .sort((a, b) => {
-                      const aVersion = a.version ?? Number.POSITIVE_INFINITY
-                      const bVersion = b.version ?? Number.POSITIVE_INFINITY
-                      return aVersion - bVersion
-                    })
-                    .map((item) => ({
-                      version: item.version ?? '—',
-                      completeRate: formatPercent(item.completeRate),
-                      avgDurationMs: formatDurationMs(item.avgDurationMs),
-                    }))}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="System prompt performance"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-
-        <Fieldset>
-          <Fieldset.Legend>User prompt performance</Fieldset.Legend>
-          <Fieldset.Content>
-            <Card className="detail-card">
-              <HorizontalScroll ariaLabel="User prompt performance table" className="admin-scroll">
-                <Table
-                  columns={[
-                    { key: 'version', label: 'VERSION' },
-                    { key: 'completeRate', label: 'COMPLETE RATE' },
-                    { key: 'avgDurationMs', label: 'AVG DURATION' },
-                  ]}
-                  data={[...performanceByUser]
-                    .sort((a, b) => {
-                      const aVersion = a.version ?? Number.POSITIVE_INFINITY
-                      const bVersion = b.version ?? Number.POSITIVE_INFINITY
-                      return aVersion - bVersion
-                    })
-                    .map((item) => ({
-                      version: item.version ?? '—',
-                      completeRate: formatPercent(item.completeRate),
-                      avgDurationMs: formatDurationMs(item.avgDurationMs),
-                    }))}
-                  loading={loading}
-                  emptyMessage="No data yet."
-                  ariaLabel="User prompt performance"
-                />
-              </HorizontalScroll>
-            </Card>
-          </Fieldset.Content>
-        </Fieldset>
-      </div>
-
-      <Fieldset>
-        <Fieldset.Legend>Submission analytics</Fieldset.Legend>
-        <Fieldset.Content>
-          <Card className="detail-card">
-            <form className="form" onSubmit={(event) => event.preventDefault()}>
-              <Fieldset>
-                <Fieldset.Legend>Lookup</Fieldset.Legend>
-                <Fieldset.Content>
-                  <Input
-                    id="analytics_submission_id"
-                    label="Submission ID"
-                    value={detailId}
-                    onChange={(event) => setDetailId(event.target.value)}
-                    fullWidth
-                  />
-                  <Button variant="secondary" onClick={loadDetail} type="button" size="xs">
-                    Fetch detail
-                  </Button>
-                </Fieldset.Content>
-              </Fieldset>
-            </form>
-
-            {detail ? (
-              <dl className="detail-list">
-                <div>
-                  <dt>Submission</dt>
-                  <dd>{detail.submissionId || detail.submission || '-'}</dd>
-                </div>
-                <div>
-                  <dt>IP address</dt>
-                  <dd>{detail.ipAddress || '-'}</dd>
-                </div>
-                <div>
-                  <dt>User agent</dt>
-                  <dd>{detail.userAgent || '-'}</dd>
-                </div>
-                <div>
-                  <dt>Accept-Language</dt>
-                  <dd>{detail.acceptLanguage || '-'}</dd>
-                </div>
-                <div>
-                  <dt>Referrer</dt>
-                  <dd>{detail.referrer || '-'}</dd>
-                </div>
-                <div>
-                  <dt>Device summary</dt>
-                  <dd>{detail.deviceSummary || '-'}</dd>
-                </div>
-              </dl>
-            ) : null}
-          </Card>
-        </Fieldset.Content>
-      </Fieldset>
+      <SubmissionLookupSection
+        detailId={detailId}
+        setDetailId={setDetailId}
+        loadDetail={loadDetail}
+        detail={detail}
+      />
     </section>
   )
 }

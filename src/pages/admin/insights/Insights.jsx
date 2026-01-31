@@ -9,6 +9,7 @@ import Fieldset from '../../../components/Fieldset/Fieldset.jsx'
 import HorizontalScroll from '../../../components/HorizontalScroll/HorizontalScroll.jsx'
 import Input from '../../../components/Input/Input.jsx'
 import Pill from '../../../components/Pill/Pill.jsx'
+import Spinner from '../../../components/Spinner/Spinner.jsx'
 import Table from '../../../components/Table/Table.jsx'
 import { ApiError } from '../../../lib/api.js'
 import {
@@ -289,52 +290,58 @@ function AdminAnalytics() {
                 <div className="status-chart">
                   <div className="analytics-chart analytics-chart--totals" aria-hidden="true">
                     <div className="analytics-chart__inner" ref={totalsChartRef}>
-                      {hasTotalsChart && totalsChartDimension > 0 ? (
-                        <Pie
-                          data={totalsChartData}
-                          width={totalsChartDimension}
-                          height={totalsChartDimension}
-                          margin={{ top: 8, right: 8, bottom: 36, left: 8 }}
-                          innerRadius={0.74}
-                          padAngle={0.05}
-                          cornerRadius={4}
-                          colors={{ datum: 'data.color' }}
-                          enableArcLabels={false}
-                          enableArcLinkLabels={false}
-                          sortByValue={false}
-                          legends={[
-                            {
-                              anchor: 'bottom',
-                              direction: 'row',
-                              translateY: 28,
-                              itemWidth: 80,
-                              itemHeight: 18,
-                              itemsSpacing: 8,
-                              itemTextColor: 'var(--color-text-primary)',
-                              symbolSize: 10,
-                              symbolShape: 'circle',
-                            },
-                          ]}
-                          theme={{
-                            fontFamily: 'var(--font-sans)',
-                            textColor: 'var(--color-text-secondary)',
-                            legends: {
-                              text: {
-                                fontWeight: 600,
+                      {hasTotalsChart ? (
+                        totalsChartDimension > 0 ? (
+                          <Pie
+                            data={totalsChartData}
+                            width={totalsChartDimension}
+                            height={totalsChartDimension}
+                            margin={{ top: 8, right: 8, bottom: 36, left: 8 }}
+                            innerRadius={0.74}
+                            padAngle={0.05}
+                            cornerRadius={4}
+                            colors={{ datum: 'data.color' }}
+                            enableArcLabels={false}
+                            enableArcLinkLabels={false}
+                            sortByValue={false}
+                            legends={[
+                              {
+                                anchor: 'bottom',
+                                direction: 'row',
+                                translateY: 28,
+                                itemWidth: 80,
+                                itemHeight: 18,
+                                itemsSpacing: 8,
+                                itemTextColor: 'var(--color-text-primary)',
+                                symbolSize: 10,
+                                symbolShape: 'circle',
                               },
-                            },
-                            tooltip: {
-                              container: {
-                                background: 'var(--color-surface)',
-                                color: 'var(--color-text-primary)',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: 0,
-                                boxShadow: 'var(--shadow-sm)',
-                                fontSize: '0.85rem',
+                            ]}
+                            theme={{
+                              fontFamily: 'var(--font-sans)',
+                              textColor: 'var(--color-text-secondary)',
+                              legends: {
+                                text: {
+                                  fontWeight: 600,
+                                },
                               },
-                            },
-                          }}
-                        />
+                              tooltip: {
+                                container: {
+                                  background: 'var(--color-surface)',
+                                  color: 'var(--color-text-primary)',
+                                  border: '1px solid var(--color-border)',
+                                  borderRadius: 0,
+                                  boxShadow: 'var(--shadow-sm)',
+                                  fontSize: '0.85rem',
+                                },
+                              },
+                            }}
+                          />
+                        ) : (
+                          <div className="analytics-chart__loading">
+                            <Spinner size="sm" />
+                          </div>
+                        )
                       ) : (
                         <span className="analytics-chart__empty">No totals yet</span>
                       )}
@@ -383,7 +390,9 @@ function AdminAnalytics() {
                             height={tokenChartHeight}
                           />
                         ) : (
-                          <span className="analytics-chart__empty">Loading chart...</span>
+                          <div className="analytics-chart__loading">
+                            <Spinner size="sm" />
+                          </div>
                         )
                       ) : (
                         <span className="analytics-chart__empty">No token usage yet</span>

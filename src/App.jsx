@@ -1,6 +1,7 @@
 import './App.css'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home.jsx'
+import NotFound from './pages/NotFound.jsx'
 import Results from './pages/Results.jsx'
 import AdminLogin from './pages/admin/Login.jsx'
 import AdminLayout from './pages/admin/AdminLayout.jsx'
@@ -9,15 +10,6 @@ import AdminSubmissionDetail from './pages/admin/SubmissionDetail.jsx'
 import AdminPrompts from './pages/admin/Prompts.jsx'
 import AdminUsers from './pages/admin/Users.jsx'
 import AdminAnalytics from './pages/admin/insights/index.js'
-
-function NotFound() {
-  return (
-    <main className="page">
-      <h1>Page not found</h1>
-      <p>Check the URL and try again.</p>
-    </main>
-  )
-}
 
 function App() {
   return (

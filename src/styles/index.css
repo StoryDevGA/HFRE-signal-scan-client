@@ -2,8 +2,11 @@
  * Design System Entry Point
  *
  * Purpose: Single import for all global styles
- * Order matters: reset → variables → base styles
+ * Order matters: reset -> variables -> base styles
  */
+
+/* Brand typography */
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700&family=Sora:wght@400;500;600;700&display=swap');
 
 /* 1. Reset browser defaults */
 @import './reset.css';
@@ -20,13 +23,49 @@
 /* 5. Responsive utilities (mobile-first) */
 @import './responsive.css';
 
-/* 5. Global base styles */
+/* 6. Global base styles */
 body {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
+  line-height: 1.6;
   color: var(--color-text-primary);
   background-color: var(--color-background);
+}
+
+h1 {
+  font-family: var(--font-primary);
+  font-size: 1.4375rem; /* 23px */
+  line-height: 1.1;
+  font-weight: var(--font-weight-semibold);
+}
+
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-size: 1.4375rem; /* 23px */
+  line-height: 1.5;
+  font-weight: var(--font-weight-semibold);
+}
+
+p {
+  font-family: var(--font-primary);
+  font-size: 1rem; /* 16px */
+  line-height: 1.6;
+}
+
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 2.5rem; /* 40px */
+  }
+
+  h2,
+  h3 {
+    font-size: 2.1875rem; /* 35px */
+  }
+
+  p {
+    font-size: 1.25rem; /* 20px */
+  }
 }
 
 code {
@@ -50,3 +89,4 @@ code {
   white-space: nowrap;
   border-width: 0;
 }
+

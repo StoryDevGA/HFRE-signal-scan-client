@@ -161,14 +161,16 @@
 .dialog__header h2,
 .dialog__header h3 {
   margin: 0;
+  font-family: var(--font-display);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
   text-transform: uppercase;
   letter-spacing: 0.025em;
+  line-height: 1.5;
 }
 
 .dialog__header h2 {
-  font-size: var(--font-size-xl);
+  font-size: 1.4375rem;
 }
 
 /* ===========================
@@ -265,6 +267,13 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .dialog--xl {
     width: calc(100vw - var(--spacing-xl) * 2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dialog__header h2,
+  .dialog__header h3 {
+    font-size: 2.1875rem;
   }
 }
 

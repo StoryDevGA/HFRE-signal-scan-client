@@ -11,34 +11,40 @@
  */
 
 /* ===========================
-   DEFAULT THEME (Light)
+   DEFAULT THEME (StorylineOS Embed)
    =========================== */
 
 :root {
-  /* Semantic color assignments - these can be easily swapped */
-  --color-background: var(--color-white);
-  --color-background-secondary: var(--color-gray-50);
-  --color-background-tertiary: var(--color-gray-100);
+  --color-background: #000000;
+  --color-background-secondary: #060809;
+  --color-background-tertiary: #0c0f10;
 
-  --color-surface: var(--color-white);
-  --color-surface-elevated: var(--color-white);
+  --color-surface: transparent;
+  --color-surface-elevated: #080b0c;
 
-  --color-text-primary: var(--color-gray-900);
-  --color-text-secondary: var(--color-gray-600);
-  --color-text-tertiary: var(--color-gray-500);
-  --color-text-inverse: var(--color-white);
+  --color-text-primary: #d6dcdc;
+  --color-text-secondary: #aeb5b5;
+  --color-text-tertiary: #828989;
+  --color-text-inverse: #000000;
 
-  --color-border: var(--color-gray-200);
-  --color-border-hover: var(--color-gray-300);
-  --color-border-focus: var(--color-primary-500);
+  --color-border: color-mix(in srgb, #d6dcdc 24%, transparent);
+  --color-border-hover: color-mix(in srgb, #d6dcdc 40%, transparent);
+  --color-border-focus: #d6dcdc;
 
-  --color-action-primary: var(--color-primary-600);
-  --color-action-primary-hover: var(--color-primary-700);
-  --color-action-primary-active: var(--color-primary-800);
+  --color-action-primary: #d6dcdc;
+  --color-action-primary-hover: #d6dcdc;
+  --color-action-primary-active: #d6dcdc;
 
-  --color-action-secondary: var(--color-gray-300);
-  --color-action-secondary-hover: var(--color-gray-400);
-  --color-action-secondary-active: var(--color-gray-500);
+  --color-action-secondary: transparent;
+  --color-action-secondary-hover: color-mix(in srgb, #d6dcdc 10%, transparent);
+  --color-action-secondary-active: color-mix(in srgb, #d6dcdc 16%, transparent);
+
+  /* Button tokens */
+  --color-button-bg: #d6dcdc;
+  --color-button-text: #000000;
+  --color-button-hover-bg: transparent;
+  --color-button-hover-text: #d6dcdc;
+  --color-button-hover-border: #d6dcdc;
 
   /* Component aliases */
   --color-text: var(--color-text-primary);
@@ -53,33 +59,29 @@
    =========================== */
 
 [data-theme='dark'] {
-  /* Background colors */
-  --color-background: var(--color-gray-900);
-  --color-background-secondary: var(--color-gray-800);
-  --color-background-tertiary: var(--color-gray-700);
-
-  --color-surface: var(--color-gray-800);
-  --color-surface-elevated: var(--color-gray-700);
-
-  /* Text colors */
-  --color-text-primary: var(--color-gray-50);
-  --color-text-secondary: var(--color-gray-300);
-  --color-text-tertiary: var(--color-gray-400);
-  --color-text-inverse: var(--color-gray-900);
-
-  /* Border colors */
-  --color-border: var(--color-gray-700);
-  --color-border-hover: var(--color-gray-600);
-  --color-border-focus: var(--color-primary-400);
-
-  /* Action colors */
-  --color-action-primary: var(--color-primary-500);
-  --color-action-primary-hover: var(--color-primary-400);
-  --color-action-primary-active: var(--color-primary-300);
-
-  --color-action-secondary: var(--color-gray-700);
-  --color-action-secondary-hover: var(--color-gray-600);
-  --color-action-secondary-active: var(--color-gray-500);
+  --color-background: #000000;
+  --color-background-secondary: #060809;
+  --color-background-tertiary: #0c0f10;
+  --color-surface: transparent;
+  --color-surface-elevated: #080b0c;
+  --color-text-primary: #d6dcdc;
+  --color-text-secondary: #aeb5b5;
+  --color-text-tertiary: #828989;
+  --color-text-inverse: #000000;
+  --color-border: color-mix(in srgb, #d6dcdc 24%, transparent);
+  --color-border-hover: color-mix(in srgb, #d6dcdc 40%, transparent);
+  --color-border-focus: #d6dcdc;
+  --color-action-primary: #d6dcdc;
+  --color-action-primary-hover: #d6dcdc;
+  --color-action-primary-active: #d6dcdc;
+  --color-action-secondary: transparent;
+  --color-action-secondary-hover: color-mix(in srgb, #d6dcdc 10%, transparent);
+  --color-action-secondary-active: color-mix(in srgb, #d6dcdc 16%, transparent);
+  --color-button-bg: #d6dcdc;
+  --color-button-text: #000000;
+  --color-button-hover-bg: transparent;
+  --color-button-hover-text: #d6dcdc;
+  --color-button-hover-border: #d6dcdc;
 }
 
 /* ===========================
@@ -157,32 +159,3 @@ body {
               color var(--transition-base);
 }
 
-/* ===========================
-   RESPECT USER PREFERENCES
-   =========================== */
-
-/**
- * Auto dark mode based on system preference
- * Only applies if no data-theme attribute is set
- */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    /* Apply dark theme colors automatically */
-    --color-background: var(--color-gray-900);
-    --color-background-secondary: var(--color-gray-800);
-    --color-background-tertiary: var(--color-gray-700);
-
-    --color-surface: var(--color-gray-800);
-    --color-surface-elevated: var(--color-gray-700);
-
-    --color-text-primary: var(--color-gray-50);
-    --color-text-secondary: var(--color-gray-300);
-    --color-text-tertiary: var(--color-gray-400);
-
-    --color-border: var(--color-gray-700);
-    --color-border-hover: var(--color-gray-600);
-
-    --color-action-primary: var(--color-primary-500);
-    --color-action-primary-hover: var(--color-primary-400);
-  }
-}

@@ -8,3 +8,11 @@ body {
   min-height: 100vh;
   padding: 0;
 }
+
+html,
+body,
+#root,
+.app {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}

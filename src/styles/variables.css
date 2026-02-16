@@ -10,6 +10,14 @@
 
 :root {
   /* ===========================
+     LAYOUT
+     =========================== */
+  --layout-max-width: 1280px;
+  --layout-padding-mobile: 1rem;   /* 16px */
+  --layout-padding-tablet: 1.5rem; /* 24px */
+  --layout-padding-desktop: 2rem;  /* 32px */
+
+  /* ===========================
      SPACING SCALE (8px base)
      =========================== */
   --spacing-3xs: 0.0625rem; /* 1px */
@@ -26,8 +34,9 @@
      TYPOGRAPHY
      =========================== */
   /* Font Families */
-  --font-primary: Arial, Helvetica, sans-serif;
-  --font-sans: Arial, Helvetica, sans-serif;
+  --font-primary: 'Sora', Arial, Helvetica, sans-serif;
+  --font-display: 'League Spartan', 'Sora', Arial, Helvetica, sans-serif;
+  --font-sans: 'Sora', Arial, Helvetica, sans-serif;
   --font-mono: 'Courier New', Courier, monospace;
 
   /* Font Sizes (Modular Scale 1.250 - Major Third) */
@@ -96,6 +105,7 @@
   --border-radius-md: 0.5rem;    /* 8px */
   --border-radius-lg: 0.75rem;   /* 12px */
   --border-radius-xl: 1rem;      /* 16px */
+  --border-radius-pill: 50px;
   --border-radius-full: 9999px;
 
   /* ===========================

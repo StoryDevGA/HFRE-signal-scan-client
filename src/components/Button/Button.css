@@ -26,7 +26,7 @@
 
   /* Borders */
   border: 1px solid transparent;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-pill);
 
   /* Layout */
   min-height: 44px; /* Touch-friendly minimum */
@@ -60,7 +60,7 @@
 /* Disabled state */
 .btn:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 /* ===========================
@@ -69,49 +69,53 @@
 
 /* Primary - Main call-to-action */
 .btn--primary {
-  background-color: var(--color-action-primary);
-  color: var(--color-text-inverse);
-  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border-color: transparent;
 }
 
 .btn--primary:hover:not(:disabled) {
-  background-color: var(--color-action-primary-hover);
-  border-color: color-mix(in srgb, var(--color-action-primary-hover) 30%, transparent);
+  background-color: var(--color-button-hover-bg);
+  color: var(--color-button-hover-text);
+  border-color: var(--color-button-hover-border);
 }
 
 .btn--primary:active:not(:disabled) {
-  background-color: var(--color-action-primary-active);
-  border-color: color-mix(in srgb, var(--color-action-primary-active) 30%, transparent);
+  background-color: var(--color-button-hover-bg);
+  color: var(--color-button-hover-text);
+  border-color: var(--color-button-hover-border);
 }
 
 /* Secondary - Less prominent actions */
 .btn--secondary {
-  background-color: var(--color-action-primary);
-  color: var(--color-text-inverse);
-  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border-color: transparent;
 }
 
 .btn--secondary:hover:not(:disabled) {
-  background-color: var(--color-action-primary-hover);
-  border-color: color-mix(in srgb, var(--color-action-primary-hover) 30%, transparent);
+  background-color: var(--color-button-hover-bg);
+  color: var(--color-button-hover-text);
+  border-color: var(--color-button-hover-border);
 }
 
 .btn--secondary:active:not(:disabled) {
-  background-color: var(--color-action-primary-active);
-  border-color: color-mix(in srgb, var(--color-action-primary-active) 30%, transparent);
+  background-color: var(--color-button-hover-bg);
+  color: var(--color-button-hover-text);
+  border-color: var(--color-button-hover-border);
 }
 
 /* Outline - Subtle emphasis */
 .btn--outline {
   background-color: transparent;
-  color: var(--color-action-primary);
-  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
+  color: var(--color-button-hover-text);
+  border-color: var(--color-button-hover-border);
 }
 
 .btn--outline:hover:not(:disabled) {
-  background-color: var(--color-action-primary);
-  color: var(--color-text-inverse);
-  border-color: color-mix(in srgb, var(--color-action-primary) 30%, transparent);
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border-color: transparent;
 }
 
 /* Ghost - Minimal style */
@@ -133,13 +137,15 @@
 }
 
 .btn--danger:hover:not(:disabled) {
-  background-color: color-mix(in srgb, var(--color-error) 85%, var(--color-text-primary));
-  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+  background-color: transparent;
+  color: var(--color-error);
+  border-color: var(--color-error);
 }
 
 .btn--danger:active:not(:disabled) {
-  background-color: color-mix(in srgb, var(--color-error) 70%, var(--color-text-primary));
-  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+  background-color: transparent;
+  color: var(--color-error);
+  border-color: var(--color-error);
 }
 
 /* ===========================
@@ -161,7 +167,7 @@
 .btn--md {
   min-height: 44px;
   padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: var(--font-size-base);
+  font-size: 1rem; /* 16px mobile */
 }
 
 .btn--lg {
@@ -340,6 +346,10 @@
 
 /* Better spacing on larger screens */
 @media (min-width: 1024px) {
+  .btn--md {
+    font-size: 1.25rem; /* 20px desktop */
+  }
+
   .btn {
     padding: var(--spacing-xs) var(--spacing-md);
   }

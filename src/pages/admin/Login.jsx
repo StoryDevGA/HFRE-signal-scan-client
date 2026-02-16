@@ -100,7 +100,7 @@ function AdminLogin() {
                 {...register('password', { required: 'Password is required.' })}
               />
 
-              <Button type="submit" loading={isSubmitting} fullWidth size="xs">
+              <Button type="submit" loading={isSubmitting} fullWidth>
                 {isSubmitting ? 'Signing in...' : 'Sign in'}
               </Button>
             </Fieldset.Content>

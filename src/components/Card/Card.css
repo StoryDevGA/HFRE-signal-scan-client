@@ -1,7 +1,7 @@
 .card {
   display: grid;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-lg);
+  padding: clamp(1.5rem, 2.5vw, 2rem);
   background-color: var(--color-surface);
   border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
@@ -68,12 +68,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm);
-}
-
-@media (max-width: 768px) {
-  .card {
-    padding: var(--spacing-md);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

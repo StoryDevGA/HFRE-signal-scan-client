@@ -14,7 +14,7 @@
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--color-border) 30%, transparent);
   border-radius: var(--border-radius-lg);
-  background-color: var(--color-surface);
+  background-color: var(--color-surface-elevated, var(--color-background-secondary));
   box-shadow: var(--shadow-2xl);
   max-width: calc(100vw - var(--spacing-lg) * 2);
   max-height: calc(100vh - var(--spacing-lg) * 2);

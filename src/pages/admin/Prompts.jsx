@@ -926,10 +926,14 @@ function AdminPrompts() {
                 <Input
                   id="prompt_version"
                   label="Version"
-                  value={form.version == null || form.version === '' ? '' : formatVersion(form.version)}
-                  placeholder="Auto"
+                  value={
+                    form.version == null || form.version === ''
+                      ? 'Auto'
+                      : formatVersion(form.version)
+                  }
                   helperText="Auto-assigned when content changes."
                   disabled
+                  fullWidth
                 />
                 {!form.id ? (
                   <Select

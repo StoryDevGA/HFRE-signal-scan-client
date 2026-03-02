@@ -9,14 +9,37 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const clientDist = path.join(rootDir, 'dist')
 const prodDir = path.resolve(rootDir, '..', 'prod')
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+const npmExecPath = process.env.npm_execpath
+const nodeExecPath = process.execPath
 
 console.log('Building client (npm run build)...')
 try {
-  execFileSync(npmCommand, ['run', 'build'], {
-    cwd: rootDir,
-    stdio: 'inherit',
-  })
+  let usedFallback = false
+
+  if (npmExecPath) {
+    try {
+      execFileSync(nodeExecPath, [npmExecPath, 'run', 'build'], {
+        cwd: rootDir,
+        stdio: 'inherit',
+      })
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error
+      usedFallback = true
+    }
+  } else {
+    usedFallback = true
+  }
+
+  if (usedFallback) {
+    execFileSync(npmCommand, ['run', 'build'], {
+      cwd: rootDir,
+      stdio: 'inherit',
+    })
+  }
 } catch (error) {
+  if (error?.message) {
+    console.error(error.message)
+  }
   console.error('Error: Build failed. Stopping copy to prod.')
   process.exit(error?.status ?? 1)
 }

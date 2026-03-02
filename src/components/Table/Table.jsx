@@ -29,7 +29,7 @@
  * @param {Set<string|number>} [props.selectedRows] - Controlled: selected row IDs
  * @param {Array<string|number>} [props.defaultSelectedRows=[]] - Uncontrolled: initial selected rows
  * @param {Function} [props.onSelectChange] - Callback when selection changes: (Set<id>) => void
- * @param {Array<{label: string, onClick: function, icon?: ReactNode, variant?: string}>} [props.actions] - Action buttons (props API only)
+ * @param {Array<{id?: string, label: string|function, onClick: function, icon?: ReactNode|function, variant?: string|function, disabled?: boolean|function, hidden?: boolean|function, tooltip?: string|function}>} [props.actions] - Action buttons (props API only)
  * @param {Function} [props.onRowAction] - Callback when action clicked: (label, row) => void
  * @param {string} [props.emptyMessage='No data available'] - Message when data is empty
  * @param {ReactNode} [props.emptyComponent] - Custom empty state component
@@ -68,6 +68,7 @@
 import { useState, useCallback, useMemo, createContext, useContext, forwardRef, useImperativeHandle, Children } from 'react'
 import { Tickbox } from '../Tickbox/Tickbox'
 import { Button } from '../Button/Button'
+import Tooltip from '../Tooltip/Tooltip'
 import './Table.css'
 
 // Context for sharing state between Table and sub-components
@@ -405,21 +406,66 @@ export const Table = forwardRef(function Table({
                   {actions && (
                     <td className="table__cell table__cell--actions" data-label="Actions">
                       <div className="table__actions">
-                        {actions.map((action, idx) => (
-                          <Button
-                            key={idx}
-                            variant={action.variant || 'ghost'}
-                            size="xs"
-                            onClick={() => {
-                              action.onClick(row)
-                              onRowAction?.(action.label, row)
-                            }}
-                            leftIcon={action.icon}
-                            aria-label={`${action.label} ${row.name || row.id || ''}`}
-                          >
-                            {action.label}
-                          </Button>
-                        ))}
+                        {actions.map((action, idx) => {
+                          const resolvedLabel =
+                            typeof action.label === 'function'
+                              ? action.label(row)
+                              : action.label
+                          const resolvedVariant =
+                            typeof action.variant === 'function'
+                              ? action.variant(row)
+                              : action.variant
+                          const resolvedIcon =
+                            typeof action.icon === 'function'
+                              ? action.icon(row)
+                              : action.icon
+                          const resolvedDisabled =
+                            typeof action.disabled === 'function'
+                              ? action.disabled(row)
+                              : action.disabled
+                          const resolvedHidden =
+                            typeof action.hidden === 'function'
+                              ? action.hidden(row)
+                              : action.hidden
+                          const resolvedTooltip =
+                            typeof action.tooltip === 'function'
+                              ? action.tooltip(row)
+                              : action.tooltip
+
+                          if (resolvedHidden || resolvedLabel == null) return null
+
+                          const actionLabel =
+                            typeof resolvedLabel === 'string'
+                              ? resolvedLabel
+                              : action.id || `action-${idx}`
+
+                          const button = (
+                            <Button
+                              variant={resolvedVariant || 'ghost'}
+                              size="xs"
+                              disabled={Boolean(resolvedDisabled)}
+                              onClick={() => {
+                                if (resolvedDisabled) return
+                                action.onClick?.(row)
+                                onRowAction?.(actionLabel, row)
+                              }}
+                              leftIcon={resolvedIcon}
+                              aria-label={`${actionLabel} ${row.name || row.id || ''}`}
+                            >
+                              {resolvedLabel}
+                            </Button>
+                          )
+
+                          if (!resolvedTooltip) {
+                            return <span key={`${actionLabel}-${idx}`}>{button}</span>
+                          }
+
+                          return (
+                            <Tooltip key={`${actionLabel}-${idx}`} content={resolvedTooltip}>
+                              <span>{button}</span>
+                            </Tooltip>
+                          )
+                        })}
                       </div>
                     </td>
                   )}

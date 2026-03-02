@@ -248,6 +248,7 @@ function AdminSubmissions() {
 
       <HorizontalScroll ariaLabel="Submissions table" className="admin-scroll">
         <Table
+          className="admin-table--nowrap"
           columns={columns}
           data={rows}
           variant="striped"

@@ -652,84 +652,55 @@ function AdminPrompts() {
     [prompts, normalizedAdminEmail]
   )
 
-  const renderWithTooltip = (content, child) => {
-    if (!content) return child
-    return (
-      <Tooltip content={content}>
-        <span>{child}</span>
-      </Tooltip>
-    )
-  }
-
-  const renderActions = (row) => {
-    const prompt = row.prompt
-    const isOwner = row.isOwner
-    const isPublished = row.isPublished
-    const isLocked = row.isLocked
-    const lockNote = row.lockNote
-
-    const editButton = (
-      <Button
-        variant="ghost"
-        size="xs"
-        disabled={!isOwner || isLocked}
-        onClick={() => {
-          if (isOwner && !isLocked) startEdit(prompt)
-        }}
-      >
-        Edit
-      </Button>
-    )
-
-    const deleteDisabled = !isOwner || isPublished || isLocked
-    const deleteTooltip = !isOwner
-      ? 'Only the owner can delete this prompt.'
-      : isPublished
-        ? 'Publish another prompt before deleting this one.'
-        : isLocked
-          ? lockNote || 'This prompt is locked and cannot be deleted.'
-        : ''
-
-    const deleteButton = (
-      <Button
-        variant="danger"
-        size="xs"
-        disabled={deleteDisabled}
-        onClick={() => {
-          if (!deleteDisabled) confirmDeletePrompt(prompt)
-        }}
-      >
-        Delete
-      </Button>
-    )
-
-    return (
-      <div className="table__actions">
-        {isPublished ? (
-          <Button variant="secondary" size="xs" disabled>
-            PUBLISHED
-          </Button>
-        ) : (
-          <Button
-            variant="primary"
-            size="xs"
-            onClick={() => setConfirmPublish(prompt)}
-          >
-            Publish
-          </Button>
-        )}
-        {renderWithTooltip(
-          !isOwner
-            ? 'Only the owner can edit this prompt.'
-            : isLocked
-              ? lockNote || 'This prompt is locked and cannot be edited.'
+  const tableActions = [
+    {
+      id: 'publish',
+      label: (row) => (row.isPublished ? 'PUBLISHED' : 'Publish'),
+      variant: (row) => (row.isPublished ? 'secondary' : 'primary'),
+      disabled: (row) => row.isPublished,
+      onClick: (row) => {
+        if (!row.isPublished) {
+          setConfirmPublish(row.prompt)
+        }
+      },
+    },
+    {
+      id: 'edit',
+      label: 'Edit',
+      variant: 'ghost',
+      disabled: (row) => !row.isOwner || row.isLocked,
+      tooltip: (row) =>
+        !row.isOwner
+          ? 'Only the owner can edit this prompt.'
+          : row.isLocked
+            ? row.lockNote || 'This prompt is locked and cannot be edited.'
+            : '',
+      onClick: (row) => {
+        if (row.isOwner && !row.isLocked) {
+          startEdit(row.prompt)
+        }
+      },
+    },
+    {
+      id: 'delete',
+      label: 'Delete',
+      variant: 'danger',
+      disabled: (row) => !row.isOwner || row.isPublished || row.isLocked,
+      tooltip: (row) =>
+        !row.isOwner
+          ? 'Only the owner can delete this prompt.'
+          : row.isPublished
+            ? 'Publish another prompt before deleting this one.'
+            : row.isLocked
+              ? row.lockNote || 'This prompt is locked and cannot be deleted.'
               : '',
-          editButton
-        )}
-        {renderWithTooltip(deleteTooltip, deleteButton)}
-      </div>
-    )
-  }
+      onClick: (row) => {
+        if (row.isOwner && !row.isPublished && !row.isLocked) {
+          confirmDeletePrompt(row.prompt)
+        }
+      },
+    },
+  ]
 
   return (
     <section className="admin-section">
@@ -852,12 +823,8 @@ function AdminPrompts() {
               label: 'VERSION',
               render: (value) => formatVersion(value),
             },
-            {
-              key: 'actions',
-              label: 'ACTIONS',
-              render: (_, row) => renderActions(row),
-            },
           ]}
+          actions={tableActions}
           data={rows}
           variant="striped"
           hoverable

@@ -332,6 +332,7 @@ fieldset.radio-group > .radio-group__label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   border: 1px solid;
+  white-space: nowrap;
   transition: all var(--transition-base);
 }
 
@@ -454,6 +455,7 @@ fieldset.radio-group > .radio-group__label {
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .admin-status--failed {
@@ -633,6 +635,13 @@ fieldset.radio-group > .radio-group__label {
 @media (min-width: 768px) {
   .table.admin-table--compact .table__header,
   .table.admin-table--compact .table__cell {
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+
+  .table.admin-table--nowrap .table__header,
+  .table.admin-table--nowrap .table__cell {
     white-space: nowrap;
     word-break: normal;
     overflow-wrap: normal;

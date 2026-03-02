@@ -163,6 +163,7 @@ function AdminUsers() {
 
       <HorizontalScroll ariaLabel="Users table" className="admin-scroll">
         <Table
+          className="admin-table--nowrap"
           columns={columns}
           data={rows}
           variant="striped"

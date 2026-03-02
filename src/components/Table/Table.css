@@ -150,6 +150,11 @@
     display: none;
   }
 
+  /* Restore row separator on the last column; mobile last-child rule should not leak into desktop */
+  .table__body .table__row:not(.table__row--empty) > .table__cell:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+
   .table__cell--checkbox {
     width: 48px;
     padding: var(--spacing-md);

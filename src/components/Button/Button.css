@@ -332,7 +332,8 @@
   }
 
   .btn--xs {
-    min-height: 36px;
+    min-height: 40px;
+    padding: var(--spacing-2xs) var(--spacing-sm);
   }
 
   .btn--sm {

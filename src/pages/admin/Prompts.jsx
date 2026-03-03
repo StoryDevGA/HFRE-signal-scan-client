@@ -4,6 +4,7 @@ import Dialog from '../../components/Dialog/Dialog.jsx'
 import Fieldset from '../../components/Fieldset/Fieldset.jsx'
 import HorizontalScroll from '../../components/HorizontalScroll/HorizontalScroll.jsx'
 import Input from '../../components/Input/Input.jsx'
+import Pill from '../../components/Pill/Pill.jsx'
 import Select from '../../components/Select/Select.jsx'
 import Table from '../../components/Table/Table.jsx'
 import Tooltip from '../../components/Tooltip/Tooltip.jsx'
@@ -158,6 +159,7 @@ function extractAdminEmail(payload) {
 function AdminPrompts() {
   const { addToast } = useToaster()
   const lastTemperatureRef = useRef('')
+  const promptTypeMenuRef = useRef(null)
   const [adminEmail, setAdminEmail] = useState('')
   const [prompts, setPrompts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -167,6 +169,7 @@ function AdminPrompts() {
   const [confirmPublish, setConfirmPublish] = useState(null)
   const [publishing, setPublishing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [isPromptTypeMenuOpen, setIsPromptTypeMenuOpen] = useState(false)
   const [labelTouched, setLabelTouched] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [configDialogOpen, setConfigDialogOpen] = useState(false)
@@ -234,6 +237,36 @@ function AdminPrompts() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configDialogOpen])
 
+  useEffect(() => {
+    if (!dialogOpen) {
+      setIsPromptTypeMenuOpen(false)
+    }
+  }, [dialogOpen])
+
+  useEffect(() => {
+    if (!isPromptTypeMenuOpen) return
+
+    const handlePointerDown = (event) => {
+      if (!promptTypeMenuRef.current?.contains(event.target)) {
+        setIsPromptTypeMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsPromptTypeMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isPromptTypeMenuOpen])
+
   const normalizedAdminEmail = useMemo(
     () => normalizeEmail(adminEmail),
     [adminEmail]
@@ -271,6 +304,28 @@ function AdminPrompts() {
       }),
     [isSystemAtLimit, isUserAtLimit]
   )
+
+  const typeMenuOptions = useMemo(() => {
+    const sourceOptions = availableTypeOptions.length ? availableTypeOptions : typeOptions
+    return sourceOptions.map((option) => ({
+      ...option,
+      remaining:
+        option.value === 'system' || option.value === 'user'
+          ? remainingByType[option.value]
+          : null,
+    }))
+  }, [availableTypeOptions, remainingByType])
+
+  const selectedTypeOption = useMemo(
+    () => typeMenuOptions.find((option) => option.value === form.type) || typeMenuOptions[0],
+    [typeMenuOptions, form.type]
+  )
+
+  const selectedTypeRemaining =
+    selectedTypeOption?.value === 'system' || selectedTypeOption?.value === 'user'
+      ? remainingByType[selectedTypeOption.value]
+      : null
+  const isTypeSelectorDisabled = availableTypeOptions.length === 1
 
   const typeHelperText = useMemo(() => {
     if (isSystemAtLimit && !isUserAtLimit) {
@@ -353,6 +408,7 @@ function AdminPrompts() {
     const defaultType = availableTypeOptions[0]?.value || 'system'
     setForm({ ...emptyForm, type: defaultType })
     setLabelTouched(false)
+    setIsPromptTypeMenuOpen(false)
     setDialogOpen(true)
   }
 
@@ -374,7 +430,18 @@ function AdminPrompts() {
       version: prompt.version ?? '',
     })
     setLabelTouched(false)
+    setIsPromptTypeMenuOpen(false)
     setDialogOpen(true)
+  }
+
+  const togglePromptTypeMenu = () => {
+    if (isTypeSelectorDisabled) return
+    setIsPromptTypeMenuOpen((previous) => !previous)
+  }
+
+  const handlePromptTypeSelect = (nextType) => {
+    setForm((previous) => ({ ...previous, type: nextType }))
+    setIsPromptTypeMenuOpen(false)
   }
 
   const handleSave = async () => {
@@ -857,35 +924,69 @@ function AdminPrompts() {
                 />
                 {!form.id ? (
                   <>
-                    <Select
-                      id="prompt_type"
-                      label="Type"
-                      value={form.type}
-                      onChange={(event) =>
-                        setForm((prev) => ({ ...prev, type: event.target.value }))
-                      }
-                      options={availableTypeOptions.length ? availableTypeOptions : typeOptions}
-                      disabled={availableTypeOptions.length === 1}
-                      helperText={typeHelperText}
-                    />
-                    <div className="prompt-limit-badges">
-                      <span
-                        className={`admin-status ${
-                          remainingByType.system > 0
-                            ? 'admin-status--active'
-                            : 'admin-status--inactive'
-                        } ${form.type === 'system' ? 'prompt-limit-badges__item--selected' : ''}`}
-                      >
-                        SYSTEM: {remainingByType.system} LEFT
-                      </span>
-                      <span
-                        className={`admin-status ${
-                          remainingByType.user > 0
-                            ? 'admin-status--active'
-                            : 'admin-status--inactive'
-                        } ${form.type === 'user' ? 'prompt-limit-badges__item--selected' : ''}`}
-                      >
-                        USER: {remainingByType.user} LEFT
+                    <div className="prompt-type-select" ref={promptTypeMenuRef}>
+                      <label htmlFor="prompt_type_trigger" className="select-label">
+                        Type
+                      </label>
+                      <div className="prompt-type-select__wrapper">
+                        <button
+                          id="prompt_type_trigger"
+                          type="button"
+                          className={`prompt-type-select__trigger ${
+                            isPromptTypeMenuOpen ? 'prompt-type-select__trigger--open' : ''
+                          }`}
+                          aria-haspopup="true"
+                          aria-expanded={isPromptTypeMenuOpen ? 'true' : 'false'}
+                          aria-describedby="prompt_type_helper"
+                          disabled={isTypeSelectorDisabled}
+                          onClick={togglePromptTypeMenu}
+                        >
+                          <span className="prompt-type-select__trigger-label">
+                            {selectedTypeOption?.label || 'Type'}
+                          </span>
+                          {selectedTypeRemaining != null ? (
+                            <Pill
+                              size="sm"
+                              variant={selectedTypeRemaining > 0 ? 'success' : 'danger'}
+                            >
+                              {selectedTypeRemaining} LEFT
+                            </Pill>
+                          ) : null}
+                          <span className="prompt-type-select__chevron" aria-hidden="true" />
+                        </button>
+
+                        {isPromptTypeMenuOpen ? (
+                          <ul className="prompt-type-select__menu">
+                            {typeMenuOptions.map((option) => {
+                              const isSelected = option.value === form.type
+                              return (
+                                <li key={option.value}>
+                                  <button
+                                    type="button"
+                                    className={`prompt-type-select__option ${
+                                      isSelected ? 'prompt-type-select__option--selected' : ''
+                                    }`}
+                                    aria-pressed={isSelected ? 'true' : 'false'}
+                                    onClick={() => handlePromptTypeSelect(option.value)}
+                                  >
+                                    <span>{option.label}</span>
+                                    {option.remaining != null ? (
+                                      <Pill
+                                        size="sm"
+                                        variant={option.remaining > 0 ? 'success' : 'danger'}
+                                      >
+                                        {option.remaining} LEFT
+                                      </Pill>
+                                    ) : null}
+                                  </button>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        ) : null}
+                      </div>
+                      <span className="select-helper" id="prompt_type_helper">
+                        {typeHelperText}
                       </span>
                     </div>
                   </>
